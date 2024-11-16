@@ -1,15 +1,18 @@
 #include <iostream>
+#include <csignal>
+#include <cstdlib>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <chrono>
+#include "common/EventLoop.h"
 
 int main()
 {
     std::cout << "Driver is initialized" << std::endl;
-    int a = 0;
-    while (true) {
-        ++a;
-        if (a == 1000000000)
-        {
-            std::cout << "Driver is runninggggg" << std::endl;
-            a = 0;
-        }
-    }
+    // driver::common::EventLoop::instance();
+    
+    return driver::common::EventLoop::instance().exec();
 }
