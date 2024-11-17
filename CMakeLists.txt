@@ -7,9 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/sim
 )
 
-file(GLOB_RECURSE SOURCES "./common/*.cpp")
+file(GLOB_RECURSE SOURCES "common/*.cpp" "sim/*.cpp")
 
 add_executable(${PROJECT_NAME} main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/DriverConfiguration.cpp ${SOURCES})
 

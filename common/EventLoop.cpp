@@ -4,24 +4,34 @@ namespace driver::common {
 
 static EventLoop* gInstance = nullptr;
 
+EventLoop::EventLoop(DriverConfiguration& driverConfig) : 
+    mEventLoopThread([this]() { start(); }),
+    mDriverConfig(driverConfig)
+{
+    std::signal(SIGINT, terminate);
+}
+
+void EventLoop::initialize(DriverConfiguration& driverConfig)
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new EventLoop(driverConfig);
+    }
+}
+
 EventLoop& EventLoop::instance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new EventLoop();
+        throw std::runtime_error("EventLoop has not been initialized yet");
     }
     return *gInstance;
-}
-
-EventLoop::EventLoop()
-    : mEventLoopThread([this]() { start(); })
-{
-    std::signal(SIGINT, terminate);
 }
 
 void EventLoop::start()
 {
     mRunning = true;
+    mDriverConfig.start();
     while (mRunning) {
         std::unique_lock<std::mutex> lock(mMutex);
         
@@ -32,6 +42,7 @@ void EventLoop::start()
 void EventLoop::stop()
 {
     std::lock_guard<std::mutex> lock(mMutex);
+    mDriverConfig.stop();
     mRunning = false;
     mEventCV.notify_all();
 }

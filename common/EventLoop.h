@@ -4,17 +4,18 @@
 #include <iostream>
 #include <csignal>
 #include <cstdlib>
-#include <queue>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <functional>
 #include <chrono>
+#include <DriverConfiguration.h>
 
 namespace driver::common {
 
 class EventLoop {
 public:
+    static void initialize(DriverConfiguration& driverConfig);
     static EventLoop& instance();
 
     void start();
@@ -24,12 +25,13 @@ public:
     static void terminate(int signal);
 
 private:
-    explicit EventLoop();
+    explicit EventLoop(DriverConfiguration& driverConfig);
 
     std::mutex mMutex;
     std::condition_variable mEventCV;
     std::thread mEventLoopThread;
     bool mRunning = false;
+    DriverConfiguration& mDriverConfig;
 };
 
 }

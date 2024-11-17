@@ -1,18 +1,27 @@
 #include "DriverConfiguration.h"
+#include <DriverFactory.h>
+
+namespace driver {
 
 DriverConfiguration::DriverConfiguration()
 {
-    mThread = std::thread(&DriverConfiguration::execute, this);
-    mThread.detach();
+    mSIMDriver = common::DriverFactory::instance().addDriver<SIMDriver>();
 }
 
 DriverConfiguration::~DriverConfiguration()
 {
 }
 
-int DriverConfiguration::execute()
+void DriverConfiguration::start()
 {
-    while(true) {
-        std::cout << "thread is running";
-    }
+    std::cout << "Start" << std::endl;
+    common::DriverFactory::instance().initialize();
+}
+
+void DriverConfiguration::stop()
+{
+    std::cout << "Stop" << std::endl;
+    common::DriverFactory::instance().finialize();
+}
+
 }

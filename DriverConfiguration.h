@@ -4,16 +4,22 @@
 #include <thread>
 #include <functional>
 #include <iostream>
+#include "SIMDriver.h"
+
+namespace driver {
 
 class DriverConfiguration {
 public:
     explicit DriverConfiguration();
     ~DriverConfiguration();
 
-    int execute();
+    void start();
+    void stop();
 
 private:
-    std::thread mThread;
+    SIMDriver* mSIMDriver;
 };
+
+}
 
 #endif
