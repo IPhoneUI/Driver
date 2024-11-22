@@ -8,6 +8,7 @@
 #include <vector>
 #include <functional>
 #include <AbstractDriver.h>
+#include <SharedMemoryController.h>
 
 namespace driver {
 
@@ -22,6 +23,8 @@ public:
 
 private:
     std::thread mThread;
+
+    common::SharedMemoryController* mSharedMem;
 };
 
 }

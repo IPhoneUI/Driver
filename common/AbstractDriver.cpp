@@ -2,5 +2,4 @@
 
 namespace driver::common {
 
-
 }

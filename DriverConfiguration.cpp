@@ -1,5 +1,6 @@
 #include "DriverConfiguration.h"
 #include <DriverFactory.h>
+#include <utils/Logger.h>
 
 namespace driver {
 
@@ -14,13 +15,13 @@ DriverConfiguration::~DriverConfiguration()
 
 void DriverConfiguration::start()
 {
-    std::cout << "Start" << std::endl;
+    LOG_INFO("DriverConfiguration Start");
     common::DriverFactory::instance().initialize();
 }
 
 void DriverConfiguration::stop()
 {
-    std::cout << "Stop" << std::endl;
+    LOG_INFO("DriverConfiguration Stop");
     common::DriverFactory::instance().finialize();
 }
 

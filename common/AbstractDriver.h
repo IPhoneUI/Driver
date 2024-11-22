@@ -7,6 +7,7 @@
 #include <shared_mutex>
 #include <functional>
 #include <unordered_map>
+#include <msq/MsqReceiver.h>
 
 namespace driver::common {
 
@@ -17,6 +18,7 @@ public:
     virtual void finialize() = 0;
 
 protected:
+    service::MsqReceiver mMqReceiver;
 };
 
 }

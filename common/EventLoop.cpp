@@ -1,4 +1,5 @@
 #include "EventLoop.h"
+#include <utils/Logger.h>
 
 namespace driver::common {
 
@@ -36,6 +37,7 @@ void EventLoop::start()
         std::unique_lock<std::mutex> lock(mMutex);
         
         mEventCV.wait(lock, [this] { return !mRunning; });
+        std::exit(0);
     }
 }
 
@@ -64,10 +66,11 @@ int EventLoop::exec()
 
 void EventLoop::terminate(int signal)
 {
-    if (signal == SIGINT) {
-        std::cout << "\nExiting program\n";
+    static bool terminate = false;
+    if (signal == SIGINT && !terminate) {
+        terminate = true;
+        LOG_INFO("Exiting program");
         gInstance->stop();
-        std::exit(0);
     }
 }
 
