@@ -6,7 +6,11 @@ namespace driver {
 
 DriverConfiguration::DriverConfiguration()
 {
-    mSIMDriver = common::DriverFactory::instance().addDriver<SIMDriver>();
+    common::DriverFactory::instance().addDriver<SIMDriver>();
+    common::DriverFactory::instance().addDriver<SpeakerDriver>();
+    common::DriverFactory::instance().addDriver<EasyMathServer>();
+    common::DriverFactory::instance().addDriver<FlashMemoryDriver>();
+    common::DriverFactory::instance().addDriver<WifiDriver>();
 }
 
 DriverConfiguration::~DriverConfiguration()

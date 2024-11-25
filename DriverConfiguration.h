@@ -3,8 +3,11 @@
 
 #include <thread>
 #include <functional>
-#include <iostream>
-#include "SIMDriver.h"
+#include <sim/SIMDriver.h>
+#include <speaker/SpeakerDriver.h>
+#include <easymath/EasyMathServer.h>
+#include <flashmemory/FlashMemoryDriver.h>
+#include <wifi/WifiDriver.h>
 
 namespace driver {
 
@@ -15,9 +18,6 @@ public:
 
     void start();
     void stop();
-
-private:
-    SIMDriver* mSIMDriver;
 };
 
 }

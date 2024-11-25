@@ -1,5 +1,5 @@
-#ifndef ABSTRACTDRIVER_H
-#define ABSTRACTDRIVER_H
+#ifndef BASEDRIVER_H
+#define BASEDRIVER_H
 
 #include <queue>
 #include <string>
@@ -8,10 +8,11 @@
 #include <functional>
 #include <unordered_map>
 #include <msq/MsqReceiver.h>
+#include <msq/MsqDef.h>
 
 namespace driver::common {
 
-class AbstractDriver 
+class BaseDriver 
 {
 public:
     virtual void initialize() = 0;

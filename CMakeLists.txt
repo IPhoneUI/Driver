@@ -8,10 +8,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/sim
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware
+    ${CMAKE_CURRENT_SOURCE_DIR}/wireless
+    ${CMAKE_CURRENT_SOURCE_DIR}/entertainment
 )
 
-file(GLOB_RECURSE SOURCES "common/*.cpp" "sim/*.cpp")
+find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem)
+file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
 add_executable(${PROJECT_NAME} main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/DriverConfiguration.cpp ${SOURCES})
 

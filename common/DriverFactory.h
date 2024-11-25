@@ -1,7 +1,7 @@
 #ifndef DRIVERFACTORY_H
 #define DRIVERFACTORY_H
 
-#include <AbstractDriver.h>
+#include <BaseDriver.h>
 #include <vector>
 
 namespace driver::common {
@@ -26,7 +26,7 @@ public:
 private:
     DriverFactory();
 
-    std::vector<AbstractDriver*> mDrivers;
+    std::vector<BaseDriver*> mDrivers;
 };
 
 }

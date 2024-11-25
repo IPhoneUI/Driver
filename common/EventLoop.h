@@ -1,7 +1,6 @@
 #ifndef EVENTLOOP_H
 #define EVENTLOOP_H
 
-#include <iostream>
 #include <csignal>
 #include <cstdlib>
 #include <thread>
