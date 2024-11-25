@@ -14,7 +14,7 @@ class WifiDriver : public common::BaseDriver
 public:
     explicit WifiDriver();
 
-    void execute();
+    void execute() override;
     void initialize() override;
     void finialize() override;
 
@@ -34,7 +34,6 @@ public:
     std::vector<WifiDeviceInfo> getDiscoveryDeviceListPrivate();
 
 private:
-    std::thread mThread;
     std::shared_mutex mMutex;
     std::vector<WifiDeviceInfo> mWifiDeviceData;
     std::vector<WifiDeviceInfo> mPairedDevices;

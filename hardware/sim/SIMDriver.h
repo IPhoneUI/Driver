@@ -13,7 +13,7 @@ class SIMDriver : public common::BaseDriver
 public:
     explicit SIMDriver();
 
-    void execute();
+    void execute() override;
     void initialize() override;
     void finialize() override;
 
@@ -68,7 +68,6 @@ public:
     void updateMaxCompatibility(const bool& status);
 
 private:
-    std::thread mThread;
 
     std::string mPhoneNumber;
     std::string mNetwork;

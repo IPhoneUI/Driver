@@ -13,7 +13,7 @@ class SpeakerDriver : public common::BaseDriver
 public:
     explicit SpeakerDriver();
 
-    void execute();
+    void execute() override;
     void initialize() override;
     void finialize() override;
 
@@ -28,7 +28,6 @@ public:
     }
 
 private:
-    std::thread mThread;
     
     bool mIsMute {false};
     size_t mVolume {16};

@@ -3,16 +3,12 @@
 
 namespace driver {
 
-SpeakerDriver::SpeakerDriver() : mThread(std::bind(&SpeakerDriver::execute, this))
+SpeakerDriver::SpeakerDriver()
 {
-    mThread.detach();
 }
 
 void SpeakerDriver::execute()
 {
-    while(true)
-    {
-    }
 }
 
 void SpeakerDriver::initialize()

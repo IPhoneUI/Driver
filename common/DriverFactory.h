@@ -3,6 +3,13 @@
 
 #include <BaseDriver.h>
 #include <vector>
+#include <thread>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/shm.h>
+#include <chrono>
+#include <shared_mutex>
 
 namespace driver::common {
 
@@ -23,10 +30,15 @@ public:
     void initialize();
     void finialize();
 
+    void execute();
+
 private:
     DriverFactory();
 
     std::vector<BaseDriver*> mDrivers;
+    std::thread mThread;
+    bool mIsThreadRunning;
+    std::shared_mutex mMutexProcess;
 };
 
 }

@@ -13,12 +13,11 @@ class EasyMathServer : public common::BaseDriver
 public:
     explicit EasyMathServer();
 
-    void execute();
+    void execute() override;
     void initialize() override;
     void finialize() override;
 
 private:
-    std::thread mThread;
 };
 
 }

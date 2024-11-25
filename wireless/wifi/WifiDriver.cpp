@@ -3,9 +3,8 @@
 
 namespace driver {
 
-WifiDriver::WifiDriver() : mThread(std::bind(&WifiDriver::execute, this))
+WifiDriver::WifiDriver()
 {
-    mThread.detach();
 
     // storages::DataRepoManager& dataRepo = storages::DataRepoManager::instance();
 
@@ -51,9 +50,6 @@ WifiDriver::WifiDriver() : mThread(std::bind(&WifiDriver::execute, this))
 
 void WifiDriver::execute()
 {
-    while(true)
-    {
-    }
 }
 
 void WifiDriver::initialize()

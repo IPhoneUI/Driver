@@ -3,28 +3,27 @@
 
 namespace driver {
 
-FlashMemoryDriver::FlashMemoryDriver() : 
-    mThread(std::bind(&FlashMemoryDriver::execute, this))
+FlashMemoryDriver::FlashMemoryDriver()
 {
     mFlMemoryDeploy = FlashMemoryDeploy::instance();
-    mThread.detach();
 }
 
 void FlashMemoryDriver::execute()
 {
-    while(true)
+    std::vector<std::string> messages = mMqReceiver.receive("/flashmemoryReq");
+    if (!messages.empty()) 
     {
-        if (mMqReceiver.receive("/flashmemoryReq")) 
-        {
-            std::vector<std::string> messages = mMqReceiver.getMessage();
-            LOG_INFO("id: %d", mMqReceiver.get<int>(messages[0]));
-
-            int type = mMqReceiver.get<int>(messages[0]);
-            switch (type) {
-            case service::SysSett_RequestSync:
-                mFlMemoryDeploy->syncSysSetting(mAirplaneMode);
-                break;
-            }
+        int type = mMqReceiver.get<int>(messages[0]);
+        switch (type) {
+        case service::SysSett_RequestSync: {
+            mFlMemoryDeploy->requestChangeAirPlaneMode(mAirplaneMode);
+            break;
+        }
+        case service::SysSett_RequestChangeAirplaneMode: {
+            mAirplaneMode = static_cast<AirplaneMode>(mMqReceiver.get<int>(messages[1]));
+            mFlMemoryDeploy->requestChangeAirPlaneMode(mAirplaneMode);
+            break;
+        }
         }
     }
 }

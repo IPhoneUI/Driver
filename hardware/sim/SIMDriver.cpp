@@ -3,9 +3,8 @@
 
 namespace driver {
 
-SIMDriver::SIMDriver() : mThread(std::bind(&SIMDriver::execute, this))
+SIMDriver::SIMDriver()
 {
-    mThread.detach();
 
     // mState = Connected;
 
@@ -104,8 +103,6 @@ SIMDriver::SIMDriver() : mThread(std::bind(&SIMDriver::execute, this))
 
 void SIMDriver::execute()
 {
-    while(true)
-    {
         // if (!mDataQueue.isEmpty())
         // {
         //     StreamingDataType type = static_cast<StreamingDataType>(mDataQueue.get());
@@ -117,7 +114,6 @@ void SIMDriver::execute()
 
         //     mDataQueue.pop();
         // }
-    }
 }
 
 void SIMDriver::initialize()

@@ -3,16 +3,12 @@
 
 namespace driver {
 
-EasyMathServer::EasyMathServer() : mThread(std::bind(&EasyMathServer::execute, this))
+EasyMathServer::EasyMathServer()
 {
-    mThread.detach();
 }
 
 void EasyMathServer::execute()
 {
-    while(true)
-    {
-    }
 }
 
 void EasyMathServer::initialize()

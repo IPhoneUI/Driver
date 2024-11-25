@@ -15,7 +15,7 @@ class FlashMemoryDriver : public common::BaseDriver
 public:
     explicit FlashMemoryDriver();
 
-    void execute();
+    void execute() override;
     void initialize() override;
     void finialize() override;
 
@@ -30,9 +30,6 @@ public:
     // }
 
 private:
-    std::thread mThread;
-    service::MsqSender mMqSender;
-
     // std::list<VoiceRecordingData> mRecordings;
     // std::list<VoiceRecordingData> mDeletedRecording;
     AirplaneMode mAirplaneMode = AirplaneMode::Inactive;

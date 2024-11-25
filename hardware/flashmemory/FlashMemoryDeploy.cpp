@@ -18,11 +18,12 @@ FlashMemoryDeploy* FlashMemoryDeploy::instance()
     return gInstance;
 }
 
-void FlashMemoryDeploy::syncSysSetting(const AirplaneMode& airPlain)
+void FlashMemoryDeploy::requestChangeAirPlaneMode(const AirplaneMode& airPlane)
 {
-    LOG_INFO("BAO syncSysSetting");
-    mMqSender.startMsq(static_cast<int>(airPlain));
-    mMqSender.sendMsq("/flashmemory_", service::Msq_ReqAll);
+    LOG_INFO("FlashMemoryDeploy requestChangeAirPlaneMode");
+    mMqSender.startMsq(service::SysSett_ResponseChangeAirplaneMode);
+    mMqSender.addParam(static_cast<int>(airPlane));
+    mMqSender.sendMsq("/flashmemoryDep_", service::Msq_ReqAll);
     
 }
 

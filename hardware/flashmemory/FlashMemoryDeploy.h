@@ -14,7 +14,7 @@ class FlashMemoryDeploy : public common::BaseDeploy
 public:
     static FlashMemoryDeploy* instance();
 
-    void syncSysSetting(const AirplaneMode& airPlain);
+    void requestChangeAirPlaneMode(const AirplaneMode& airPlane);
 
 private:
     explicit FlashMemoryDeploy();
