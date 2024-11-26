@@ -3,21 +3,12 @@
 
 namespace driver::common {
 
-void BaseDeploy::addClient(const std::string& clientName)
+void BaseDeploy::registerClient(service::Msq_Client type, const std::string& clientName)
 {
-    bool exist = false;
-    for (const auto& client : mClients)
-    {
-        if (client == clientName)
-        {
-            LOG_WARN("clientName is exists");
-            return;
-        }
-    }
-
-    mClients.push_back(clientName);
     mMqSender.startMsq(service::FlashMem_Ready);
     mMqSender.sendMsq(clientName);
+    mClientManager.registerGroup(type, clientName);
+
 }
 
 }
