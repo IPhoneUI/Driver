@@ -6,7 +6,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <functional>
-#include <unordered_map>
+#include <vector>
 #include <msq/MsqSender.h>
 
 namespace driver::common {
@@ -14,9 +14,11 @@ namespace driver::common {
 class BaseDeploy 
 {
 public:
+    void addClient(const std::string& clientName);
 
 protected:
     service::MsqSender mMqSender;
+    std::vector<std::string> mClients;
 };
 
 }
