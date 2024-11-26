@@ -5,7 +5,8 @@ namespace driver {
 
 FlashMemoryDriver::FlashMemoryDriver()
 {
-    mFlMemoryDeploy = FlashMemoryDeploy::instance();
+    mDeploy = FlashMemoryDeploy::instance();
+    mProvider = FlashMemoryProvider::instance();
 }
 
 void FlashMemoryDriver::execute()
@@ -17,16 +18,16 @@ void FlashMemoryDriver::execute()
         switch (type) {
         case service::SysSett_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mFlMemoryDeploy->registerClient(service::Msq_SysSettClient, clientName);
+            mDeploy->registerClient(service::Msq_SysSettClient, clientName);
             break;
         }
         case service::SysSett_RequestSync: {
-            mFlMemoryDeploy->requestChangeAirPlaneMode(mAirplaneMode);
+            mDeploy->requestChangeAirPlaneMode(mAirplaneMode);
             break;
         }
         case service::SysSett_RequestChangeAirplaneMode: {
-            mAirplaneMode = static_cast<AirplaneMode>(mMqReceiver.get<int>(messages[1]));
-            mFlMemoryDeploy->requestChangeAirPlaneMode(mAirplaneMode);
+            mAirplaneMode = mMqReceiver.get<bool>(messages[1]);
+            mDeploy->requestChangeAirPlaneMode(mAirplaneMode);
             break;
         }
         }
@@ -41,6 +42,7 @@ void FlashMemoryDriver::initialize()
 void FlashMemoryDriver::finialize()
 {
     LOG_INFO("FlashMemoryDriver finialize");
+    mProvider->closeShmem();
 }
 
 }

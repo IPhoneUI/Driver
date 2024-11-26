@@ -5,7 +5,6 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDeploy.h>
-#include "FlashMemoryDef.h"
 
 namespace driver {
 
@@ -14,7 +13,7 @@ class FlashMemoryDeploy : public common::BaseDeploy
 public:
     static FlashMemoryDeploy* instance();
 
-    void requestChangeAirPlaneMode(const AirplaneMode& airPlane);
+    void requestChangeAirPlaneMode(bool airPlane);
 
 private:
     explicit FlashMemoryDeploy();

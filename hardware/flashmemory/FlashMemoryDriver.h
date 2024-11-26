@@ -5,8 +5,8 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
-#include "FlashMemoryDef.h"
 #include "FlashMemoryDeploy.h"
+#include <flashmemory/FlashMemoryProvider.h>
 
 namespace driver {
 
@@ -32,8 +32,9 @@ public:
 private:
     // std::list<VoiceRecordingData> mRecordings;
     // std::list<VoiceRecordingData> mDeletedRecording;
-    AirplaneMode mAirplaneMode = AirplaneMode::Inactive;
-    FlashMemoryDeploy* mFlMemoryDeploy;
+    bool mAirplaneMode = false;
+    FlashMemoryDeploy* mDeploy;
+    FlashMemoryProvider* mProvider;
 };
 
 }

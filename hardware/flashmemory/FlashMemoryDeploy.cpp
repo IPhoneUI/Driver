@@ -18,12 +18,12 @@ FlashMemoryDeploy* FlashMemoryDeploy::instance()
     return gInstance;
 }
 
-void FlashMemoryDeploy::requestChangeAirPlaneMode(const AirplaneMode& airPlane)
+void FlashMemoryDeploy::requestChangeAirPlaneMode(bool airPlane)
 {
     LOG_INFO("FlashMemoryDeploy requestChangeAirPlaneMode");
     mClientManager.deploy(service::Msq_SysSettClient, [this, airPlane](std::string mqName) {
         mMqSender.startMsq(service::FlashMem_ChangeAirplaneMode);
-        mMqSender.addParam(static_cast<int>(airPlane));
+        mMqSender.addParam(airPlane);
         mMqSender.sendMsq(mqName);
     });
 }
