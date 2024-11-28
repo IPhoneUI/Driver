@@ -21,7 +21,7 @@ FlashMemoryDeploy* FlashMemoryDeploy::instance()
 void FlashMemoryDeploy::requestChangeAirPlaneMode(bool airPlane)
 {
     LOG_INFO("FlashMemoryDeploy requestChangeAirPlaneMode");
-    mClientManager.deploy(service::Msq_SysSettClient, [this, airPlane](std::string mqName) {
+    mClientManager.execute(service::Msq_SysSettClient, [this, airPlane](std::string mqName) {
         mMqSender.startMsq(service::FlashMem_ChangeAirplaneMode);
         mMqSender.addParam(airPlane);
         mMqSender.sendMsq(mqName);

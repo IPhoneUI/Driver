@@ -19,7 +19,7 @@ public:
     public:
         void addClient(const std::string& client);
         void removeClient(const std::string& client);
-        void deploy(std::function<void(std::string)> func);
+        void execute(std::function<void(std::string)> func);
     
     private: 
         std::mutex mGroupMutex;
@@ -27,7 +27,7 @@ public:
     };
 
     void registerGroup(service::Msq_Client type, const std::string& clientName);
-    void deploy(service::Msq_Client type, std::function<void(std::string)> func);
+    void execute(service::Msq_Client type, std::function<void(std::string)> func);
 
 private:
     std::mutex mMutex;

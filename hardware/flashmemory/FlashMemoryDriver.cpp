@@ -27,6 +27,7 @@ void FlashMemoryDriver::execute()
         }
         case service::SysSett_RequestChangeAirplaneMode: {
             mAirplaneMode = mMqReceiver.get<bool>(messages[1]);
+            mProvider->setAirPlaneMode(mAirplaneMode);
             mDeploy->requestChangeAirPlaneMode(mAirplaneMode);
             break;
         }

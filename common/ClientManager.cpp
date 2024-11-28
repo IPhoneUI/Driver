@@ -26,7 +26,7 @@ void ClientManager::registerGroup(service::Msq_Client type, const std::string& c
     }
 }
 
-void ClientManager::deploy(service::Msq_Client type, std::function<void(std::string)> func)
+void ClientManager::execute(service::Msq_Client type, std::function<void(std::string)> func)
 {
     auto it = mGroups.find(type);
     if (it == mGroups.end())
@@ -37,7 +37,7 @@ void ClientManager::deploy(service::Msq_Client type, std::function<void(std::str
 
     if (mGroups[type] != nullptr)
     {
-        mGroups[type]->deploy(func);
+        mGroups[type]->execute(func);
     }
 }
 
@@ -56,7 +56,7 @@ void ClientManager::ClientGroup::removeClient(const std::string& client)
     mClients.erase(std::remove(mClients.begin(), mClients.end(), client), mClients.end());
 }
 
-void ClientManager::ClientGroup::deploy(std::function<void(std::string)> func)
+void ClientManager::ClientGroup::execute(std::function<void(std::string)> func)
 {
     if (func == nullptr)
         return;
