@@ -32,7 +32,6 @@ public:
 private:
     // std::list<VoiceRecordingData> mRecordings;
     // std::list<VoiceRecordingData> mDeletedRecording;
-    bool mAirplaneMode = false;
     FlashMemoryDeploy* mDeploy;
     FlashMemoryProvider* mProvider;
 };

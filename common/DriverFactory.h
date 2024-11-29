@@ -24,13 +24,26 @@ public:
         T* ins = new T();
         mDrivers.push_back(ins);
 
+        // std::thread threadExe([this, ins] 
+        // {
+        //     while (mIsThreadRunning)
+        //     {
+        //         mMutexProcess.lock_shared();
+        //         ins->execute();
+        //         mMutexProcess.unlock_shared();
+
+        //         usleep(10000);
+        //     }
+        // });
+        // threadExe.detach();
+
         return ins;
     }
 
     void initialize();
     void finialize();
-
-    void execute();
+    
+void execute();
 
 private:
     DriverFactory();

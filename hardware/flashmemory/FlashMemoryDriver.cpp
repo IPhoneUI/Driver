@@ -14,23 +14,35 @@ void FlashMemoryDriver::execute()
     std::vector<std::string> messages = mMqReceiver.receive("/flashmemoryReq");
     if (!messages.empty()) 
     {
-        service::Msq_SystemSettingReq type = static_cast<service::Msq_SystemSettingReq>(mMqReceiver.get<int>(messages[0]));
+        service::Msq_FlashMemoryReq type = static_cast<service::Msq_FlashMemoryReq>(mMqReceiver.get<int>(messages[0]));
         switch (type) {
-        case service::SysSett_RegisterClient: {
+        case service::FMem_SysSett_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->registerClient(service::Msq_SysSettClient, clientName);
+            mDeploy->registerClient(service::Msq_SysSett_Client, clientName);
             break;
         }
-        case service::SysSett_RequestSync: {
-            mDeploy->requestChangeAirPlaneMode(mAirplaneMode);
+        case service::FMem_SysSett_ReqSync: {
+            bool airplane = mProvider->getAirPlaneMode();
+            mDeploy->requestChangeAirPlaneMode(airplane);
             break;
         }
-        case service::SysSett_RequestChangeAirplaneMode: {
-            mAirplaneMode = mMqReceiver.get<bool>(messages[1]);
-            mProvider->setAirPlaneMode(mAirplaneMode);
-            mDeploy->requestChangeAirPlaneMode(mAirplaneMode);
+        case service::FMem_SysSett_ReqChangeAirplaneMode: {
+            bool airplane = mMqReceiver.get<bool>(messages[1]);
+            mProvider->setAirPlaneMode(airplane);
+            mDeploy->requestChangeAirPlaneMode(airplane);
             break;
         }
+        // case service::FMem_Audio_RegisterClient: {
+        //     std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+        //     // LOG_INFO("clientName: %s", clientName.c_str());
+        //     // mDeploy->registerClient(service::Msq_Audio_Client, clientName);
+        //     break;
+        // }
+        // case service::FMem_Audio_ReqSync: {
+            // auto recordings = mProvider->getRecordingList();
+            // mDeploy->updateRecordingList(recordings);
+            // break;
+        // }
         }
     }
 }
@@ -38,6 +50,7 @@ void FlashMemoryDriver::execute()
 void FlashMemoryDriver::initialize()
 {
     LOG_INFO("FlashMemoryDriver initialize");
+    mProvider->initialize();
 }
 
 void FlashMemoryDriver::finialize()
