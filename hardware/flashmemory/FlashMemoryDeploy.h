@@ -15,11 +15,14 @@ class FlashMemoryDeploy : public common::BaseDeploy
 public:
     static FlashMemoryDeploy* instance();
 
-    void requestChangeAirPlaneMode(bool airPlane);
-    void updateRecordingList();
+    void syncSysSetting(const std::string& clientName);
+    void syncAudio(const std::string& clientName);
+    void responseChangeAirPlaneMode(bool airPlane);
+    void responseUpdateRecordingList();
 
 private:
     explicit FlashMemoryDeploy();
+    ~FlashMemoryDeploy();
 };
 
 }

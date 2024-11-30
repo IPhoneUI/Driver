@@ -19,10 +19,9 @@ public:
     void initialize() override;
     void finialize() override;
 
-    // std::list <VoiceRecordingData> getRecordingList() const
-    // {
-    //     return mRecordings;
-    // }
+    void registerClient(service::Msq_Client clientId, const std::string& clientName);
+    void requestSync(service::Msq_FlashMemoryReq type, const std::string& clientName);
+    void requestChangeAirPlaneMode(bool airPlane);
 
     // std::list <VoiceRecordingData> getDeletedRecording() const
     // {
@@ -30,7 +29,6 @@ public:
     // }
 
 private:
-    // std::list<VoiceRecordingData> mRecordings;
     // std::list<VoiceRecordingData> mDeletedRecording;
     FlashMemoryDeploy* mDeploy;
     FlashMemoryProvider* mProvider;

@@ -3,20 +3,15 @@
 
 namespace driver::common {
 
-void BaseDeploy::registerClient(service::Msq_Client type, const std::string& clientName)
+bool BaseDeploy::registerClient(service::Msq_Client type, const std::string& clientName)
 {
-    LOG_INFO("Deploy clientName: %s", clientName.c_str());
-    switch (type) {
-    case service::Msq_SysSett_Client:
-        mMqSender.startMsq(service::FMem_SysSett_Ready);
-        break;
-    case service::Msq_Audio_Client:
-        mMqSender.startMsq(service::FMem_Audio_Ready);
-        break;
-    }
-    mMqSender.sendMsq(clientName);
-    mClientManager.registerGroup(type, clientName);
+    return mClientManager.registerGroup(type, clientName);
+}
 
+void BaseDeploy::responseDriverReady(const std::string& clientName)
+{
+    mMqSender.startMsq(service::FMem_Ready);
+    mMqSender.sendMsq(clientName);
 }
 
 }

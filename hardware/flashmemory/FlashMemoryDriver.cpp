@@ -18,27 +18,23 @@ void FlashMemoryDriver::onMsqReceived()
         switch (type) {
         case service::FMem_SysSett_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->registerClient(service::Msq_SysSett_Client, clientName);
-            break;
-        }
-        case service::FMem_SysSett_ReqSync: {
-            bool airplane = mProvider->getAirPlaneMode();
-            mDeploy->requestChangeAirPlaneMode(airplane);
-            break;
-        }
-        case service::FMem_SysSett_ReqChangeAirplaneMode: {
-            bool airplane = mMqReceiver.get<bool>(messages[1]);
-            mProvider->setAirPlaneMode(airplane);
-            mDeploy->requestChangeAirPlaneMode(airplane);
+            registerClient(service::Msq_SysSett_Client, clientName);
             break;
         }
         case service::FMem_Audio_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->registerClient(service::Msq_Audio_Client, clientName);
+            registerClient(service::Msq_Audio_Client, clientName);
             break;
         }
+        case service::FMem_SysSett_ReqSync:
         case service::FMem_Audio_ReqSync: {
-            mDeploy->updateRecordingList();
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            requestSync(type, clientName);
+            break;
+        }
+        case service::FMem_SysSett_ReqChangeAirplaneMode: {
+            bool airplane = mMqReceiver.get<bool>(messages[1]);
+            requestChangeAirPlaneMode(airplane);
             break;
         }
         }
@@ -55,6 +51,37 @@ void FlashMemoryDriver::finialize()
 {
     LOG_INFO("FlashMemoryDriver finialize");
     mProvider->closeShmem();
+}
+
+void FlashMemoryDriver::registerClient(service::Msq_Client clientId, const std::string& clientName)
+{
+    if (mDeploy->registerClient(clientId, clientName))
+    {
+        mDeploy->responseDriverReady(clientName);
+    }
+}
+
+void FlashMemoryDriver::requestSync(service::Msq_FlashMemoryReq type, const std::string& clientName)
+{
+    if (type == service::FMem_SysSett_ReqSync)
+    {
+        mDeploy->syncSysSetting(clientName);
+
+    }
+    else if (type == service::FMem_Audio_ReqSync)
+    {
+        mDeploy->syncAudio(clientName);
+    }
+}
+
+void FlashMemoryDriver::requestChangeAirPlaneMode(bool airPlane)
+{
+    auto result = mProvider->setAirPlaneMode(airPlane);
+
+    if (result == DataSetResult_Valid)
+    {
+        mDeploy->responseChangeAirPlaneMode(airPlane);
+    }
 }
 
 }

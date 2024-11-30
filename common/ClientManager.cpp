@@ -3,7 +3,7 @@
 
 namespace driver {
 
-void ClientManager::registerGroup(service::Msq_Client type, const std::string& clientName)
+bool ClientManager::registerGroup(service::Msq_Client type, const std::string& clientName)
 {
     ClientGroup* group = nullptr;
     {
@@ -22,8 +22,10 @@ void ClientManager::registerGroup(service::Msq_Client type, const std::string& c
     }
     if (group != nullptr)
     {
-        group->addClient(clientName);
+        return group->addClient(clientName);
     }
+    
+    return false;
 }
 
 void ClientManager::execute(service::Msq_Client type, std::function<void(std::string)> func)
@@ -41,13 +43,14 @@ void ClientManager::execute(service::Msq_Client type, std::function<void(std::st
     }
 }
 
-void ClientManager::ClientGroup::addClient(const std::string& client)
+bool ClientManager::ClientGroup::addClient(const std::string& client)
 {
     std::lock_guard<std::mutex> lock(mGroupMutex);
     if (std::find(mClients.begin(), mClients.end(), client) != mClients.end())
-        return;
+        return false;
 
     mClients.push_back(client);
+    return true;
 }
 
 void ClientManager::ClientGroup::removeClient(const std::string& client)

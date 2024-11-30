@@ -17,7 +17,7 @@ public:
     class ClientGroup 
     {
     public:
-        void addClient(const std::string& client);
+        bool addClient(const std::string& client);
         void removeClient(const std::string& client);
         void execute(std::function<void(std::string)> func);
     
@@ -26,7 +26,7 @@ public:
         std::vector<std::string> mClients;
     };
 
-    void registerGroup(service::Msq_Client type, const std::string& clientName);
+    bool registerGroup(service::Msq_Client type, const std::string& clientName);
     void execute(service::Msq_Client type, std::function<void(std::string)> func);
 
 private:
