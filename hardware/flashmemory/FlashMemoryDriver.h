@@ -23,13 +23,7 @@ public:
     void requestSync(service::Msq_FlashMemoryReq type, const std::string& clientName);
     void requestChangeAirPlaneMode(bool airPlane);
 
-    // std::list <VoiceRecordingData> getDeletedRecording() const
-    // {
-    //     return mDeletedRecording;
-    // }
-
 private:
-    // std::list<VoiceRecordingData> mDeletedRecording;
     FlashMemoryDeploy* mDeploy;
     FlashMemoryProvider* mProvider;
 };

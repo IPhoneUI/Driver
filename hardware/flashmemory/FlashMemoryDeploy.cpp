@@ -37,6 +37,9 @@ void FlashMemoryDeploy::syncAudio(const std::string& clientName)
 {
     mMqSender.startMsq(service::FMem_Audio_RespUpdateRecording);
     mMqSender.sendMsq(clientName);
+
+    mMqSender.startMsq(service::FMem_Audio_RespUpdateDelRecording);
+    mMqSender.sendMsq(clientName);
 }
 
 void FlashMemoryDeploy::responseChangeAirPlaneMode(bool airPlane)
