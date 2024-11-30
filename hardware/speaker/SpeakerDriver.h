@@ -13,7 +13,7 @@ class SpeakerDriver : public common::BaseDriver
 public:
     explicit SpeakerDriver();
 
-    void execute() override;
+    void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
 

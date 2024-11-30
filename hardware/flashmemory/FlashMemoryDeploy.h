@@ -16,7 +16,7 @@ public:
     static FlashMemoryDeploy* instance();
 
     void requestChangeAirPlaneMode(bool airPlane);
-    void updateRecordingList(const std::list<service::VoiceRecordingData>& list);
+    void updateRecordingList();
 
 private:
     explicit FlashMemoryDeploy();

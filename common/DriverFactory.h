@@ -2,7 +2,7 @@
 #define DRIVERFACTORY_H
 
 #include <BaseDriver.h>
-#include <vector>
+#include <unordered_map>
 #include <thread>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,20 +22,20 @@ public:
     T *addDriver()
     {
         T* ins = new T();
-        mDrivers.push_back(ins);
 
-        // std::thread threadExe([this, ins] 
-        // {
-        //     while (mIsThreadRunning)
-        //     {
-        //         mMutexProcess.lock_shared();
-        //         ins->execute();
-        //         mMutexProcess.unlock_shared();
+        std::thread* threadExe = new std::thread([this, ins] 
+        {
+            while (true)
+            {
+                mMutexProcess.lock_shared();
+                ins->onMsqReceived();
+                mMutexProcess.unlock_shared();
 
-        //         usleep(10000);
-        //     }
-        // });
-        // threadExe.detach();
+                usleep(10000);
+            }
+        });
+
+        mDrivers.emplace(ins, threadExe);
 
         return ins;
     }
@@ -43,14 +43,10 @@ public:
     void initialize();
     void finialize();
     
-void execute();
-
 private:
     DriverFactory();
 
-    std::vector<BaseDriver*> mDrivers;
-    std::thread mThread;
-    bool mIsThreadRunning;
+    std::unordered_map<BaseDriver*, std::thread*> mDrivers;
     std::shared_mutex mMutexProcess;
 };
 

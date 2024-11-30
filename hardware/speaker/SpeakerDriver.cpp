@@ -7,7 +7,7 @@ SpeakerDriver::SpeakerDriver()
 {
 }
 
-void SpeakerDriver::execute()
+void SpeakerDriver::onMsqReceived()
 {
 }
 

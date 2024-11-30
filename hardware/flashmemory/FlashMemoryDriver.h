@@ -15,7 +15,7 @@ class FlashMemoryDriver : public common::BaseDriver
 public:
     explicit FlashMemoryDriver();
 
-    void execute() override;
+    void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
 

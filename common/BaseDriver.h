@@ -18,7 +18,7 @@ public:
     virtual void initialize() = 0;
     virtual void finialize() = 0;
 
-    virtual void execute() = 0;
+    virtual void onMsqReceived() = 0;
 
 protected:
     service::MsqReceiver mMqReceiver;

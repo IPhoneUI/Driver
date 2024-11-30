@@ -101,7 +101,7 @@ SIMDriver::SIMDriver()
     // }
 }
 
-void SIMDriver::execute()
+void SIMDriver::onMsqReceived()
 {
         // if (!mDataQueue.isEmpty())
         // {

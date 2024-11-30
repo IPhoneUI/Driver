@@ -9,7 +9,7 @@ FlashMemoryDriver::FlashMemoryDriver()
     mProvider = FlashMemoryProvider::instance();
 }
 
-void FlashMemoryDriver::execute()
+void FlashMemoryDriver::onMsqReceived()
 {
     std::vector<std::string> messages = mMqReceiver.receive("/flashmemoryReq");
     if (!messages.empty()) 
@@ -32,17 +32,15 @@ void FlashMemoryDriver::execute()
             mDeploy->requestChangeAirPlaneMode(airplane);
             break;
         }
-        // case service::FMem_Audio_RegisterClient: {
-        //     std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-        //     // LOG_INFO("clientName: %s", clientName.c_str());
-        //     // mDeploy->registerClient(service::Msq_Audio_Client, clientName);
-        //     break;
-        // }
-        // case service::FMem_Audio_ReqSync: {
-            // auto recordings = mProvider->getRecordingList();
-            // mDeploy->updateRecordingList(recordings);
-            // break;
-        // }
+        case service::FMem_Audio_RegisterClient: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            mDeploy->registerClient(service::Msq_Audio_Client, clientName);
+            break;
+        }
+        case service::FMem_Audio_ReqSync: {
+            mDeploy->updateRecordingList();
+            break;
+        }
         }
     }
 }

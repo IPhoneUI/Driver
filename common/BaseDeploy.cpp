@@ -11,7 +11,7 @@ void BaseDeploy::registerClient(service::Msq_Client type, const std::string& cli
         mMqSender.startMsq(service::FMem_SysSett_Ready);
         break;
     case service::Msq_Audio_Client:
-        // mMqSender.startMsq(service::FMem_Audio_Ready);
+        mMqSender.startMsq(service::FMem_Audio_Ready);
         break;
     }
     mMqSender.sendMsq(clientName);

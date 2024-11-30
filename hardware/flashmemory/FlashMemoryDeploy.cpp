@@ -28,12 +28,11 @@ void FlashMemoryDeploy::requestChangeAirPlaneMode(bool airPlane)
     });
 }
 
-void FlashMemoryDeploy::updateRecordingList(const std::list<service::VoiceRecordingData>& list)
+void FlashMemoryDeploy::updateRecordingList()
 {
-    mClientManager.execute(service::Msq_Audio_Client, [this, list](std::string mqName) {
-        // mMqSender.startMsq(service::FMem_SysSett_RespChangeAirplaneMode);
-        // mMqSender.addParam(airPlane);
-        // mMqSender.sendMsq(mqName);
+    mClientManager.execute(service::Msq_Audio_Client, [this](std::string mqName) {
+        mMqSender.startMsq(service::FMem_Audio_RespUpdateRecording);
+        mMqSender.sendMsq(mqName);
     });
 }
 

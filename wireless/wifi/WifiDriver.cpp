@@ -48,7 +48,7 @@ WifiDriver::WifiDriver()
     // mConnectedDevice = mWifiDeviceData[0];
 }
 
-void WifiDriver::execute()
+void WifiDriver::onMsqReceived()
 {
 }
 

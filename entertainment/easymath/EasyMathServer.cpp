@@ -7,7 +7,7 @@ EasyMathServer::EasyMathServer()
 {
 }
 
-void EasyMathServer::execute()
+void EasyMathServer::onMsqReceived()
 {
 }
 

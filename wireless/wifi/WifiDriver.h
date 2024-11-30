@@ -14,7 +14,7 @@ class WifiDriver : public common::BaseDriver
 public:
     explicit WifiDriver();
 
-    void execute() override;
+    void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
 

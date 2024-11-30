@@ -13,7 +13,7 @@ class SIMDriver : public common::BaseDriver
 public:
     explicit SIMDriver();
 
-    void execute() override;
+    void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
 
