@@ -26,7 +26,7 @@ void FlashMemoryDriver::onMsqReceived()
             registerClient(service::Msq_Audio_Client, clientName);
             break;
         }
-        case service::FMem_SysSett_ReqSync:
+        case service::FMem_SysSett_ReqSync: 
         case service::FMem_Audio_ReqSync: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
             requestSync(type, clientName);

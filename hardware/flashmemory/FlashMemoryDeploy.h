@@ -5,6 +5,8 @@
 #include <thread>
 #include <list>
 #include <functional>
+#include <mutex>
+#include <shared_mutex>
 #include <common/BaseDeploy.h>
 #include <audio/AudioServiceDef.h>
 
@@ -15,6 +17,7 @@ class FlashMemoryDeploy : public common::BaseDeploy
 public:
     static FlashMemoryDeploy* instance();
 
+    void responseDriverReady(const std::string& clientName);
     void syncSysSetting(const std::string& clientName);
     void syncAudio(const std::string& clientName);
     void responseChangeAirPlaneMode(bool airPlane);
@@ -23,6 +26,8 @@ public:
 private:
     explicit FlashMemoryDeploy();
     ~FlashMemoryDeploy();
+
+    std::mutex mMutex;
 };
 
 }

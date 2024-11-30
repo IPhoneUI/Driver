@@ -5,6 +5,8 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
+#include "SpeakerDeploy.h"
+#include <speaker/SpeakerProvider.h>
 
 namespace driver {
 
@@ -17,20 +19,12 @@ public:
     void initialize() override;
     void finialize() override;
 
-    bool isMute() const
-    {
-        return mIsMute;
-    }
-
-    size_t volume() const
-    {
-        return mVolume;
-    }
-
-private:
+    void registerClient(service::Msq_Client clientId, const std::string& clientName);
+    void requestSync(service::Msq_SpeakerReq type, const std::string& clientName);
     
-    bool mIsMute {false};
-    size_t mVolume {16};
+private:    
+    SpeakerDeploy* mDeploy;
+    SpeakerProvider* mProvider;
 };
 
 }

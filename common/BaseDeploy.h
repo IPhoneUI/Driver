@@ -15,10 +15,11 @@ namespace driver::common {
 class BaseDeploy 
 {
 public:
+    BaseDeploy(const std::string& driverName);
     bool registerClient(service::Msq_Client type, const std::string& clientName);
-    void responseDriverReady(const std::string& clientName);
 
 protected:
+    std::string mDriverName;
     service::MsqSender mMqSender;
     ClientManager mClientManager;
 };
