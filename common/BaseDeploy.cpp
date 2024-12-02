@@ -3,8 +3,8 @@
 
 namespace driver::common {
 
-BaseDeploy::BaseDeploy(const std::string& driverName)
-    : mDriverName(driverName)
+BaseDeploy::BaseDeploy(service::Msq_Driver_Type driverType)
+    : mDriverType(driverType)
 {
     
 }

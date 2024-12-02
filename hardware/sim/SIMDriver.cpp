@@ -99,94 +99,100 @@ SIMDriver::SIMDriver()
     // {
     //     mDataQueue.push(i);
     // }
+
+    mProvider = SIMProvider::instance();
+    mDeploy = SIMDeploy::instance();
 }
 
 void SIMDriver::onMsqReceived()
 {
-        // if (!mDataQueue.isEmpty())
-        // {
-        //     StreamingDataType type = static_cast<StreamingDataType>(mDataQueue.get());
-        //     LOG_INFO("Data changed: %d [%s]", (int)type, SERVICE_NAME);
-        //     for (auto it = mFuncs.begin(); it != mFuncs.end(); ++it)
-        //     {
-        //         (*it)(static_cast<int>(type));
-        //     }
-
-        //     mDataQueue.pop();
-        // }
+    std::vector<std::string> messages = mMqReceiver.receive("/SIMReq");
+    if (!messages.empty()) 
+    {
+        service::Msq_SIMReq type = static_cast<service::Msq_SIMReq>(mMqReceiver.get<int>(messages[0]));
+        switch (type) {
+        case service::SIM_CelNetwork_RegisterClient: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            registerClient(service::Msq_CelNetwork_Client, clientName);
+            break;
+        }
+        case service::SIM_CelNetwork_ReqSync: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            requestSync(type, clientName);
+            break;
+        }
+        case service::SIM_CelNetwork_ReqChangeAllowAcess: {
+            bool allowAcess = mMqReceiver.get<bool>(messages[2]);
+            requestChangeAllowAccess(allowAcess);
+            break;
+        }
+        case service::SIM_CelNetwork_ReqChangeMaxCompatibility: {
+            bool maxCompa = mMqReceiver.get<bool>(messages[2]);
+            requestChangeMaxCompatibility(maxCompa);
+            break;
+        }
+        case service::SIM_CelNetwork_ReqChangeCellulatr: {
+            bool cellularStatus = mMqReceiver.get<bool>(messages[2]);
+            requestChangeCellularStatus(cellularStatus);
+            break;
+        }
+        }
+    }
 }
 
 void SIMDriver::initialize()
 {
     LOG_INFO("SIMDriver initialize");
+    mProvider->initialize();
 }
 
 void SIMDriver::finialize()
 {
     LOG_INFO("SIMDriver finialize");
+    mProvider->closeShmem();
 }
 
-void SIMDriver::updatePhoneNumber(const std::string& value)
+void SIMDriver::registerClient(service::Msq_Client clientId, const std::string& clientName)
 {
-    if (mPhoneNumber == value)
-        return;
-    
-    mPhoneNumber = value;
-    // mDataQueue.push(static_cast<size_t>(StreamingDataType::PhoneNumber));
+    if (mDeploy->registerClient(clientId, clientName))
+    {
+        mDeploy->responseDriverReady(clientName);
+    }
 }
 
-void SIMDriver::updateNetwork(const std::string& value)
+void SIMDriver::requestSync(service::Msq_SIMReq type, const std::string& clientName)
 {
-    if (mNetwork == value)
-        return;
-    
-    mNetwork = value;
-    // mDataQueue.push(static_cast<size_t>(StreamingDataType::Network));
+    mDeploy->responseSync(clientName);
 }
 
-void SIMDriver::updatePhoneSignal(const PhoneSignal& value)
+void SIMDriver::requestChangeCellularStatus(bool status)
 {
-    // if (mPhoneSignal == value)
-    //     return;
-    
-    // mPhoneSignal = value;
-    // // mDataQueue.push(static_cast<size_t>(StreamingDataType::PhoneSignal));
+    auto result = mProvider->setIsCellular(status);
+
+    if (result == DataSetResult_Valid)
+    {
+        mDeploy->responseChangeCellularStatus(status);
+    }
 }
 
-void SIMDriver::updateCellularStatus(const bool& status)
+void SIMDriver::requestChangeAllowAccess(bool status)
 {
-    if (mCellular == status)
-        return;
-    
-    mCellular = status;
-    // mDataQueue.push(static_cast<size_t>(StreamingDataType::CellularStatus));
+    auto result = mProvider->setIsAllowAccess(status);
+
+    if (result == DataSetResult_Valid)
+    {
+        mDeploy->responseChangeAllowAccess(status);
+    }
 }
 
-void SIMDriver::updateAllowAccessStatus(const bool& status)
+void SIMDriver::requestChangeMaxCompatibility(bool status)
 {
-    if (mAllowAccess == status)
-        return;
-    
-    mAllowAccess = status;
-    // mDataQueue.push(static_cast<size_t>(StreamingDataType::AllowAccess));
-}
+    auto result = mProvider->setIsMaxCompatibility(status);
 
-void SIMDriver::updateMaxCompatibility(const bool& status)
-{
-    if (mMaxCompatibility == status)
-        return;
-    
-    mMaxCompatibility = status;
-    // mDataQueue.push(static_cast<size_t>(StreamingDataType::MaxCompatibility));
-}
-
-void SIMDriver::updateWifiPassword(const std::string& value)
-{
-    if (mWifiPassword == value)
-        return;
-
-    mWifiPassword = value;
-    // mDataQueue.push(static_cast<size_t>(StreamingDataType::WifiPassord));
+    if (result == DataSetResult_Valid)
+    {
+        mDeploy->responseChangeMaxCompatibility(status);
+    }
 }
 
 }

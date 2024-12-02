@@ -9,17 +9,18 @@
 #include <vector>
 #include <msq/MsqSender.h>
 #include <ClientManager.h>
+#include <msq/MsqDef.h>
 
 namespace driver::common {
 
 class BaseDeploy 
 {
 public:
-    BaseDeploy(const std::string& driverName);
+    BaseDeploy(service::Msq_Driver_Type driverType);
     bool registerClient(service::Msq_Client type, const std::string& clientName);
 
 protected:
-    std::string mDriverName;
+    service::Msq_Driver_Type mDriverType;
     service::MsqSender mMqSender;
     ClientManager mClientManager;
 };

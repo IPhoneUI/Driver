@@ -23,7 +23,6 @@ void SpeakerDriver::onMsqReceived()
         }
         case service::Speaker_Audio_ReqSync: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            registerClient(service::Msq_Audio_Client, clientName);
             requestSync(type, clientName);
             break;
         }

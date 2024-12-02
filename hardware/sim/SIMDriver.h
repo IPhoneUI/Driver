@@ -5,6 +5,8 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
+#include <sim/SIMProvider.h>
+#include "SIMDeploy.h"
 
 namespace driver {
 
@@ -17,69 +19,16 @@ public:
     void initialize() override;
     void finialize() override;
 
-    enum PhoneSignal {
-        Weak = 0,
-        Media,
-        Strong
-    };
+    void registerClient(service::Msq_Client clientId, const std::string& clientName);
+    void requestSync(service::Msq_SIMReq type, const std::string& clientName);
 
-    enum ConnectState {
-        Disconnected = 0,
-        Connecting,
-        Connected
-    };
-
-    bool cellularStatus() const
-    {
-        return mCellular;
-    }
-
-    bool maxCompatibility() const
-    {
-        return mMaxCompatibility;
-    }
-
-    bool allowAccessStatus() const
-    {
-        return mAllowAccess;
-    }
-
-    std::string wifiPassord() const
-    {
-        return mWifiPassword;
-    }
-
-    // std::list<service::PhoneContactInfo> getContactData() const
-    // {
-    //     return mContactData;
-    // }
-
-    // std::list<service::PhoneHistoryInfo> getHistoryData() const
-    // {
-    //     return mHistoryData;
-    // }
-
-    void updatePhoneNumber(const std::string& value);
-    void updateNetwork(const std::string& value);
-    void updatePhoneSignal(const PhoneSignal& value);
-    void updateWifiPassword(const std::string& value);
-    void updateCellularStatus(const bool& status);
-    void updateAllowAccessStatus(const bool& status);
-    void updateMaxCompatibility(const bool& status);
+    void requestChangeCellularStatus(bool status);
+    void requestChangeAllowAccess(bool status);
+    void requestChangeMaxCompatibility(bool status);
 
 private:
-
-    std::string mPhoneNumber;
-    std::string mNetwork;
-    PhoneSignal mPhoneSignal;
-    std::string mWifiPassword;
-    bool mAllowAccess;
-    bool mCellular;
-    bool mMaxCompatibility;
-    ConnectState mState;
-
-    // std::list<service::PhoneContactInfo> mContactData;
-    // std::list<service::PhoneHistoryInfo> mHistoryData;
+    SIMProvider* mProvider;
+    SIMDeploy* mDeploy;
 };
 
 }
