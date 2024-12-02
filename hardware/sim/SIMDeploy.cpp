@@ -32,7 +32,7 @@ void SIMDeploy::responseDriverReady(const std::string& clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void SIMDeploy::responseSync(const std::string& clientName)
+void SIMDeploy::responseSyncCelNetwork(const std::string& clientName)
 {
     {
         std::lock_guard<std::mutex> lock(mMutex);
@@ -99,6 +99,22 @@ void SIMDeploy::responseChangeMaxCompatibility(bool status)
         mMqSender.addParam(status);
         mMqSender.sendMsq(mqName);
     });
+}
+
+void SIMDeploy::responseSyncPhoneBook(const std::string& clientName)
+{
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::SIM_PhoneBook_RespQueryContact);
+        mMqSender.addParam(mDriverType);
+        mMqSender.sendMsq(clientName);
+    }
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::SIM_PhoneBook_RespQueryHistory);
+        mMqSender.addParam(mDriverType);
+        mMqSender.sendMsq(clientName);
+    }
 }
 
 }

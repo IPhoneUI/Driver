@@ -52,7 +52,7 @@ void SpeakerDriver::registerClient(service::Msq_Client clientId, const std::stri
 
 void SpeakerDriver::requestSync(service::Msq_SpeakerReq type, const std::string& clientName)
 {
-    mDeploy->syncAudio(clientName);
+    mDeploy->responseSyncAudio(clientName);
 }
 
 }

@@ -19,7 +19,7 @@ public:
     static SpeakerDeploy* instance();
 
     void responseDriverReady(const std::string& clientName);
-    void syncAudio(const std::string& clientName);
+    void responseSyncAudio(const std::string& clientName);
 
 private:
     explicit SpeakerDeploy();

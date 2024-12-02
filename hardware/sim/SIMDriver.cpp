@@ -136,6 +136,16 @@ void SIMDriver::onMsqReceived()
             requestChangeCellularStatus(cellularStatus);
             break;
         }
+        case service::SIM_PhoneBook_RegisterClient: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            registerClient(service::Msq_PhoneBook_Client, clientName);
+            break;
+        }
+        case service::SIM_PhoneBook_ReqSync: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            requestSync(type, clientName);
+            break;
+        }
         }
     }
 }
@@ -162,7 +172,14 @@ void SIMDriver::registerClient(service::Msq_Client clientId, const std::string& 
 
 void SIMDriver::requestSync(service::Msq_SIMReq type, const std::string& clientName)
 {
-    mDeploy->responseSync(clientName);
+    if (type == service::SIM_PhoneBook_ReqSync)
+    {
+        mDeploy->responseSyncPhoneBook(clientName);
+    }
+    else if (type == service::SIM_CelNetwork_ReqSync)
+    {
+        mDeploy->responseSyncCelNetwork(clientName);
+    }
 }
 
 void SIMDriver::requestChangeCellularStatus(bool status)

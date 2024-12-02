@@ -18,11 +18,13 @@ class SIMDeploy : public common::BaseDeploy
 public:
     static SIMDeploy* instance();
 
-    void responseSync(const std::string& clientName);
+    void responseSyncCelNetwork(const std::string& clientName);
     void responseDriverReady(const std::string& clientName);
     void responseChangeCellularStatus(bool status);
     void responseChangeAllowAccess(bool status);
     void responseChangeMaxCompatibility(bool status);
+
+    void responseSyncPhoneBook(const std::string& clientName);
 
 private:
     explicit SIMDeploy();

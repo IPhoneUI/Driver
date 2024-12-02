@@ -32,7 +32,7 @@ void SpeakerDeploy::responseDriverReady(const std::string& clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void SpeakerDeploy::syncAudio(const std::string& clientName)
+void SpeakerDeploy::responseSyncAudio(const std::string& clientName)
 {
     {
         std::lock_guard<std::mutex> lock(mMutex);

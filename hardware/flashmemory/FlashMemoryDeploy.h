@@ -18,8 +18,8 @@ public:
     static FlashMemoryDeploy* instance();
 
     void responseDriverReady(const std::string& clientName);
-    void syncSysSetting(const std::string& clientName);
-    void syncAudio(const std::string& clientName);
+    void responseSyncSysSetting(const std::string& clientName);
+    void responseSyncAudio(const std::string& clientName);
     void responseChangeAirPlaneMode(bool airPlane);
     void responseUpdateRecordingList();
 

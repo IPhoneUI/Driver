@@ -32,7 +32,7 @@ void FlashMemoryDeploy::responseDriverReady(const std::string& clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void FlashMemoryDeploy::syncSysSetting(const std::string& clientName)
+void FlashMemoryDeploy::responseSyncSysSetting(const std::string& clientName)
 {
     FlashMemoryProvider* provider = FlashMemoryProvider::instance();
 
@@ -44,7 +44,7 @@ void FlashMemoryDeploy::syncSysSetting(const std::string& clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void FlashMemoryDeploy::syncAudio(const std::string& clientName)
+void FlashMemoryDeploy::responseSyncAudio(const std::string& clientName)
 {
     {
         std::lock_guard<std::mutex> lock(mMutex);

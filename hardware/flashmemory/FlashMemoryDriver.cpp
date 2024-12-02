@@ -65,12 +65,12 @@ void FlashMemoryDriver::requestSync(service::Msq_FlashMemoryReq type, const std:
 {
     if (type == service::FMem_SysSett_ReqSync)
     {
-        mDeploy->syncSysSetting(clientName);
+        mDeploy->responseSyncSysSetting(clientName);
 
     }
     else if (type == service::FMem_Audio_ReqSync)
     {
-        mDeploy->syncAudio(clientName);
+        mDeploy->responseSyncAudio(clientName);
     }
 }
 
