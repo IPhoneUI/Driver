@@ -9,7 +9,10 @@
 #include <unistd.h>
 #include <sys/shm.h>
 #include <chrono>
+#include <mutex>
 #include <shared_mutex>
+
+static constexpr int16_t delayMicroSeconds = 10000; // 0.01s
 
 namespace driver::common {
 
@@ -21,33 +24,37 @@ public:
     template <typename T>
     T *addDriver()
     {
+        std::lock_guard<std::mutex> lock(mMutex);
         T* ins = new T();
 
-        std::thread* threadExe = new std::thread([this, ins] 
+        std::thread* msqReceiverThread = new std::thread([this, ins] 
         {
             while (true)
             {
-                mMutexProcess.lock_shared();
                 ins->onMsqReceived();
-                mMutexProcess.unlock_shared();
-
-                usleep(10000);
+                usleep(mDelayMicroSecond);
             }
         });
 
-        mDrivers.emplace(ins, threadExe);
+        mDrivers.emplace(ins, msqReceiverThread);
 
         return ins;
     }
 
     void initialize();
     void finialize();
+    void execute();
     
 private:
     DriverFactory();
 
     std::unordered_map<BaseDriver*, std::thread*> mDrivers;
     std::shared_mutex mMutexProcess;
+
+    std::thread mThread;
+    std::mutex mMutex;
+    useconds_t mDelayMicroSecond = delayMicroSeconds;
+    bool mIsThreadRunning{false};
 };
 
 }

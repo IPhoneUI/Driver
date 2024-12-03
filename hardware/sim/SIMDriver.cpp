@@ -5,7 +5,6 @@ namespace driver {
 
 SIMDriver::SIMDriver()
 {
-
     // mState = Connected;
 
     // storages::DataRepoManager& dataRepo = storages::DataRepoManager::instance();
@@ -116,7 +115,8 @@ void SIMDriver::onMsqReceived()
             registerClient(service::Msq_CelNetwork_Client, clientName);
             break;
         }
-        case service::SIM_CelNetwork_ReqSync: {
+        case service::SIM_CelNetwork_ReqSync: 
+        case service::SIM_PhoneBook_ReqSync:{
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
             requestSync(type, clientName);
             break;
@@ -141,12 +141,83 @@ void SIMDriver::onMsqReceived()
             registerClient(service::Msq_PhoneBook_Client, clientName);
             break;
         }
-        case service::SIM_PhoneBook_ReqSync: {
+        case service::SIM_PSTN_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            requestSync(type, clientName);
+            registerClient(service::Msq_PSTN_Client, clientName);
+            break;
+        }
+        case service::SIM_PSTN_ReqCallNumber: {
+            std::string phoneNumber = mMqReceiver.get<std::string>(messages[2]);
+            callNumber(phoneNumber);
+            break;
+        }
+        case service::SIM_PSTN_ReqAnswerCall: {
+            answerCall();
+            break;
+        }
+        case service::SIM_PSTN_ReqRejectCall: {
+            rejectCall();
+            break;
+        }
+        case service::SIM_PSTN_ReqTerminateCall: {
+            terminateCall();
             break;
         }
         }
+    }
+}
+
+void SIMDriver::execute(milliseconds delta)
+{
+    static milliseconds checkActiveState = milliseconds(0); 
+
+    if (!mEventQueue.isEmpty())
+    {
+        PSTNEvent event = mEventQueue.front();
+
+        switch(static_cast<PSTNEvent>(event)) {
+        case PSTNEvent::CallStatusUpdated:
+            if (mCallInfo == nullptr)
+                return;
+            mDeploy->responseCallStatusUpdated(mCallInfo->status, mCallInfo->number);
+            break;
+        case PSTNEvent::CallInfoUpdated:
+            if (mCallInfo == nullptr)
+                return;
+
+            mDeploy->responseCallInfoUpdated(mCallInfo->number, mCallInfo->name, mCallInfo->avatar);
+            break;
+        case PSTNEvent::TimeUpdated:
+            if (mCallInfo == nullptr)
+                return;
+
+            mDeploy->responseTimeUpdated(mCallInfo->time);
+            break;
+        default:
+            break;
+        }
+
+        mEventQueue.pop();
+    }
+
+    if (mCallInfo != nullptr && (mCallInfo->status == service::CallStatus::Incoming || mCallInfo->status == service::CallStatus::Outgoing))
+    {
+        checkActiveState += delta;
+        if (checkActiveState > milliseconds(5000))
+        {
+            checkActiveState = milliseconds(0);
+            mCallInfo->status = service::CallStatus::Active;
+            mEventQueue.push(PSTNEvent::CallStatusUpdated);
+
+        }
+    }
+
+    updateTimeCall(delta);
+
+    if (mCallInfo != nullptr && mCallInfo->status == service::CallStatus::Idle)
+    {
+        delete mCallInfo;
+        mCallInfo = nullptr;
     }
 }
 
@@ -209,6 +280,90 @@ void SIMDriver::requestChangeMaxCompatibility(bool status)
     if (result == DataSetResult_Valid)
     {
         mDeploy->responseChangeMaxCompatibility(status);
+    }
+}
+
+void SIMDriver::callNumber(const std::string& number)
+{
+    if (mCallInfo != nullptr)
+        return;
+
+    mCallInfo = new service::CallInformation();
+    mCallInfo->status = service::CallStatus::Outgoing;
+    mCallInfo->number = number;
+
+    auto contactList = mProvider->getPhoneContactList();
+
+    for (auto it = contactList.begin(); it != contactList.end(); ++it)
+    {
+        if (std::strcmp(it->phoneNumber, number.c_str()) == 0)
+        {
+            mCallInfo->name = std::string(it->formatName);
+            // mCallInfo->avatar = std::string(it->photo);
+            mCallInfo->avatar = std::string(it->photo);
+// mCallInfo->avatar.erase(std::remove(mCallInfo->avatar.begin(), mCallInfo->avatar.end(), '\0'), mCallInfo->avatar.end());
+            break;
+        }
+    }
+
+    mEventQueue.push(PSTNEvent::CallStatusUpdated);
+    mEventQueue.push(PSTNEvent::CallInfoUpdated);
+}
+
+void SIMDriver::answerCall()
+{
+    if (mCallInfo == nullptr)
+        return;
+    
+    if (mCallInfo->status == service::CallStatus::Outgoing 
+        || mCallInfo->status == service::CallStatus::Incoming)
+    {
+        mCallInfo->status = service::CallStatus::Active;
+        mEventQueue.push(PSTNEvent::CallStatusUpdated);
+    }
+}
+
+void SIMDriver::rejectCall()
+{
+    if (mCallInfo == nullptr)
+        return;
+    
+    if (mCallInfo->status == service::CallStatus::Incoming)
+    {
+        mCallInfo->status = service::CallStatus::Idle;
+        mEventQueue.push(PSTNEvent::CallStatusUpdated);
+    }
+}
+
+void SIMDriver::terminateCall()
+{
+    if (mCallInfo == nullptr)
+        return;
+    
+    if (mCallInfo->status == service::CallStatus::Active 
+        || mCallInfo->status == service::CallStatus::Outgoing)
+    {
+        mCallInfo->status = service::CallStatus::Idle;
+        mEventQueue.push(PSTNEvent::CallStatusUpdated);
+    }
+}
+
+void SIMDriver::updateTimeCall(milliseconds delta)
+{
+    static milliseconds sTime {milliseconds(0)};
+
+    if (mCallInfo != nullptr && mCallInfo->status == service::CallStatus::Active)
+    {
+        sTime += delta;
+        if (sTime > milliseconds(1000))
+        {
+            mCallInfo->time += 1000;
+            mEventQueue.push(PSTNEvent::TimeUpdated);
+            sTime = milliseconds(0);
+        }
+    }
+    else {
+        sTime = milliseconds(0);
     }
 }
 

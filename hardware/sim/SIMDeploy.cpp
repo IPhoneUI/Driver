@@ -117,4 +117,40 @@ void SIMDeploy::responseSyncPhoneBook(const std::string& clientName)
     }
 }
 
+void SIMDeploy::responseCallStatusUpdated(service::CallStatus status, const std::string& number)
+{
+    mClientManager.execute(service::Msq_PSTN_Client, [this, status, number](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::SIM_PSTN_RespCallStatusUpdated);
+        mMqSender.addParam(mDriverType);
+        mMqSender.addParam(static_cast<int>(status));
+        mMqSender.addParam(number.c_str());
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void SIMDeploy::responseCallInfoUpdated(const std::string& number, const std::string& name, const std::string& avatar)
+{
+    mClientManager.execute(service::Msq_PSTN_Client, [this, number, name, avatar](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::SIM_PSTN_RespCallInfoUpdated);
+        mMqSender.addParam(mDriverType);
+        mMqSender.addParam(number.c_str());
+        mMqSender.addParam(name.c_str());
+        mMqSender.addParam(avatar.c_str());
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void SIMDeploy::responseTimeUpdated(int time)
+{
+    mClientManager.execute(service::Msq_PSTN_Client, [this, time](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::SIM_PSTN_RespTimeUpdated);
+        mMqSender.addParam(mDriverType);
+        mMqSender.addParam(time);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 }

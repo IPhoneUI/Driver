@@ -6,7 +6,9 @@
 #include <functional>
 #include <common/BaseDriver.h>
 #include <sim/SIMProvider.h>
+#include <pstn/PSTNServiceDef.h>
 #include "SIMDeploy.h"
+#include <event/EventQueue.h>
 
 namespace driver {
 
@@ -18,6 +20,7 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
+    void execute(milliseconds delta) override;
 
     void registerClient(service::Msq_Client clientId, const std::string& clientName);
     void requestSync(service::Msq_SIMReq type, const std::string& clientName);
@@ -26,9 +29,26 @@ public:
     void requestChangeAllowAccess(bool status);
     void requestChangeMaxCompatibility(bool status);
 
+    void callNumber(const std::string& number);
+    void answerCall();
+    void rejectCall();
+    void terminateCall();
+
+private:
+    enum class PSTNEvent {
+        CallStatusUpdated,
+        TimeUpdated,
+        CallInfoUpdated
+    };
+
+    void updateTimeCall(milliseconds delta);
+
 private:
     SIMProvider* mProvider;
     SIMDeploy* mDeploy;
+
+    service::CallInformation* mCallInfo;
+    EventQueue<PSTNEvent> mEventQueue;
 };
 
 }
