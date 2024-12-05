@@ -21,12 +21,12 @@ WifiDriver::WifiDriver()
     //         discoryInfo.name = std::string(item["name"]);
     //         discoryInfo.address = std::string(item["address"]);
     //         discoryInfo.privateAddr = bool(item["privateaddress"]);
-    //         WifiSpeedMode speedMode = static_cast<WifiSpeedMode>(int(item["wifisignal"]));
+    //         WifiSpeedMode speedmode = static_cast<WifiSpeedMode>(int(item["wifisignal"]));
 
     //         WifiDeviceInfo deviceInfo;
     //         deviceInfo.deviceInfo = discoryInfo;
     //         deviceInfo.password = std::string(item["password"]);
-    //         deviceInfo.autoConnectStatus = bool(item["autoconnect"]);
+    //         deviceInfo.autoconnectstatus = bool(item["autoconnect"]);
 
     //         mWifiDeviceData.push_back(deviceInfo);
     //     }
@@ -46,15 +46,41 @@ WifiDriver::WifiDriver()
     // }
 
     // mConnectedDevice = mWifiDeviceData[0];
+
+    mProvider = WifiProvider::instance();
+    mDeploy = WifiDeploy::instance();
 }
 
 void WifiDriver::onMsqReceived()
 {
+    std::vector<std::string> messages = mMqReceiver.receive("/wifiReq");
+    if (!messages.empty()) 
+    {
+        service::Msq_WifiReq type = static_cast<service::Msq_WifiReq>(mMqReceiver.get<int>(messages[0]));
+        switch (type) {
+        case service::Wifi_RegisterClient: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            registerClient(service::Msq_Wifi_Client, clientName);
+            break;
+        }
+        case service::Wifi_ReqSync: {
+            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
+            mDeploy->responseSync(clientName);
+            break;
+        }
+        case service::Wifi_ReqChangeWifiStatus: {
+            bool status = mMqReceiver.get<bool>(messages[1]);
+            responseChangeWifiStatus(status);
+            break;
+        }
+        }
+    }
 }
 
 void WifiDriver::initialize()
 {
     LOG_INFO("WifiDriver initialize");
+    mProvider->initialize();
 }
 
 void WifiDriver::finialize()
@@ -62,129 +88,146 @@ void WifiDriver::finialize()
     LOG_INFO("WifiDriver finialize");
 }
 
-std::vector<WifiDeviceInfo> WifiDriver::getPairedDeviceList()
+void WifiDriver::registerClient(service::Msq_Client clientId, const std::string& clientName)
 {
-    std::shared_lock<std::shared_mutex> lock(mMutex);
-    return mPairedDevices;
-}
-
-WifiDeviceInfo WifiDriver::getPairedDevice(const std::string& addr)
-{
-    for (auto& item : mPairedDevices)
+    if (mDeploy->registerClient(clientId, clientName))
     {
-        if (item.deviceInfo.address == addr)
-            return item;
+        mDeploy->responseDriverReady(clientName);
     }
-    return {};
 }
 
-bool WifiDriver::addPairedDevice(WifiDeviceInfo device)
+void WifiDriver::responseChangeWifiStatus(bool status)
 {
-    std::unique_lock<std::shared_mutex> lock(mMutex);
-
-    bool flag = true;
-    for (auto& item : mPairedDevices)
+    auto result = mProvider->setWifiStatus(status);
+    if (result == DataSetResult_Valid)
     {
-        if (item.deviceInfo.address == device.deviceInfo.address)
-            flag = false;
+        mDeploy->responseChangeWifiStatus(status);
     }
-
-    if (flag)
-    {
-        mPairedDevices.push_back(device);
-        return true;
-    }
-    return false;
 }
 
-bool WifiDriver::removePairedDevice(const std::string& addr)
-{
-    std::unique_lock<std::shared_mutex> lock(mMutex);
+// std::vector<WifiDeviceInfo> WifiDriver::getPairedDeviceList()
+// {
+//     std::shared_lock<std::shared_mutex> lock(mMutex);
+//     return mPairedDevices;
+// }
 
-    for (int i = 0; i < mPairedDevices.size(); ++i)
-    {
-        if (mPairedDevices[i].deviceInfo.address == addr)
-        {
-            // Remove paired device
-            mPairedDevices.erase(mPairedDevices.begin() + i);
-            return true;
-        }
-    }
-    return false;
-}
+// WifiDeviceInfo WifiDriver::getPairedDevice(const std::string& addr)
+// {
+//     for (auto& item : mPairedDevices)
+//     {
+//         if (item.deviceInfo.address == addr)
+//             return item;
+//     }
+//     return {};
+// }
 
-void WifiDriver::setConnectedDevice(WifiDeviceInfo device)
-{
-    mConnectedDevice = device;
-}
+// bool WifiDriver::addPairedDevice(WifiDeviceInfo device)
+// {
+//     std::unique_lock<std::shared_mutex> lock(mMutex);
 
-WifiDeviceInfo WifiDriver::getConnectedDevice()
-{
-    return mConnectedDevice;
-}
+//     bool flag = true;
+//     for (auto& item : mPairedDevices)
+//     {
+//         if (item.deviceInfo.address == device.deviceInfo.address)
+//             flag = false;
+//     }
 
-std::vector<WifiDiscoveryDeviceInfo> WifiDriver::getDiscoveryDeviceList()
-{
-    return mDiscoveryDevices;
-}
+//     if (flag)
+//     {
+//         mPairedDevices.push_back(device);
+//         return true;
+//     }
+//     return false;
+// }
 
-WifiDiscoveryDeviceInfo WifiDriver::getDiscoveryDevice(const std::string& addr)
-{
-    for (auto& item : mDiscoveryDevices)
-    {
-        if (item.address == addr)
-            return item;
-    }
-    return {};
-}
+// bool WifiDriver::removePairedDevice(const std::string& addr)
+// {
+//     std::unique_lock<std::shared_mutex> lock(mMutex);
 
-bool WifiDriver::addDiscoveryDevice(WifiDiscoveryDeviceInfo device)
-{
-    std::unique_lock<std::shared_mutex> lock(mMutex);
+//     for (int i = 0; i < mPairedDevices.size(); ++i)
+//     {
+//         if (mPairedDevices[i].deviceInfo.address == addr)
+//         {
+//             // Remove paired device
+//             mPairedDevices.erase(mPairedDevices.begin() + i);
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
-    bool flag = true;
-    for (auto& item : mDiscoveryDevices)
-    {
-        if (item.address == device.address)
-            flag = false;
-    }
+// void WifiDriver::setConnectedDevice(WifiDeviceInfo device)
+// {
+//     mConnectedDevice = device;
+// }
 
-    if (flag)
-    {
-        mDiscoveryDevices.push_back(device);
-        return true;
-    }
-    return false;
-}
+// WifiDeviceInfo WifiDriver::getConnectedDevice()
+// {
+//     return mConnectedDevice;
+// }
 
-bool WifiDriver::removeDiscoveryDevice(const std::string& addr)
-{
-    std::unique_lock<std::shared_mutex> lock(mMutex);
+// std::vector<WifiDiscoveryDeviceInfo> WifiDriver::getDiscoveryDeviceList()
+// {
+//     return mDiscoveryDevices;
+// }
 
-    for (int i = 0; i < mDiscoveryDevices.size(); ++i)
-    {
-        // Remove discovery device
-        mDiscoveryDevices.erase(mDiscoveryDevices.begin() + i);
-        return true;
-    }
-    return false;
-}
+// WifiDiscoveryDeviceInfo WifiDriver::getDiscoveryDevice(const std::string& addr)
+// {
+//     for (auto& item : mDiscoveryDevices)
+//     {
+//         if (item.address == addr)
+//             return item;
+//     }
+//     return {};
+// }
 
-WifiDeviceInfo WifiDriver::queryWifiDevice(const std::string& addr)
-{
-    for (auto& device : mWifiDeviceData)
-    {
-        if (addr == device.deviceInfo.address)
-        {
-            return device;
-        }
-    }
-    return {};
-}
+// bool WifiDriver::addDiscoveryDevice(WifiDiscoveryDeviceInfo device)
+// {
+//     std::unique_lock<std::shared_mutex> lock(mMutex);
 
-std::vector<WifiDeviceInfo> WifiDriver::getDiscoveryDeviceListPrivate() 
-{
-    return mDiscoveryDevicePrivate;
-}
+//     bool flag = true;
+//     for (auto& item : mDiscoveryDevices)
+//     {
+//         if (item.address == device.address)
+//             flag = false;
+//     }
+
+//     if (flag)
+//     {
+//         mDiscoveryDevices.push_back(device);
+//         return true;
+//     }
+//     return false;
+// }
+
+// bool WifiDriver::removeDiscoveryDevice(const std::string& addr)
+// {
+//     std::unique_lock<std::shared_mutex> lock(mMutex);
+
+//     for (int i = 0; i < mDiscoveryDevices.size(); ++i)
+//     {
+//         // Remove discovery device
+//         mDiscoveryDevices.erase(mDiscoveryDevices.begin() + i);
+//         return true;
+//     }
+//     return false;
+// }
+
+// WifiDeviceInfo WifiDriver::queryWifiDevice(const std::string& addr)
+// {
+//     for (auto& device : mWifiDeviceData)
+//     {
+//         if (addr == device.deviceInfo.address)
+//         {
+//             return device;
+//         }
+//     }
+//     return {};
+// }
+
+// std::vector<WifiDeviceInfo> WifiDriver::getDiscoveryDeviceListPrivate() 
+// {
+//     return mDiscoveryDevicePrivate;
+// }
 
 }
