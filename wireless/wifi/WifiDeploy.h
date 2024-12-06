@@ -20,6 +20,7 @@ public:
     void responseDriverReady(const std::string& clientName);
     void responseSync(const std::string& clientName);
     void responseChangeWifiStatus(bool status);
+    void responseDiscoveryDeviceUpdated(const WifiDiscoveryDeviceShmem& device);
 
 private:
     explicit WifiDeploy();

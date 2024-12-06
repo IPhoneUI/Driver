@@ -19,8 +19,10 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
+    void execute(milliseconds delta) override;
 
     void registerClient(service::Msq_Client clientId, const std::string& clientName);
+
     void responseChangeWifiStatus(bool status);
 
     // std::vector<WifiDeviceInfo> getPairedDeviceList();

@@ -1,5 +1,7 @@
 #include "WifiDriver.h"
 #include <utils/Logger.h>
+#include "WifiDiscovery.h"
+#include "WifiPairing.h"
 
 namespace driver {
 
@@ -73,8 +75,18 @@ void WifiDriver::onMsqReceived()
             responseChangeWifiStatus(status);
             break;
         }
+        case service::Wifi_ReqStartDiscovery: {
+            WifiDiscovery::instance().startDiscovery();
+            break;
+        }
         }
     }
+}
+
+void WifiDriver::execute(milliseconds delta)
+{
+    WifiDiscovery::instance().execute(delta);
+    WifiPairing::instance().execute(delta);
 }
 
 void WifiDriver::initialize()
