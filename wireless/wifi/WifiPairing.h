@@ -15,8 +15,7 @@ public:
 
     void execute(milliseconds delta);
     std::list<WifiDeviceShmem> getPairedDeviceList();
-    void connectDevice(const std::string& addr);
-    void resetConnectDeviceFlag();
+    void requestConnectDevice(const std::string& addr);
 
 private:
     WifiPairing();
@@ -26,6 +25,7 @@ private:
     int mStep {0};
     milliseconds mTime {milliseconds(0)};
     service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
+    WifiDeviceShmem* mPairingDevice;
 
     WifiProvider* mWifiProvider;
     WifiDeploy* mWifiDeploy;

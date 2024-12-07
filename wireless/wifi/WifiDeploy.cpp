@@ -81,4 +81,15 @@ void WifiDeploy::responseDiscoveryDeviceUpdated(const WifiDiscoveryDeviceShmem& 
     });
 }
 
+void WifiDeploy::responseCheckDevicePassword(bool result)
+{
+    mClientManager.execute(service::Msq_Wifi_Client, [this, result](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::Wifi_RespCheckPassword);
+        mMqSender.addParam(mDriverType);
+        mMqSender.addParam(result);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 }

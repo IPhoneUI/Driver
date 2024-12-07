@@ -28,65 +28,65 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::handleConnectDevice(milliseconds delta)
 {
-    // if (mConnectDeviceFlag)
-    // {
-    //     mTime += delta;
-    //     if (mStep == 0)
-    //     {
-    //         mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
-    //         //mEvent.push(WifiEvent::AuthenStatus);
-    //         mTime = milliseconds(0);
-    //         mStep++;
-    //     }
-    //     if (mStep == 1 && mTime > milliseconds(2000))
-    //     {
-    //         /** CASE: Authen Fail 
-    //          *  mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
-    //             //mEvent.push(WifiEvent::AuthenStatus);
-    //             mTime = milliseconds(0);
-    //             mStep = 0;
-    //             mConnectDeviceFlag = false;
-    //          **/
+    if (mConnectDeviceFlag)
+    {
+        mTime += delta;
+        if (mStep == 0)
+        {
+            mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
+            //mEvent.push(WifiEvent::AuthenStatus);
+            mTime = milliseconds(0);
+            mStep++;
+        }
+        if (mStep == 1 && mTime > milliseconds(2000))
+        {
+            /** CASE: Authen Fail 
+             *  mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
+                //mEvent.push(WifiEvent::AuthenStatus);
+                mTime = milliseconds(0);
+                mStep = 0;
+                mConnectDeviceFlag = false;
+             **/
 
-    //         mAuthenStatus = service::WifiAuthenDeviceStatus::CheckedSSID;
-    //         //mEvent.push(WifiEvent::AuthenStatus);
-    //         mTime = milliseconds(0);
-    //         mStep++;
-    //     }
-    //     if (mStep == 2 && mTime > milliseconds(500))
-    //     {
-    //         mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
-    //         //mEvent.push(WifiEvent::AuthenStatus);
-    //         mTime = milliseconds(0);
-    //         mStep++;
-    //     }
-    //     if (mStep == 3 && mTime > milliseconds(2000))
-    //     {
-    //         mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
-    //         //mEvent.push(WifiEvent::AuthenStatus);
-    //         mTime = milliseconds(0);
-    //         mStep++;
-    //     }
-    //     if (mStep == 4 && mTime > milliseconds(1000))
-    //     {
-    //         if (peripherals::WifiDriver::instance().addPairedDevice(peripherals::WifiDriver::instance().getConnectedDevice()))
-    //         {
-    //             //mEvent.push(WifiEvent::PairedDeviceChange);
-    //         }
-    //         mTime = milliseconds(0);
-    //         mStep++;
-    //     }
-    //     if (mStep == 5 && mTime > milliseconds(100))
-    //     {
-    //         auto newConnectedDevice = peripherals::WifiDriver::instance().queryWifiDevice(mDiscoryDeviceAddr);
-    //         peripherals::WifiDriver::instance().setConnectedDevice(newConnectedDevice);
-    //         //mEvent.push(WifiEvent::UpdateConnectedDevice);
-    //         mTime = milliseconds(0);
-    //         mStep = 0;
-    //         mConnectDeviceFlag = false;
-    //     }
+            mAuthenStatus = service::WifiAuthenDeviceStatus::CheckedSSID;
+            //mEvent.push(WifiEvent::AuthenStatus);
+            mTime = milliseconds(0);
+            mStep++;
+        }
+        if (mStep == 2 && mTime > milliseconds(500))
+        {
+            mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
+            //mEvent.push(WifiEvent::AuthenStatus);
+            mTime = milliseconds(0);
+            mStep++;
+        }
+        if (mStep == 3 && mTime > milliseconds(2000))
+        {
+            mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
+            //mEvent.push(WifiEvent::AuthenStatus);
+            mTime = milliseconds(0);
+            mStep++;
+        }
+        if (mStep == 4 && mTime > milliseconds(1000))
+        {
+            // if (peripherals::WifiDriver::instance().addPairedDevice(peripherals::WifiDriver::instance().getConnectedDevice()))
+            // {
+            //     mEvent.push(WifiEvent::PairedDeviceChange);
+            // }
+            mTime = milliseconds(0);
+            mStep++;
+        }
+        if (mStep == 5 && mTime > milliseconds(100))
+        {
+            // auto newConnectedDevice = peripherals::WifiDriver::instance().queryWifiDevice(mDiscoryDeviceAddr);
+            // peripherals::WifiDriver::instance().setConnectedDevice(newConnectedDevice);
+            //mEvent.push(WifiEvent::UpdateConnectedDevice);
+            mTime = milliseconds(0);
+            mStep = 0;
+            mConnectDeviceFlag = false;
+        }
         
-    // }
+    }
 }
 
 void WifiDiscovery::handleDiscovering(milliseconds delta)
@@ -125,7 +125,7 @@ void WifiDiscovery::stopDiscovery()
     mDiscoveryFlag = false;
 }
 
-void WifiDiscovery::connectDevice(const std::string& addr)
+void WifiDiscovery::requestConnectDevice(const std::string& addr)
 {
     if (mConnectDeviceFlag) {
         mStep = 0;
@@ -134,13 +134,6 @@ void WifiDiscovery::connectDevice(const std::string& addr)
 
     mDiscoryDeviceAddr = addr;
     mConnectDeviceFlag = true;
-}
-
-void WifiDiscovery::resetConnectDeviceFlag()
-{
-    mStep = 0;
-    mTime = milliseconds(0);
-    mConnectDeviceFlag = false;
 }
 
 }

@@ -21,6 +21,7 @@ public:
     void responseSync(const std::string& clientName);
     void responseChangeWifiStatus(bool status);
     void responseDiscoveryDeviceUpdated(const WifiDiscoveryDeviceShmem& device);
+    void responseCheckDevicePassword(bool result);
 
 private:
     explicit WifiDeploy();

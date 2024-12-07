@@ -17,8 +17,7 @@ public:
 
     void startDiscovery();
     void stopDiscovery();
-    void connectDevice(const std::string&);
-    void resetConnectDeviceFlag();
+    void requestConnectDevice(const std::string&);
 
 private:
     WifiDiscovery();
