@@ -26,6 +26,11 @@ void SpeakerDriver::onMsqReceived()
             requestSync(type, clientName);
             break;
         }
+        case service::Speaker_Audio_ReqChangeMute: {
+            bool isMute = mMqReceiver.get<bool>(messages[1]);
+            requestChangeAudioMute(isMute);
+            break;
+        }
         }
     }
 }
@@ -53,6 +58,17 @@ void SpeakerDriver::registerClient(service::Msq_Client clientId, const std::stri
 void SpeakerDriver::requestSync(service::Msq_SpeakerReq type, const std::string& clientName)
 {
     mDeploy->responseSyncAudio(clientName);
+}
+
+void SpeakerDriver::requestChangeAudioMute(const bool &status)
+{
+    if (mProvider->getIsMuted() != status) {
+        DataSetResult result = mProvider->setAudioMute(status);
+
+        if (result == DataSetResult::DataSetResult_Valid) {
+            mDeploy->responseAudioMute(status);
+        }
+    }
 }
 
 }

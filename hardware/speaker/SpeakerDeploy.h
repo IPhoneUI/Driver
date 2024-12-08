@@ -21,6 +21,8 @@ public:
     void responseDriverReady(const std::string& clientName);
     void responseSyncAudio(const std::string& clientName);
 
+    void responseAudioMute(const bool& status);
+
 private:
     explicit SpeakerDeploy();
     ~SpeakerDeploy();
