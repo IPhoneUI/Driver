@@ -7,48 +7,6 @@ namespace driver {
 
 WifiDriver::WifiDriver()
 {
-
-    // storages::DataRepoManager& dataRepo = storages::DataRepoManager::instance();
-
-    // if (dataRepo.isReady())
-    // {
-    //     storages::Repository& repo = dataRepo.getRepository("Wifi");
-
-    //     auto dataMap = repo[storages::ParameterIndex::Wifi_Data].toList();
-
-    //     for (auto it = dataMap.begin(); it != dataMap.end(); ++it)
-    //     {
-    //         std::unordered_map<std::string, storages::Parameter> item = (*it);
-    //         WifiDiscoveryDeviceInfo discoryInfo;
-    //         discoryInfo.name = std::string(item["name"]);
-    //         discoryInfo.address = std::string(item["address"]);
-    //         discoryInfo.privateAddr = bool(item["privateaddress"]);
-    //         WifiSpeedMode speedmode = static_cast<WifiSpeedMode>(int(item["wifisignal"]));
-
-    //         WifiDeviceInfo deviceInfo;
-    //         deviceInfo.deviceInfo = discoryInfo;
-    //         deviceInfo.password = std::string(item["password"]);
-    //         deviceInfo.autoconnectstatus = bool(item["autoconnect"]);
-
-    //         mWifiDeviceData.push_back(deviceInfo);
-    //     }
-    // }
-
-    // for (int i = 1; i < 6; ++i)
-    // {
-    //     auto device = mWifiDeviceData[i];
-    //     mPairedDevices.push_back(device);
-    // }
-
-    // for (int i = 6; i < 14; ++i)
-    // {
-    //     auto device = mWifiDeviceData[i];
-    //     mDiscoveryDevicePrivate.push_back(device);
-    //     mDiscoveryDevices.push_back(device.deviceInfo);
-    // }
-
-    // mConnectedDevice = mWifiDeviceData[0];
-
     mProvider = WifiProvider::instance();
     mDeploy = WifiDeploy::instance();
 }

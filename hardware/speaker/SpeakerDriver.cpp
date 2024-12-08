@@ -55,4 +55,6 @@ void SpeakerDriver::requestSync(service::Msq_SpeakerReq type, const std::string&
     mDeploy->responseSyncAudio(clientName);
 }
 
+
+
 }
