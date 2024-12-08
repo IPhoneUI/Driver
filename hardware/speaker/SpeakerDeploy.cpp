@@ -53,4 +53,15 @@ void SpeakerDeploy::responseSyncAudio(const std::string& clientName)
     }
 }
 
+void SpeakerDeploy::responseAudioMute(const bool &status)
+{
+    mClientManager.execute(service::Msq_Audio_Client, [this, status](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(service::Speaker_Audio_RespChangeMute);
+        mMqSender.addParam(mDriverType);
+        mMqSender.addParam(status);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 }

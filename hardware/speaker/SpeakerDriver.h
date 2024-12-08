@@ -21,6 +21,8 @@ public:
 
     void registerClient(service::Msq_Client clientId, const std::string& clientName);
     void requestSync(service::Msq_SpeakerReq type, const std::string& clientName);
+
+    void requestChangeAudioMute(const bool& status);
     
 private:    
     SpeakerDeploy* mDeploy;
