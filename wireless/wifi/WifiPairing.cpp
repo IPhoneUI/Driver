@@ -1,12 +1,12 @@
 #include "WifiPairing.h"
 
-#define SERVICE_NAME highlightString("WifiParing").c_str()
+#define SERVICE_NAME base::utils::highlightString("WifiParing").c_str()
 
 namespace driver {
 
 WifiPairing::WifiPairing()
 {
-    mWifiProvider = WifiProvider::instance();
+    mWifiProvider = base::shm::WifiProvider::instance();
     mWifiDeploy = WifiDeploy::instance();
 }
 
@@ -44,7 +44,7 @@ void WifiPairing::execute(milliseconds delta)
             
 
             mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
-            auto pairList = WifiProvider::instance()->getPairedDeviceList();
+            auto pairList = base::shm::WifiProvider::instance()->getPairedDeviceList();
             for (const auto& device : pairList)
             {
                 if (std::strcmp(device.password, mPairingAddr.c_str()))
@@ -81,7 +81,7 @@ void WifiPairing::execute(milliseconds delta)
     }
 }
 
-std::list<WifiDeviceShmem> WifiPairing::getPairedDeviceList()
+std::list<base::shm::WifiDeviceShmem> WifiPairing::getPairedDeviceList()
 {
     return mWifiProvider->getPairedDeviceList();
 }

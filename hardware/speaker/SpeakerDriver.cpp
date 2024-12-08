@@ -6,7 +6,7 @@ namespace driver {
 SpeakerDriver::SpeakerDriver()
 {
     mDeploy = SpeakerDeploy::instance();
-    mProvider = SpeakerProvider::instance();
+    mProvider = base::shm::SpeakerProvider::instance();
 }
 
 void SpeakerDriver::onMsqReceived()
@@ -14,19 +14,19 @@ void SpeakerDriver::onMsqReceived()
     std::vector<std::string> messages = mMqReceiver.receive("/speakerReq");
     if (!messages.empty()) 
     {
-        service::Msq_SpeakerReq type = static_cast<service::Msq_SpeakerReq>(mMqReceiver.get<int>(messages[0]));
+        base::msq::Msq_SpeakerReq type = static_cast<base::msq::Msq_SpeakerReq>(mMqReceiver.get<int>(messages[0]));
         switch (type) {
-        case service::Speaker_Audio_RegisterClient: {
+        case base::msq::Speaker_Audio_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            registerClient(service::Msq_Audio_Client, clientName);
+            registerClient(base::msq::Msq_Audio_Client, clientName);
             break;
         }
-        case service::Speaker_Audio_ReqSync: {
+        case base::msq::Speaker_Audio_ReqSync: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
             requestSync(type, clientName);
             break;
         }
-        case service::Speaker_Audio_ReqChangeMute: {
+        case base::msq::Speaker_Audio_ReqChangeMute: {
             bool isMute = mMqReceiver.get<bool>(messages[1]);
             requestChangeAudioMute(isMute);
             break;
@@ -47,7 +47,7 @@ void SpeakerDriver::finialize()
     mProvider->closeShmem();
 }
 
-void SpeakerDriver::registerClient(service::Msq_Client clientId, const std::string& clientName)
+void SpeakerDriver::registerClient(base::msq::Msq_Client clientId, const std::string& clientName)
 {
     if (mDeploy->registerClient(clientId, clientName))
     {
@@ -55,7 +55,7 @@ void SpeakerDriver::registerClient(service::Msq_Client clientId, const std::stri
     }
 }
 
-void SpeakerDriver::requestSync(service::Msq_SpeakerReq type, const std::string& clientName)
+void SpeakerDriver::requestSync(base::msq::Msq_SpeakerReq type, const std::string& clientName)
 {
     mDeploy->responseSyncAudio(clientName);
 }
@@ -63,9 +63,9 @@ void SpeakerDriver::requestSync(service::Msq_SpeakerReq type, const std::string&
 void SpeakerDriver::requestChangeAudioMute(const bool &status)
 {
     if (mProvider->getIsMuted() != status) {
-        DataSetResult result = mProvider->setAudioMute(status);
+        base::shm::DataSetResult result = mProvider->setAudioMute(status);
 
-        if (result == DataSetResult::DataSetResult_Valid) {
+        if (result == base::shm::DataSetResult_Valid) {
             mDeploy->responseAudioMute(status);
         }
     }

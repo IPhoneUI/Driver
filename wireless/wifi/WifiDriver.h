@@ -21,7 +21,7 @@ public:
     void finialize() override;
     void execute(milliseconds delta) override;
 
-    void registerClient(service::Msq_Client clientId, const std::string& clientName);
+    void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
 
     void requestChangeWifiStatus(bool status);
     void requestCheckDevicePassword(const std::string& address, const std::string& password);
@@ -30,7 +30,7 @@ public:
 private:
     std::shared_mutex mMutex;
 
-    WifiProvider* mProvider;
+    base::shm::WifiProvider* mProvider;
     WifiDeploy* mDeploy;
 };
 

@@ -38,7 +38,7 @@ private:
     explicit SIMDeploy();
     ~SIMDeploy();
 
-    SIMProvider* mProvider;
+    base::shm::SIMProvider* mProvider;
     std::mutex mMutex;
 };
 

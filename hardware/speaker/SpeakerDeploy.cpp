@@ -6,9 +6,9 @@ namespace driver {
 static SpeakerDeploy* gInstance = nullptr;
 
 SpeakerDeploy::SpeakerDeploy()
-    : common::BaseDeploy(service::Msq_Speaker_Type)
+    : common::BaseDeploy(base::msq::Msq_Speaker_Type)
 {
-    mProvider = SpeakerProvider::instance();
+    mProvider = base::shm::SpeakerProvider::instance();
 }
 
 SpeakerDeploy::~SpeakerDeploy()
@@ -27,7 +27,7 @@ SpeakerDeploy* SpeakerDeploy::instance()
 void SpeakerDeploy::responseDriverReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-    mMqSender.startMsq(service::Speaker_Ready);
+    mMqSender.startMsq(base::msq::Speaker_Ready);
     mMqSender.addParam(mDriverType);
     mMqSender.sendMsq(clientName);
 }
@@ -37,7 +37,7 @@ void SpeakerDeploy::responseSyncAudio(const std::string& clientName)
     {
         std::lock_guard<std::mutex> lock(mMutex);
         bool isMute = mProvider->getIsMuted();
-        mMqSender.startMsq(service::Speaker_Audio_RespChangeMute);
+        mMqSender.startMsq(base::msq::Speaker_Audio_RespChangeMute);
         mMqSender.addParam(mDriverType);
         mMqSender.addParam(isMute);
         mMqSender.sendMsq(clientName);
@@ -46,7 +46,7 @@ void SpeakerDeploy::responseSyncAudio(const std::string& clientName)
     {
         std::lock_guard<std::mutex> lock(mMutex);
         int volume = mProvider->getVolume();
-        mMqSender.startMsq(service::Speaker_Audio_RespChangeVolume);
+        mMqSender.startMsq(base::msq::Speaker_Audio_RespChangeVolume);
         mMqSender.addParam(mDriverType);
         mMqSender.addParam(volume);
         mMqSender.sendMsq(clientName);
@@ -55,9 +55,9 @@ void SpeakerDeploy::responseSyncAudio(const std::string& clientName)
 
 void SpeakerDeploy::responseAudioMute(const bool &status)
 {
-    mClientManager.execute(service::Msq_Audio_Client, [this, status](std::string mqName) {
+    mClientManager.execute(base::msq::Msq_Audio_Client, [this, status](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(service::Speaker_Audio_RespChangeMute);
+        mMqSender.startMsq(base::msq::Speaker_Audio_RespChangeMute);
         mMqSender.addParam(mDriverType);
         mMqSender.addParam(status);
         mMqSender.sendMsq(mqName);

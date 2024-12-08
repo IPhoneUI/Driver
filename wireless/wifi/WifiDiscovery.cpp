@@ -1,12 +1,12 @@
 #include "WifiDiscovery.h"
 
-#define SERVICE_NAME highlightString("WifiParing").c_str()
+#define SERVICE_NAME base::utils::highlightString("WifiParing").c_str()
 
 namespace driver {
 
 WifiDiscovery::WifiDiscovery()
 {
-    mWifiProvider = WifiProvider::instance();
+    mWifiProvider = base::shm::WifiProvider::instance();
     mWifiDeploy = WifiDeploy::instance();
 }
 

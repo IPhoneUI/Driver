@@ -24,8 +24,7 @@ private:
     void handleDiscovering(milliseconds delta);
     void handleConnectDevice(milliseconds delta);
 
-    // EventQueue<WifiEvent> mEvent;
-    WifiDiscoveryDeviceShmem mDevice;
+    base::shm::WifiDiscoveryDeviceShmem mDevice;
     bool mDiscoveryFlag {false};
     bool mConnectDeviceFlag {false};
     std::string mDiscoryDeviceAddr {""};
@@ -35,7 +34,7 @@ private:
     service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
 
     WifiDeploy* mWifiDeploy;
-    WifiProvider* mWifiProvider;
+    base::shm::WifiProvider* mWifiProvider;
 };
 
 }

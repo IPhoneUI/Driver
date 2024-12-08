@@ -20,14 +20,14 @@ public:
     void responseDriverReady(const std::string& clientName);
     void responseSync(const std::string& clientName);
     void responseChangeWifiStatus(bool status);
-    void responseDiscoveryDeviceUpdated(const WifiDiscoveryDeviceShmem& device);
+    void responseDiscoveryDeviceUpdated(const base::shm::WifiDiscoveryDeviceShmem& device);
     void responseCheckDevicePassword(bool result);
 
 private:
     explicit WifiDeploy();
     ~WifiDeploy();
 
-    WifiProvider* mProvider;
+    base::shm::WifiProvider* mProvider;
     std::mutex mMutex;
 };
 

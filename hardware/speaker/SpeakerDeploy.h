@@ -27,7 +27,7 @@ private:
     explicit SpeakerDeploy();
     ~SpeakerDeploy();
 
-    SpeakerProvider* mProvider;
+    base::shm::SpeakerProvider* mProvider;
     std::mutex mMutex;
 };
 

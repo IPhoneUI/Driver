@@ -19,13 +19,13 @@ public:
     void initialize() override;
     void finialize() override;
 
-    void registerClient(service::Msq_Client clientId, const std::string& clientName);
-    void requestSync(service::Msq_FlashMemoryReq type, const std::string& clientName);
+    void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
+    void requestSync(base::msq::Msq_FlashMemoryReq type, const std::string& clientName);
     void requestChangeAirPlaneMode(bool airPlane);
 
 private:
     FlashMemoryDeploy* mDeploy;
-    FlashMemoryProvider* mProvider;
+    base::shm::FlashMemoryProvider* mProvider;
 };
 
 }

@@ -7,7 +7,7 @@ namespace driver {
 
 WifiDriver::WifiDriver()
 {
-    mProvider = WifiProvider::instance();
+    mProvider = base::shm::WifiProvider::instance();
     mDeploy = WifiDeploy::instance();
 }
 
@@ -16,34 +16,34 @@ void WifiDriver::onMsqReceived()
     std::vector<std::string> messages = mMqReceiver.receive("/wifiReq");
     if (!messages.empty()) 
     {
-        service::Msq_WifiReq type = static_cast<service::Msq_WifiReq>(mMqReceiver.get<int>(messages[0]));
+        base::msq::Msq_WifiReq type = static_cast<base::msq::Msq_WifiReq>(mMqReceiver.get<int>(messages[0]));
         switch (type) {
-        case service::Wifi_RegisterClient: {
+        case base::msq::Wifi_RegisterClient: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            registerClient(service::Msq_Wifi_Client, clientName);
+            registerClient(base::msq::Msq_Wifi_Client, clientName);
             break;
         }
-        case service::Wifi_ReqSync: {
+        case base::msq::Wifi_ReqSync: {
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
             mDeploy->responseSync(clientName);
             break;
         }
-        case service::Wifi_ReqChangeWifiStatus: {
+        case base::msq::Wifi_ReqChangeWifiStatus: {
             bool status = mMqReceiver.get<bool>(messages[1]);
             requestChangeWifiStatus(status);
             break;
         }
-        case service::Wifi_ReqStartDiscovery: {
+        case base::msq::Wifi_ReqStartDiscovery: {
             WifiDiscovery::instance().startDiscovery();
             break;
         }
-        case service::Wifi_ReqCheckPassword: {
+        case base::msq::Wifi_ReqCheckPassword: {
             std::string address = mMqReceiver.get<std::string>(messages[1]);
             std::string password = mMqReceiver.get<std::string>(messages[2]);
             requestCheckDevicePassword(address, password);
             break;
         }
-        case service::Wifi_ReqConnectDevice: {
+        case base::msq::Wifi_ReqConnectDevice: {
             std::string address = mMqReceiver.get<std::string>(messages[1]);
             requestConnectDevice(address);
         }
@@ -68,7 +68,7 @@ void WifiDriver::finialize()
     LOG_INFO("WifiDriver finialize");
 }
 
-void WifiDriver::registerClient(service::Msq_Client clientId, const std::string& clientName)
+void WifiDriver::registerClient(base::msq::Msq_Client clientId, const std::string& clientName)
 {
     if (mDeploy->registerClient(clientId, clientName))
     {
@@ -79,7 +79,7 @@ void WifiDriver::registerClient(service::Msq_Client clientId, const std::string&
 void WifiDriver::requestChangeWifiStatus(bool status)
 {
     auto result = mProvider->setWifiStatus(status);
-    if (result == DataSetResult_Valid)
+    if (result == base::shm::DataSetResult_Valid)
     {
         mDeploy->responseChangeWifiStatus(status);
     }
@@ -88,7 +88,7 @@ void WifiDriver::requestChangeWifiStatus(bool status)
 void WifiDriver::requestConnectDevice(const std::string& address)
 {
     LOG_INFO("Request connect device with address: %s", address.c_str());
-    for (const auto& item : WifiProvider::instance()->getPairedDeviceList())
+    for (const auto& item : base::shm::WifiProvider::instance()->getPairedDeviceList())
     {
         if (item.deviceinfo.address == address)
         {
@@ -96,7 +96,7 @@ void WifiDriver::requestConnectDevice(const std::string& address)
             return;
         }
     }
-    for (const auto& item : WifiProvider::instance()->getPairedDeviceList())
+    for (const auto& item : base::shm::WifiProvider::instance()->getPairedDeviceList())
     {
         if (item.deviceinfo.address == address)
         {
@@ -108,7 +108,7 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
 void WifiDriver::requestCheckDevicePassword(const std::string& address, const std::string& password)
 {
-    std::function<bool(std::string, std::string, std::list<WifiDeviceShmem>)> checkPassword = [](std::string address, std::string password, std::list<WifiDeviceShmem> discoveryList) -> bool 
+    std::function<bool(std::string, std::string, std::list<base::shm::WifiDeviceShmem>)> checkPassword = [](std::string address, std::string password, std::list<base::shm::WifiDeviceShmem> discoveryList) -> bool 
     {
         for (auto it = discoveryList.begin(); it != discoveryList.end(); it++) 
         {
@@ -121,7 +121,7 @@ void WifiDriver::requestCheckDevicePassword(const std::string& address, const st
     };
 
     bool result = false;
-    std::list<WifiDeviceShmem> list = WifiProvider::instance()->getPairedDeviceList();
+    std::list<base::shm::WifiDeviceShmem> list = base::shm::WifiProvider::instance()->getPairedDeviceList();
     if (checkPassword(address, password, list)) 
     {
         result = true;

@@ -22,8 +22,8 @@ public:
     void finialize() override;
     void execute(milliseconds delta) override;
 
-    void registerClient(service::Msq_Client clientId, const std::string& clientName);
-    void requestSync(service::Msq_SIMReq type, const std::string& clientName);
+    void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
+    void requestSync(base::msq::Msq_SIMReq type, const std::string& clientName);
 
     void requestChangeCellularStatus(bool status);
     void requestChangeAllowAccess(bool status);
@@ -44,11 +44,11 @@ private:
     void updateTimeCall(milliseconds delta);
 
 private:
-    SIMProvider* mProvider;
+    base::shm::SIMProvider* mProvider;
     SIMDeploy* mDeploy;
 
     service::CallInformation* mCallInfo;
-    EventQueue<PSTNEvent> mEventQueue;
+    base::event::EventQueue<PSTNEvent> mEventQueue;
 };
 
 }

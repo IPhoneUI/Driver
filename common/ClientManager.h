@@ -9,7 +9,7 @@
 #include <mutex>
 #include <shared_mutex>
 
-namespace driver {
+namespace driver::common {
 
 class ClientManager 
 {
@@ -26,12 +26,12 @@ public:
         std::vector<std::string> mClients;
     };
 
-    bool registerGroup(service::Msq_Client type, const std::string& clientName);
-    void execute(service::Msq_Client type, std::function<void(std::string)> func);
+    bool registerGroup(base::msq::Msq_Client type, const std::string& clientName);
+    void execute(base::msq::Msq_Client type, std::function<void(std::string)> func);
 
 private:
     std::mutex mMutex;
-    std::unordered_map<service::Msq_Client, ClientGroup*>  mGroups;
+    std::unordered_map<base::msq::Msq_Client, ClientGroup*>  mGroups;
 };
 
 }

@@ -26,7 +26,7 @@ public:
     virtual void onMsqReceived() = 0;
 
 protected:
-    service::MsqReceiver mMqReceiver;
+    base::msq::MsqReceiver mMqReceiver;
 };
 
 }

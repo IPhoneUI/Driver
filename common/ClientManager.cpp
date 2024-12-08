@@ -1,9 +1,9 @@
 #include "ClientManager.h"
 #include <utils/Logger.h>
 
-namespace driver {
+namespace driver::common {
 
-bool ClientManager::registerGroup(service::Msq_Client type, const std::string& clientName)
+bool ClientManager::registerGroup(base::msq::Msq_Client type, const std::string& clientName)
 {
     ClientGroup* group = nullptr;
     {
@@ -28,7 +28,7 @@ bool ClientManager::registerGroup(service::Msq_Client type, const std::string& c
     return false;
 }
 
-void ClientManager::execute(service::Msq_Client type, std::function<void(std::string)> func)
+void ClientManager::execute(base::msq::Msq_Client type, std::function<void(std::string)> func)
 {
     auto it = mGroups.find(type);
     if (it == mGroups.end())
