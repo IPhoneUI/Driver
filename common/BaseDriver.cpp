@@ -1,10 +1,9 @@
 #include "BaseDriver.h"
 
-namespace driver::common {
+namespace common {
 
 void BaseDriver::execute(milliseconds delta)
 {
-
 }
 
 }

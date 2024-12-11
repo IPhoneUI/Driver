@@ -8,9 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/hardware
-    ${CMAKE_CURRENT_SOURCE_DIR}/wireless
-    ${CMAKE_CURRENT_SOURCE_DIR}/entertainment
+    ${CMAKE_CURRENT_SOURCE_DIR}/services
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/hardware
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/wireless
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/entertainment
 )
 
 find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem)

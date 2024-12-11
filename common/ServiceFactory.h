@@ -1,7 +1,7 @@
-#ifndef DRIVERFACTORY_H
-#define DRIVERFACTORY_H
+#ifndef SERVICEFACTORY_H
+#define SERVICEFACTORY_H
 
-#include <BaseDriver.h>
+#include <BaseServiceImpl.h>
 #include <unordered_map>
 #include <thread>
 #include <stdio.h>
@@ -16,18 +16,27 @@ static constexpr int16_t delayMicroSeconds = 10000; // 0.01s
 
 namespace common {
 
-class DriverFactory {
+class ServiceFactory {
 public:
-    ~DriverFactory();
-    static DriverFactory& instance();
+    ~ServiceFactory();
+    static ServiceFactory& instance();
 
     template <typename T>
-    T *addDriver()
+    T *addService()
     {
         std::lock_guard<std::mutex> lock(mMutex);
         T* ins = new T();
 
-        mDrivers.emplace(ins);
+        std::thread* msqReceiverThread = new std::thread([this, ins] 
+        {
+            while (true)
+            {
+                ins->onMsqReceived();
+                usleep(mDelayMicroSecond);
+            }
+        });
+
+        mServices.emplace(ins, msqReceiverThread);
 
         return ins;
     }
@@ -37,16 +46,17 @@ public:
     void execute();
     
 private:
-    DriverFactory();
+    ServiceFactory();
 
-    std::vector<BaseServiceImpl*, std::thread*> mDrivers;
+    std::unordered_map<BaseServiceImpl*, std::thread*> mServices;
     std::shared_mutex mMutexProcess;
 
     std::thread mThread;
+    std::mutex mMutex;
     useconds_t mDelayMicroSecond = delayMicroSeconds;
     bool mIsThreadRunning{false};
 };
 
 }
 
-#endif // DRIVERFACTORY_H
+#endif // SERVICEFACTORY_H

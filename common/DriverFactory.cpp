@@ -1,7 +1,7 @@
 #include "DriverFactory.h"
 #include <utils/Logger.h>
 
-namespace driver::common {
+namespace common {
 
 using time_clock = std::chrono::system_clock;
 
@@ -27,8 +27,7 @@ void DriverFactory::initialize()
 {
     for (auto it = mDrivers.begin(); it != mDrivers.end(); ++it)
     {
-        (*it).second->detach();
-        (*it).first->initialize();
+        (*it)->initialize();
     }
 }
 
@@ -36,7 +35,7 @@ void DriverFactory::finialize()
 {
     for (auto it = mDrivers.begin(); it != mDrivers.end(); ++it)
     {
-        (*it).first->finialize();
+        (*it)->finialize();
     }
 }
 
@@ -53,9 +52,9 @@ void DriverFactory::execute()
         auto it = mDrivers.begin();
         while (it != mDrivers.end())
         {
-            if (it->first != nullptr)
+            if ((*it) != nullptr)
             {
-                it->first->execute(delta);
+                (*it)->execute(delta);
                 it++;
             }
         }

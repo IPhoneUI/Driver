@@ -1,5 +1,5 @@
-#ifndef BASEDRIVER_H
-#define BASEDRIVER_H
+#ifndef BASESERVICEIMPL_H
+#define BASESERVICEIMPL_H
 
 #include <queue>
 #include <string>
@@ -15,7 +15,7 @@ namespace common {
 
 #define milliseconds std::chrono::milliseconds
 
-class BaseDriver 
+class BaseServiceImpl 
 {
 public:
     virtual void initialize() = 0;
@@ -23,6 +23,7 @@ public:
     virtual void execute(milliseconds delta);
 
     virtual void onMsqReceived() = 0;
+    virtual void registerClient(const std::string& clientName) = 0;
 
 protected:
     base::msq::MsqReceiver mMqReceiver;
