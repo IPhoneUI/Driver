@@ -8,7 +8,9 @@
 #include <sim/SIMProvider.h>
 #include <event/EventQueue.h>
 #include <pstn/PSTNServiceDef.h>
+#include <sim/SIMDriver.h>
 #include "PSTNServiceDeploy.h"
+#include <Connection.h>
 
 namespace service {
 
@@ -20,30 +22,18 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-    void execute(milliseconds delta) override;
 
     void registerClient(const std::string& clientName) override;
-    void callNumber(const std::string& number);
-    void answerCall();
-    void rejectCall();
-    void terminateCall();
-
 
 private:
-    enum class PSTNEvent {
-        CallStatusUpdated,
-        TimeUpdated,
-        CallInfoUpdated
-    };
-
-    void updateTimeCall(milliseconds delta);
-
+    void onDriverReady();
+    void onTimeUpdated(int);
+    void onCallStatusUpdated(service::CallStatus, const std::string&);
+    void onCallInfoUpdated(const std::string&, const std::string&, const std::string&);
 private:
-    base::shm::SIMProvider* mSIMProvider;
+    // base::shm::SIMProvider* mSIMProvider;
+    driver::SIMDriver* mSIMDriver;
     PSTNServiceDeploy* mDeploy;
-
-    service::CallInformation* mCallInfo;
-    base::event::EventQueue<PSTNEvent> mEventQueue;
 };
 
 }

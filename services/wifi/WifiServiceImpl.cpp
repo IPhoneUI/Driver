@@ -34,7 +34,7 @@ void WifiServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_Wifi_ReqStartDiscovery: {
-            driver::WifiDiscovery::instance().startDiscovery();
+            // driver::WifiDiscovery::instance().startDiscovery();
             break;
         }
         case base::msq::Msq_Wifi_ReqCheckPassword: {
@@ -51,11 +51,11 @@ void WifiServiceImpl::onMsqReceived()
     }
 }
 
-void WifiServiceImpl::execute(milliseconds delta)
-{
-    driver::WifiDiscovery::instance().execute(delta);
-    driver::WifiPairing::instance().execute(delta);
-}
+// void WifiServiceImpl::execute(milliseconds delta)
+// {
+//     // driver::WifiDiscovery::instance().execute(delta);
+//     // driver::WifiPairing::instance().execute(delta);
+// }
 
 void WifiServiceImpl::initialize()
 {
@@ -93,7 +93,7 @@ void WifiServiceImpl::requestConnectDevice(const std::string& address)
     {
         if (item.deviceinfo.address == address)
         {
-            driver::WifiPairing::instance().requestConnectDevice(address);
+            // driver::WifiPairing::instance().requestConnectDevice(address);
             return;
         }
     }
@@ -101,7 +101,7 @@ void WifiServiceImpl::requestConnectDevice(const std::string& address)
     {
         if (item.deviceinfo.address == address)
         {
-            driver::WifiDiscovery::instance().requestConnectDevice(address);
+            // driver::WifiDiscovery::instance().requestConnectDevice(address);
             return;
         }
     }

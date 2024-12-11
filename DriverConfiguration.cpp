@@ -8,6 +8,11 @@
 #include <pstn/PSTNServiceImpl.h>
 #include <systemsetting/SystemSettingServiceImpl.h>
 #include <wifi/WifiServiceImpl.h>
+#include <flashmemory/FlashMemoryDriver.h>
+#include <wifi/WifiDriver.h>
+#include <speaker/SpeakerDriver.h>
+#include <sim/SIMDriver.h>
+#include <easymath/EasyMathServer.h>
 
 namespace driver {
 
@@ -29,6 +34,12 @@ DriverConfiguration::~DriverConfiguration()
 void DriverConfiguration::start()
 {
     LOG_INFO("DriverConfiguration Start");
+    driver::EasyMathServer::initialize();
+    driver::FlashMemoryDriver::initialize();
+    driver::WifiDriver::initialize();
+    driver::SIMDriver::initialize();
+    driver::SpeakerDriver::initialize();
+
     common::ServiceFactory::instance().initialize();
 }
 

@@ -4,20 +4,19 @@
 #include <string>
 #include <thread>
 #include <functional>
-#include <common/BaseServiceImpl.h>
+#include <common/BaseDriver.h>
 
 namespace driver {
 
-class EasyMathServer : public common::BaseServiceImpl 
+class EasyMathServer : public common::BaseDriver 
 {
 public:
-    explicit EasyMathServer();
-
-    void onMsqReceived() override;
-    void initialize() override;
-    void finialize() override;
+    static EasyMathServer* getInstance();
+    static void initialize();
+    void connectDriver() override;
 
 private:
+    explicit EasyMathServer();
 };
 
 }

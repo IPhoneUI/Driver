@@ -1,45 +1,49 @@
-#include "DriverFactory.h"
+#include "DriverExecution.h"
 #include <utils/Logger.h>
 
 namespace common {
 
 using time_clock = std::chrono::system_clock;
 
-DriverFactory::DriverFactory()
-    : mThread(std::bind(&DriverFactory::execute, this))
+DriverExecution::DriverExecution()
+    : mThread(std::bind(&DriverExecution::execute, this))
 {
     mThread.detach();
 }
 
 
-DriverFactory::~DriverFactory()
+DriverExecution::~DriverExecution()
 {
     mIsThreadRunning = false;
 }
 
-DriverFactory &DriverFactory::instance()
+DriverExecution &DriverExecution::instance()
 {
-    static DriverFactory ins;
+    static DriverExecution ins;
     return ins;
 }
 
-void DriverFactory::initialize()
+void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
 {
+    if (obj == nullptr)
+        return;
+
+    std::lock_guard<std::mutex> lock(mMutex);
+    auto it = mDrivers.begin();
+
     for (auto it = mDrivers.begin(); it != mDrivers.end(); ++it)
     {
-        (*it)->initialize();
+        if (it->first == clientName)
+        {
+            LOG_WARN("%s exists in driver list", clientName.c_str());
+            return;
+        }
     }
+
+    mDrivers.emplace(clientName, obj);
 }
 
-void DriverFactory::finialize()
-{
-    for (auto it = mDrivers.begin(); it != mDrivers.end(); ++it)
-    {
-        (*it)->finialize();
-    }
-}
-
-void DriverFactory::execute()
+void DriverExecution::execute()
 {
     mIsThreadRunning = true;
     static time_clock::time_point lastUpdate = time_clock::now();
@@ -52,9 +56,9 @@ void DriverFactory::execute()
         auto it = mDrivers.begin();
         while (it != mDrivers.end())
         {
-            if ((*it) != nullptr)
+            if (it->second != nullptr)
             {
-                (*it)->execute(delta);
+                it->second->execute(delta);
                 it++;
             }
         }

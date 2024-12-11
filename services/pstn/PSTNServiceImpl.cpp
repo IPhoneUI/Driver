@@ -4,9 +4,10 @@
 namespace service {
 
 PSTNServiceImpl::PSTNServiceImpl()
+    : common::BaseServiceImpl(PSTNServiceDeploy::instance())
 {
-    mSIMProvider = base::shm::SIMProvider::instance();
     mDeploy = PSTNServiceDeploy::instance();
+    mSIMDriver = driver::SIMDriver::getInstance();
 }
 
 void PSTNServiceImpl::onMsqReceived()
@@ -23,19 +24,19 @@ void PSTNServiceImpl::onMsqReceived()
         }
         case base::msq::Msq_PSTN_ReqCallNumber: {
             std::string phoneNumber = mMqReceiver.get<std::string>(messages[1]);
-            callNumber(phoneNumber);
+            mSIMDriver->callNumber(phoneNumber);
             break;
         }
         case base::msq::Msq_PSTN_ReqAnswerCall: {
-            answerCall();
+            mSIMDriver->answerCall();
             break;
         }
         case base::msq::Msq_PSTN_ReqRejectCall: {
-            rejectCall();
+            mSIMDriver->rejectCall();
             break;
         }
         case base::msq::Msq_PSTN_ReqTerminateCall: {
-            terminateCall();
+            mSIMDriver->terminateCall();
             break;
         }
         }
@@ -45,157 +46,49 @@ void PSTNServiceImpl::onMsqReceived()
 void PSTNServiceImpl::initialize()
 {
     LOG_INFO("PSTNServiceImpl initialize");
-    mSIMProvider->initialize();
+
+    Connection::connect(mSIMDriver->onDriverReady, std::bind(&PSTNServiceImpl::onDriverReady, this));
+    Connection::connect(mSIMDriver->onTimeUpdated, std::bind(&PSTNServiceImpl::onTimeUpdated, this, std::placeholders::_1));
+    Connection::connect(mSIMDriver->onCallStatusUpdated, std::bind(&PSTNServiceImpl::onCallStatusUpdated, this, std::placeholders::_1, std::placeholders::_2));
+    Connection::connect(mSIMDriver->onCallInfoUpdated, std::bind(&PSTNServiceImpl::onCallInfoUpdated, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 void PSTNServiceImpl::finialize()
 {
     LOG_INFO("PSTNServiceImpl finialize");
-    mSIMProvider->closeShmem();
-}
-
-void PSTNServiceImpl::execute(milliseconds delta)
-{
-    static milliseconds checkActiveState = milliseconds(0); 
-
-    if (!mEventQueue.isEmpty())
-    {
-        PSTNEvent event = mEventQueue.front();
-
-        switch(static_cast<PSTNEvent>(event)) {
-        case PSTNEvent::CallStatusUpdated:
-            if (mCallInfo == nullptr)
-                return;
-            mDeploy->responseCallStatusUpdated(mCallInfo->status, mCallInfo->number);
-            break;
-        case PSTNEvent::CallInfoUpdated:
-            if (mCallInfo == nullptr)
-                return;
-
-            mDeploy->responseCallInfoUpdated(mCallInfo->number, mCallInfo->name, mCallInfo->avatar);
-            break;
-        case PSTNEvent::TimeUpdated:
-            if (mCallInfo == nullptr)
-                return;
-
-            mDeploy->responseTimeUpdated(mCallInfo->time);
-            break;
-        default:
-            break;
-        }
-
-        mEventQueue.pop();
-    }
-
-    if (mCallInfo != nullptr && (mCallInfo->status == service::CallStatus::Incoming || mCallInfo->status == service::CallStatus::Outgoing))
-    {
-        checkActiveState += delta;
-        if (checkActiveState > milliseconds(5000))
-        {
-            checkActiveState = milliseconds(0);
-            mCallInfo->status = service::CallStatus::Active;
-            mEventQueue.push(PSTNEvent::CallStatusUpdated);
-
-        }
-    }
-
-    updateTimeCall(delta);
-
-    if (mCallInfo != nullptr && mCallInfo->status == service::CallStatus::Idle)
-    {
-        delete mCallInfo;
-        mCallInfo = nullptr;
-    }
 }
 
 void PSTNServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseDriverReady(clientName);
+        mClientWaitReady.push_back(clientName);
+        mSIMDriver->connectDriver();
     }
 }
 
-void PSTNServiceImpl::callNumber(const std::string& number)
+void PSTNServiceImpl::onDriverReady()
 {
-    if (mCallInfo != nullptr)
-        return;
-
-    mCallInfo = new service::CallInformation();
-    mCallInfo->status = service::CallStatus::Outgoing;
-    mCallInfo->number = number;
-
-    auto contactList = mSIMProvider->getPhoneContactList();
-
-    for (auto it = contactList.begin(); it != contactList.end(); ++it)
+    for (const auto& client : mClientWaitReady)
     {
-        if (std::strcmp(it->phoneNumber, number.c_str()) == 0)
-        {
-            mCallInfo->name = std::string(it->formatName);
-            mCallInfo->avatar = std::string(it->photo);
-            break;
-        }
+        mDeploy->responseDriverReady(client);
     }
-
-    mEventQueue.push(PSTNEvent::CallStatusUpdated);
-    mEventQueue.push(PSTNEvent::CallInfoUpdated);
+    mClientWaitReady.clear();
 }
 
-void PSTNServiceImpl::answerCall()
+void PSTNServiceImpl::onTimeUpdated(int time)
 {
-    if (mCallInfo == nullptr)
-        return;
-    
-    if (mCallInfo->status == service::CallStatus::Outgoing 
-        || mCallInfo->status == service::CallStatus::Incoming)
-    {
-        mCallInfo->status = service::CallStatus::Active;
-        mEventQueue.push(PSTNEvent::CallStatusUpdated);
-    }
+    mDeploy->responseTimeUpdated(time);
 }
 
-void PSTNServiceImpl::rejectCall()
+void PSTNServiceImpl::onCallStatusUpdated(service::CallStatus callStatus, const std::string& number)
 {
-    if (mCallInfo == nullptr)
-        return;
-    
-    if (mCallInfo->status == service::CallStatus::Incoming)
-    {
-        mCallInfo->status = service::CallStatus::Idle;
-        mEventQueue.push(PSTNEvent::CallStatusUpdated);
-    }
+    mDeploy->responseCallStatusUpdated(callStatus, number);
 }
 
-void PSTNServiceImpl::terminateCall()
+void PSTNServiceImpl::onCallInfoUpdated(const std::string& number, const std::string& name, const std::string& avatar)
 {
-    if (mCallInfo == nullptr)
-        return;
-    
-    if (mCallInfo->status == service::CallStatus::Active 
-        || mCallInfo->status == service::CallStatus::Outgoing)
-    {
-        mCallInfo->status = service::CallStatus::Idle;
-        mEventQueue.push(PSTNEvent::CallStatusUpdated);
-    }
-}
-
-void PSTNServiceImpl::updateTimeCall(milliseconds delta)
-{
-    static milliseconds sTime {milliseconds(0)};
-
-    if (mCallInfo != nullptr && mCallInfo->status == service::CallStatus::Active)
-    {
-        sTime += delta;
-        if (sTime > milliseconds(1000))
-        {
-            mCallInfo->time += 1000;
-            mEventQueue.push(PSTNEvent::TimeUpdated);
-            sTime = milliseconds(0);
-        }
-    }
-    else {
-        sTime = milliseconds(0);
-    }
+    mDeploy->responseCallInfoUpdated(number, name, avatar);
 }
 
 }

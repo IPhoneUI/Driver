@@ -18,7 +18,7 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-    void execute(milliseconds delta) override;
+    // void execute(milliseconds delta) override;
 
     void registerClient(const std::string& clientName);
     void requestChangeWifiStatus(bool status);

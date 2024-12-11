@@ -32,7 +32,7 @@ public:
             while (true)
             {
                 ins->onMsqReceived();
-                usleep(mDelayMicroSecond);
+                usleep(delayMicroSeconds);
             }
         });
 
@@ -43,7 +43,6 @@ public:
 
     void initialize();
     void finialize();
-    void execute();
     
 private:
     ServiceFactory();
@@ -51,10 +50,7 @@ private:
     std::unordered_map<BaseServiceImpl*, std::thread*> mServices;
     std::shared_mutex mMutexProcess;
 
-    std::thread mThread;
     std::mutex mMutex;
-    useconds_t mDelayMicroSecond = delayMicroSeconds;
-    bool mIsThreadRunning{false};
 };
 
 }

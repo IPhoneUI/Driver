@@ -1,5 +1,5 @@
-#ifndef DRIVERFACTORY_H
-#define DRIVERFACTORY_H
+#ifndef DRIVEREXECUTION_H
+#define DRIVEREXECUTION_H
 
 #include <BaseDriver.h>
 #include <unordered_map>
@@ -11,35 +11,25 @@
 #include <chrono>
 #include <mutex>
 #include <shared_mutex>
+#include "BaseDriver.h"
 
 static constexpr int16_t delayMicroSeconds = 10000; // 0.01s
 
 namespace common {
 
-class DriverFactory {
+class DriverExecution {
 public:
-    ~DriverFactory();
-    static DriverFactory& instance();
+    ~DriverExecution();
+    static DriverExecution& instance();
 
-    template <typename T>
-    T *addDriver()
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        T* ins = new T();
-
-        mDrivers.emplace(ins);
-
-        return ins;
-    }
-
-    void initialize();
-    void finialize();
+    void addDriver(const std::string& clientName, BaseDriver *obj);
     void execute();
     
 private:
-    DriverFactory();
+    DriverExecution();
 
-    std::vector<BaseServiceImpl*, std::thread*> mDrivers;
+    std::unordered_map<std::string, BaseDriver*> mDrivers;
+    std::mutex mMutex;
     std::shared_mutex mMutexProcess;
 
     std::thread mThread;
@@ -49,4 +39,4 @@ private:
 
 }
 
-#endif // DRIVERFACTORY_H
+#endif // DRIVEREXECUTION_H

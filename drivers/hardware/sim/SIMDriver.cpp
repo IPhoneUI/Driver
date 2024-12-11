@@ -1,75 +1,32 @@
 #include "SIMDriver.h"
 #include <utils/Logger.h>
+#include <DriverExecution.h>
 
 namespace driver {
 
+static SIMDriver* gInstance = 0;
+
 SIMDriver::SIMDriver()
 {
-    mProvider = base::shm::SIMProvider::instance();
-    mDeploy = SIMDeploy::instance();
+    common::DriverExecution::instance().addDriver("SIMDriver", this);
 }
 
-void SIMDriver::onMsqReceived()
+SIMDriver* SIMDriver::getInstance()
 {
-    std::vector<std::string> messages = mMqReceiver.receive("/SIMReq");
-    if (!messages.empty()) 
+    if (gInstance == nullptr)
     {
-        base::msq::Msq_SIMReq type = static_cast<base::msq::Msq_SIMReq>(mMqReceiver.get<int>(messages[0]));
-        switch (type) {
-        case base::msq::SIM_CelNetwork_RegisterClient: {
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            registerClient(base::msq::Msq_CelNetwork_Client, clientName);
-            break;
-        }
-        case base::msq::SIM_CelNetwork_ReqSync: 
-        case base::msq::SIM_PhoneBook_ReqSync:{
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            requestSync(type, clientName);
-            break;
-        }
-        case base::msq::SIM_CelNetwork_ReqChangeAllowAcess: {
-            bool allowAcess = mMqReceiver.get<bool>(messages[2]);
-            requestChangeAllowAccess(allowAcess);
-            break;
-        }
-        case base::msq::SIM_CelNetwork_ReqChangeMaxCompatibility: {
-            bool maxCompa = mMqReceiver.get<bool>(messages[2]);
-            requestChangeMaxCompatibility(maxCompa);
-            break;
-        }
-        case base::msq::SIM_CelNetwork_ReqChangeCellulatr: {
-            bool cellularStatus = mMqReceiver.get<bool>(messages[2]);
-            requestChangeCellularStatus(cellularStatus);
-            break;
-        }
-        case base::msq::SIM_PhoneBook_RegisterClient: {
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            registerClient(base::msq::Msq_PhoneBook_Client, clientName);
-            break;
-        }
-        case base::msq::SIM_PSTN_RegisterClient: {
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            registerClient(base::msq::Msq_PSTN_Client, clientName);
-            break;
-        }
-        case base::msq::SIM_PSTN_ReqCallNumber: {
-            std::string phoneNumber = mMqReceiver.get<std::string>(messages[2]);
-            callNumber(phoneNumber);
-            break;
-        }
-        case base::msq::SIM_PSTN_ReqAnswerCall: {
-            answerCall();
-            break;
-        }
-        case base::msq::SIM_PSTN_ReqRejectCall: {
-            rejectCall();
-            break;
-        }
-        case base::msq::SIM_PSTN_ReqTerminateCall: {
-            terminateCall();
-            break;
-        }
-        }
+        gInstance = new SIMDriver();
+    }
+
+    return gInstance;
+}
+
+void SIMDriver::initialize()
+{
+    LOG_INFO("SIMDriver initialize");
+    if (gInstance == nullptr)
+    {
+        gInstance = new SIMDriver();
     }
 }
 
@@ -85,19 +42,19 @@ void SIMDriver::execute(milliseconds delta)
         case PSTNEvent::CallStatusUpdated:
             if (mCallInfo == nullptr)
                 return;
-            mDeploy->responseCallStatusUpdated(mCallInfo->status, mCallInfo->number);
+            onCallStatusUpdated.emit(mCallInfo->status, mCallInfo->number);
             break;
         case PSTNEvent::CallInfoUpdated:
             if (mCallInfo == nullptr)
                 return;
 
-            mDeploy->responseCallInfoUpdated(mCallInfo->number, mCallInfo->name, mCallInfo->avatar);
+            onCallInfoUpdated.emit(mCallInfo->number, mCallInfo->name, mCallInfo->avatar);
             break;
         case PSTNEvent::TimeUpdated:
             if (mCallInfo == nullptr)
                 return;
-
-            mDeploy->responseTimeUpdated(mCallInfo->time);
+                
+            onTimeUpdated.emit(mCallInfo->time);
             break;
         default:
             break;
@@ -127,68 +84,42 @@ void SIMDriver::execute(milliseconds delta)
     }
 }
 
-void SIMDriver::initialize()
+void SIMDriver::connectDriver()
 {
-    LOG_INFO("SIMDriver initialize");
-    mProvider->initialize();
+    mIsReady = true;
+    onDriverReady.emit();
 }
 
-void SIMDriver::finialize()
-{
-    LOG_INFO("SIMDriver finialize");
-    mProvider->closeShmem();
-}
+// void SIMDriver::requestChangeCellularStatus(bool status)
+// {
+//     auto result = mProvider->setIsCellular(status);
 
-void SIMDriver::registerClient(base::msq::Msq_Client clientId, const std::string& clientName)
-{
-    // if (mDeploy->registerClient(clientId, clientName))
-    // {
-    //     mDeploy->responseDriverReady(clientName);
-    // }
-}
+//     if (result == base::shm::DataSetResult_Valid)
+//     {
+//         mDeploy->responseChangeCellularStatus(status);
+//     }
+// }
 
-void SIMDriver::requestSync(base::msq::Msq_SIMReq type, const std::string& clientName)
-{
-    if (type == base::msq::SIM_PhoneBook_ReqSync)
-    {
-        mDeploy->responseSyncPhoneBook(clientName);
-    }
-    else if (type == base::msq::SIM_CelNetwork_ReqSync)
-    {
-        mDeploy->responseSyncCelNetwork(clientName);
-    }
-}
+// void SIMDriver::requestChangeAllowAccess(bool status)
+// {
+//     auto result = mProvider->setIsAllowAccess(status);
 
-void SIMDriver::requestChangeCellularStatus(bool status)
-{
-    auto result = mProvider->setIsCellular(status);
+//     if (result == base::shm::DataSetResult_Valid)
+//     {
+//         mDeploy->responseChangeAllowAccess(status);
+//     }
+// }
 
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeCellularStatus(status);
-    }
-}
+// void SIMDriver::requestChangeMaxCompatibility(bool status)
+// {
+//     auto result = mProvider->setIsMaxCompatibility(status);
 
-void SIMDriver::requestChangeAllowAccess(bool status)
-{
-    auto result = mProvider->setIsAllowAccess(status);
-
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeAllowAccess(status);
-    }
-}
-
-void SIMDriver::requestChangeMaxCompatibility(bool status)
-{
-    auto result = mProvider->setIsMaxCompatibility(status);
-
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeMaxCompatibility(status);
-    }
-}
-
+//     if (result == base::shm::DataSetResult_Valid)
+//     {
+//         mDeploy->responseChangeMaxCompatibility(status);
+//     }
+// }
+//
 void SIMDriver::callNumber(const std::string& number)
 {
     if (mCallInfo != nullptr)
@@ -198,17 +129,17 @@ void SIMDriver::callNumber(const std::string& number)
     mCallInfo->status = service::CallStatus::Outgoing;
     mCallInfo->number = number;
 
-    auto contactList = mProvider->getPhoneContactList();
-
-    for (auto it = contactList.begin(); it != contactList.end(); ++it)
-    {
-        if (std::strcmp(it->phoneNumber, number.c_str()) == 0)
-        {
-            mCallInfo->name = std::string(it->formatName);
-            mCallInfo->avatar = std::string(it->photo);
-            break;
-        }
-    }
+    // FIXME
+    // auto contactList = mProvider->getPhoneContactList();
+    // for (auto it = contactList.begin(); it != contactList.end(); ++it)
+    // {
+    //     if (std::strcmp(it->phoneNumber, number.c_str()) == 0)
+    //     {
+    //         mCallInfo->name = std::string(it->formatName);
+    //         mCallInfo->avatar = std::string(it->photo);
+    //         break;
+    //     }
+    // }
 
     mEventQueue.push(PSTNEvent::CallStatusUpdated);
     mEventQueue.push(PSTNEvent::CallInfoUpdated);

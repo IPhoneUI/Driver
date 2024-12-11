@@ -5,11 +5,13 @@
 #include <string>
 #include <mutex>
 #include <chrono>
+#include <vector>
 #include <shared_mutex>
 #include <functional>
 #include <unordered_map>
 #include <msq/MsqReceiver.h>
 #include <msq/MsqDef.h>
+#include "BaseDeploy.h"
 
 namespace common {
 
@@ -18,15 +20,22 @@ namespace common {
 class BaseServiceImpl 
 {
 public:
+    BaseServiceImpl(BaseDeploy* deploy)
+        : mDeploy(deploy)
+    {}
+
+    BaseServiceImpl()
+    {}
+    
     virtual void initialize() = 0;
     virtual void finialize() = 0;
-    virtual void execute(milliseconds delta);
-
     virtual void onMsqReceived() = 0;
     virtual void registerClient(const std::string& clientName) = 0;
 
 protected:
     base::msq::MsqReceiver mMqReceiver;
+    BaseDeploy* mDeploy;
+    std::vector<std::string> mClientWaitReady;
 };
 
 }

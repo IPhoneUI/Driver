@@ -4,27 +4,25 @@
 #include <string>
 #include <thread>
 #include <functional>
-#include <common/BaseServiceImpl.h>
-#include "FlashMemoryDeploy.h"
+#include <common/BaseDriver.h>
 #include <flashmemory/FlashMemoryProvider.h>
 
 namespace driver {
 
-class FlashMemoryDriver : public common::BaseServiceImpl 
+class FlashMemoryDriver : public common::BaseDriver 
 {
 public:
-    explicit FlashMemoryDriver();
+    static FlashMemoryDriver* getInstance();
+    static void initialize();
+    void connectDriver() override;
 
-    void onMsqReceived() override;
-    void initialize() override;
-    void finialize() override;
-
-    void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
-    void requestSync(base::msq::Msq_FlashMemoryReq type, const std::string& clientName);
+    // void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
+    // void requestSync(base::msq::Msq_FlashMemoryReq type, const std::string& clientName);
     void requestChangeAirPlaneMode(bool airPlane);
 
 private:
-    FlashMemoryDeploy* mDeploy;
+    explicit FlashMemoryDriver();
+
     base::shm::FlashMemoryProvider* mProvider;
 };
 
