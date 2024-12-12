@@ -3,6 +3,7 @@
 
 #include <string>
 #include <Connection.h>
+#include <datamanager/DataRepoManager.h>
 
 namespace common {
 

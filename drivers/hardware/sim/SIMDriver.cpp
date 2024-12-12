@@ -9,6 +9,7 @@ static SIMDriver* gInstance = 0;
 SIMDriver::SIMDriver()
 {
     common::DriverExecution::instance().addDriver("SIMDriver", this);
+    readDataFromDatabase();
 }
 
 SIMDriver* SIMDriver::getInstance()
@@ -90,6 +91,78 @@ void SIMDriver::connectDriver()
     onDriverReady.emit();
 }
 
+void SIMDriver::readDataFromDatabase()
+{
+    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+
+    if (dataRepo.isReady())
+    {
+        common::Repository& repo = dataRepo.getRepository("sim");
+
+        std::string number = repo[common::ParameterIndex::SIM_PhoneNumber];
+        mPhoneNumber = number;
+
+        std::string network = repo[common::ParameterIndex::SIM_Network];
+        mNetwork = network;
+
+        int phoneSignal = repo[common::ParameterIndex::SIM_PhoneSignal];
+        mPhoneSignal = phoneSignal;
+
+        std::string wifiPass = repo[common::ParameterIndex::SIM_WifiPassword];
+        mWifiPassword = wifiPass;
+        
+        bool allowAccess = repo[common::ParameterIndex::SIM_AllowAccess];
+        mAllowAccess = allowAccess;
+
+        bool cellularSts = repo[common::ParameterIndex::SIM_CellularStatus];
+        mCellularSts = cellularSts;
+
+        bool maxCompa = repo[common::ParameterIndex::SIM_MaxCompatibility];
+        mMaxCompatibility = maxCompa;
+
+        auto contactMap = repo[common::ParameterIndex::SIM_Contact].toList();
+        int count = 0;
+        for (auto it = contactMap.begin(); it != contactMap.end(); ++it)
+        {
+            std::unordered_map<std::string, common::Parameter> item = (*it);
+            mContacts.push_back({
+                static_cast<uint32_t>(count),
+                std::string(item["firstname"]),
+                std::string(item["lastname"]),
+                std::string(item["formatname"]),
+                std::string(item["phonenumber"]),
+                std::string(item["photo"]),
+                bool(item["isfav"])
+            });
+            ++count;
+        }
+
+        count = 0;
+        auto historyMap = repo[common::ParameterIndex::SIM_History].toList();
+        for (auto it = historyMap.begin(); it != historyMap.end(); ++it)
+        {
+            std::unordered_map<std::string, common::Parameter> item = (*it);
+            mHistories.push_back({
+                static_cast<uint32_t>(count),
+                std::string(item["formatName"]),
+                std::string(item["phoneNumber"]),
+                std::string(item["time"]),
+                static_cast<service::PhoneCallingType>(int(item["phoneType"]))
+            });
+            ++count;
+        }
+    }
+}
+
+void SIMDriver::requestSync(ServiceReq type)
+{
+    if (type == PhoneBookService)
+    {
+        onPhoneContactListUpdated.emit();
+        onPhoneHistoryListUpdated.emit();
+    }
+}
+
 // void SIMDriver::requestChangeCellularStatus(bool status)
 // {
 //     auto result = mProvider->setIsCellular(status);
@@ -129,17 +202,15 @@ void SIMDriver::callNumber(const std::string& number)
     mCallInfo->status = service::CallStatus::Outgoing;
     mCallInfo->number = number;
 
-    // FIXME
-    // auto contactList = mProvider->getPhoneContactList();
-    // for (auto it = contactList.begin(); it != contactList.end(); ++it)
-    // {
-    //     if (std::strcmp(it->phoneNumber, number.c_str()) == 0)
-    //     {
-    //         mCallInfo->name = std::string(it->formatName);
-    //         mCallInfo->avatar = std::string(it->photo);
-    //         break;
-    //     }
-    // }
+    for (auto it = mContacts.begin(); it != mContacts.end(); ++it)
+    {
+        if ((*it).phoneNumber == number)
+        {
+            mCallInfo->name = std::string((*it).formatName);
+            mCallInfo->avatar = std::string((*it).photo);
+            break;
+        }
+    }
 
     mEventQueue.push(PSTNEvent::CallStatusUpdated);
     mEventQueue.push(PSTNEvent::CallInfoUpdated);

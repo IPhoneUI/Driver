@@ -31,11 +31,14 @@ public:
     virtual void finialize() = 0;
     virtual void onMsqReceived() = 0;
     virtual void registerClient(const std::string& clientName) = 0;
+    void onDriverReady()
+    {}
 
 protected:
     base::msq::MsqReceiver mMqReceiver;
     BaseDeploy* mDeploy;
     std::vector<std::string> mClientWaitReady;
+    bool mIsDriverReady;
 };
 
 }

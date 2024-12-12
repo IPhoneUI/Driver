@@ -5,7 +5,7 @@
 #include <thread>
 #include <functional>
 #include <common/BaseServiceImpl.h>
-#include <sim/SIMProvider.h>
+#include <sim/SIMDriver.h>
 #include "PhoneBookServiceDeploy.h"
 
 namespace service {
@@ -18,12 +18,16 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-
     void registerClient(const std::string& clientName) override;
 
+    void onDriverReady();
 
 private:
-    base::shm::SIMProvider* mSIMProvider;
+    void onPhoneHistoryListUpdated();
+    void onPhoneContactListUpdated();
+
+private:
+    driver::SIMDriver* mSIMDriver;
     PhoneBookServiceDeploy* mDeploy;
 };
 

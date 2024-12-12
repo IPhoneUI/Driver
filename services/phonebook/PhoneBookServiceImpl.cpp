@@ -5,7 +5,7 @@ namespace service {
 
 PhoneBookServiceImpl::PhoneBookServiceImpl()
 {
-    mSIMProvider = base::shm::SIMProvider::instance();
+    mSIMDriver = driver::SIMDriver::getInstance();
     mDeploy = PhoneBookServiceDeploy::instance();
 }
 
@@ -23,7 +23,7 @@ void PhoneBookServiceImpl::onMsqReceived()
         }
         case base::msq::Msq_PhoneBook_ReqSync:{
             std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->responseSync(clientName);
+            mSIMDriver->requestSync(driver::SIMDriver::PhoneBookService);
             break;
         }
         }
@@ -33,21 +33,49 @@ void PhoneBookServiceImpl::onMsqReceived()
 void PhoneBookServiceImpl::initialize()
 {
     LOG_INFO("PhoneBookServiceImpl initialize");
-    mSIMProvider->initialize();
+    Connection::connect(mSIMDriver->onPhoneContactListUpdated, std::bind(&PhoneBookServiceImpl::onPhoneContactListUpdated, this));
+    Connection::connect(mSIMDriver->onPhoneHistoryListUpdated, std::bind(&PhoneBookServiceImpl::onPhoneHistoryListUpdated, this));
 }
 
 void PhoneBookServiceImpl::finialize()
 {
     LOG_INFO("PhoneBookServiceImpl finialize");
-    mSIMProvider->closeShmem();
 }
 
 void PhoneBookServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseDriverReady(clientName);
+        if (mIsDriverReady)
+        {
+            mDeploy->responseDriverReady(clientName);
+        }
+        else 
+        {
+            mClientWaitReady.push_back(clientName);
+            mSIMDriver->connectDriver();
+        }
     }
+}
+
+void PhoneBookServiceImpl::onDriverReady()
+{
+    mIsDriverReady = true;
+    for (const auto& client : mClientWaitReady)
+    {
+        mDeploy->responseDriverReady(client);
+    }
+    mClientWaitReady.clear();
+}
+
+void PhoneBookServiceImpl::onPhoneContactListUpdated()
+{
+    auto contactList = mSIMDriver->getContactList();
+}
+
+void PhoneBookServiceImpl::onPhoneHistoryListUpdated()
+{
+    auto historyList = mSIMDriver->getHistoryList();
 }
 
 }

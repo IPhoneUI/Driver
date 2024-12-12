@@ -22,16 +22,14 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-
     void registerClient(const std::string& clientName) override;
 
-private:
     void onDriverReady();
+private:
     void onTimeUpdated(int);
     void onCallStatusUpdated(service::CallStatus, const std::string&);
     void onCallInfoUpdated(const std::string&, const std::string&, const std::string&);
 private:
-    // base::shm::SIMProvider* mSIMProvider;
     driver::SIMDriver* mSIMDriver;
     PSTNServiceDeploy* mDeploy;
 };

@@ -62,13 +62,21 @@ void PSTNServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        mClientWaitReady.push_back(clientName);
-        mSIMDriver->connectDriver();
+        if (mIsDriverReady)
+        {
+            mDeploy->responseDriverReady(clientName);
+        }
+        else 
+        {
+            mClientWaitReady.push_back(clientName);
+            mSIMDriver->connectDriver();
+        }
     }
 }
 
 void PSTNServiceImpl::onDriverReady()
 {
+    mIsDriverReady = true;
     for (const auto& client : mClientWaitReady)
     {
         mDeploy->responseDriverReady(client);
