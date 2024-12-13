@@ -7,6 +7,7 @@ PhoneBookServiceImpl::PhoneBookServiceImpl()
 {
     mSIMDriver = driver::SIMDriver::getInstance();
     mDeploy = PhoneBookServiceDeploy::instance();
+    mProvider = base::shm::PhoneBookProvider::instance();
 }
 
 void PhoneBookServiceImpl::onMsqReceived()
@@ -33,6 +34,7 @@ void PhoneBookServiceImpl::onMsqReceived()
 void PhoneBookServiceImpl::initialize()
 {
     LOG_INFO("PhoneBookServiceImpl initialize");
+    Connection::connect(mSIMDriver->onDriverReady, std::bind(&PhoneBookServiceImpl::onDriverReady, this));
     Connection::connect(mSIMDriver->onPhoneContactListUpdated, std::bind(&PhoneBookServiceImpl::onPhoneContactListUpdated, this));
     Connection::connect(mSIMDriver->onPhoneHistoryListUpdated, std::bind(&PhoneBookServiceImpl::onPhoneHistoryListUpdated, this));
 }
@@ -71,11 +73,21 @@ void PhoneBookServiceImpl::onDriverReady()
 void PhoneBookServiceImpl::onPhoneContactListUpdated()
 {
     auto contactList = mSIMDriver->getContactList();
+    auto result = mProvider->setPhoneContactList(contactList);
+    if (result)
+    {
+        mDeploy->responsePhoneContactListUpdated();
+    }
 }
 
 void PhoneBookServiceImpl::onPhoneHistoryListUpdated()
 {
     auto historyList = mSIMDriver->getHistoryList();
+    auto result = mProvider->setPhoneHistoryList(historyList);
+    if (result)
+    {
+        mDeploy->responsePhoneHistoryListUpdated();
+    }
 }
 
 }

@@ -20,6 +20,8 @@ public:
 
     void responseDriverReady(const std::string& clientName);
     void responseSync(const std::string& clientName);
+    void responsePhoneContactListUpdated();
+    void responsePhoneHistoryListUpdated();
 
 private:
     explicit PhoneBookServiceDeploy();

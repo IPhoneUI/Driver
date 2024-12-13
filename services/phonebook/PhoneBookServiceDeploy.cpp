@@ -29,19 +29,22 @@ void PhoneBookServiceDeploy::responseDriverReady(const std::string& clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void PhoneBookServiceDeploy::responseSync(const std::string& clientName)
+void PhoneBookServiceDeploy::responsePhoneContactListUpdated()
 {
-    {
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_PhoneBook_RespContactListUpdated);
-        mMqSender.sendMsq(clientName);
-    }
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_PhoneBook_RespHistoryListUpdated);
-        mMqSender.sendMsq(clientName);
-    }
+        mMqSender.sendMsq(mqName);
+    });
 }
 
+void PhoneBookServiceDeploy::responsePhoneHistoryListUpdated()
+{
+    mClientManager.deploy([this](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_PhoneBook_RespHistoryListUpdated);
+        mMqSender.sendMsq(mqName);
+    });
+}
 
 }

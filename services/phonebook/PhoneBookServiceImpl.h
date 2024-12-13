@@ -6,6 +6,7 @@
 #include <functional>
 #include <common/BaseServiceImpl.h>
 #include <sim/SIMDriver.h>
+#include <phonebook/PhoneBookProvider.h>
 #include "PhoneBookServiceDeploy.h"
 
 namespace service {
@@ -29,6 +30,7 @@ private:
 private:
     driver::SIMDriver* mSIMDriver;
     PhoneBookServiceDeploy* mDeploy;
+    base::shm::PhoneBookProvider* mProvider;
 };
 
 }
