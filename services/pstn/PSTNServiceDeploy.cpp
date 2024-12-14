@@ -22,7 +22,7 @@ PSTNServiceDeploy* PSTNServiceDeploy::instance()
     return gInstance;
 }
 
-void PSTNServiceDeploy::responseDriverReady(const std::string& clientName)
+void PSTNServiceDeploy::responseServiceReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     mMqSender.startMsq(base::msq::Msq_PSTN_RespReady);

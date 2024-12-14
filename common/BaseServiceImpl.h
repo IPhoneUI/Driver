@@ -37,8 +37,6 @@ public:
 protected:
     base::msq::MsqReceiver mMqReceiver;
     BaseDeploy* mDeploy;
-    std::vector<std::string> mClientWaitReady;
-    bool mIsDriverReady;
 };
 
 }

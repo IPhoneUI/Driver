@@ -7,7 +7,7 @@ static SpeakerDriver* gInstance = 0;
 
 SpeakerDriver::SpeakerDriver()
 {
-    mProvider = base::shm::SpeakerProvider::instance();
+    readDataFromDatabase();
 }
 
 SpeakerDriver* SpeakerDriver::getInstance()
@@ -34,15 +34,25 @@ void SpeakerDriver::connectDriver()
     mIsReady = true;
     onDriverReady.emit();
 }
-// void SpeakerDriver::requestChangeAudioMute(const bool &status)
-// {
-//     if (mProvider->getIsMuted() != status) {
-//         base::shm::DataSetResult result = mProvider->setAudioMute(status);
 
-//         if (result == base::shm::DataSetResult_Valid) {
-//             mDeploy->responseAudioMute(status);
-//         }
-//     }
-// }
+void SpeakerDriver::readDataFromDatabase()
+{
+    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+    if (dataRepo.isReady())
+    {
+        common::Repository& repo = dataRepo.getRepository("speaker");
+        mIsMuted = repo[common::ParameterIndex::Speaker_Muted];
+        mVolume = repo[common::ParameterIndex::Speaker_Volume];
+    }
+}
+
+void SpeakerDriver::requestChangeAudioMute(bool isMuted)
+{
+    if (mIsMuted == isMuted)
+        return;
+    
+    mIsMuted = isMuted;
+    onMuteUpdated.emit(mIsMuted);
+}
 
 }

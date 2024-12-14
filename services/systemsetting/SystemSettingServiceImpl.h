@@ -5,7 +5,7 @@
 #include <thread>
 #include <functional>
 #include <common/BaseServiceImpl.h>
-#include <flashmemory/FlashMemoryProvider.h>
+#include <flashmemory/FlashMemoryDriver.h>
 #include "SystemSettingServiceDeploy.h"
 
 namespace service {
@@ -20,11 +20,14 @@ public:
     void finialize() override;
 
     void registerClient(const std::string& clientName) override;
-    void requestChangeAirPlaneMode(bool airPlane);
+
+public:
+    void onFMemDriverReady();
+    void onAirPlaneModeUpdated(bool airPlane);
     
 private:
     SystemSettingServiceDeploy* mDeploy;
-    base::shm::FlashMemoryProvider* mFlmemProvider;
+    driver::FlashMemoryDriver* mFMemDriver;
 };
 
 }

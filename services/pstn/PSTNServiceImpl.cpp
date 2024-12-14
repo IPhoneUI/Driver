@@ -24,6 +24,7 @@ void PSTNServiceImpl::onMsqReceived()
         }
         case base::msq::Msq_PSTN_ReqCallNumber: {
             std::string phoneNumber = mMqReceiver.get<std::string>(messages[1]);
+            LOG_INFO("impl phoneNumber: %s", phoneNumber.c_str());
             mSIMDriver->callNumber(phoneNumber);
             break;
         }
@@ -47,10 +48,12 @@ void PSTNServiceImpl::initialize()
 {
     LOG_INFO("PSTNServiceImpl initialize");
 
-    Connection::connect(mSIMDriver->onDriverReady, std::bind(&PSTNServiceImpl::onDriverReady, this));
+    Connection::connect(mSIMDriver->onDriverReady, std::bind(&PSTNServiceImpl::onSIMDriverReady, this));
     Connection::connect(mSIMDriver->onTimeUpdated, std::bind(&PSTNServiceImpl::onTimeUpdated, this, std::placeholders::_1));
     Connection::connect(mSIMDriver->onCallStatusUpdated, std::bind(&PSTNServiceImpl::onCallStatusUpdated, this, std::placeholders::_1, std::placeholders::_2));
     Connection::connect(mSIMDriver->onCallInfoUpdated, std::bind(&PSTNServiceImpl::onCallInfoUpdated, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    
+    mSIMDriver->connectDriver();
 }
 
 void PSTNServiceImpl::finialize()
@@ -62,26 +65,13 @@ void PSTNServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        if (mIsDriverReady)
-        {
-            mDeploy->responseDriverReady(clientName);
-        }
-        else 
-        {
-            mClientWaitReady.push_back(clientName);
-            mSIMDriver->connectDriver();
-        }
+        mDeploy->responseServiceReady(clientName);
     }
 }
 
-void PSTNServiceImpl::onDriverReady()
+void PSTNServiceImpl::onSIMDriverReady()
 {
-    mIsDriverReady = true;
-    for (const auto& client : mClientWaitReady)
-    {
-        mDeploy->responseDriverReady(client);
-    }
-    mClientWaitReady.clear();
+    // To do
 }
 
 void PSTNServiceImpl::onTimeUpdated(int time)

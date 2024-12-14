@@ -18,7 +18,7 @@ class PhoneBookServiceDeploy : public common::BaseDeploy
 public:
     static PhoneBookServiceDeploy* instance();
 
-    void responseDriverReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName);
     void responseSync(const std::string& clientName);
     void responsePhoneContactListUpdated();
     void responsePhoneHistoryListUpdated();

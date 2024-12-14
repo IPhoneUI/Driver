@@ -23,8 +23,8 @@ void PhoneBookServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_PhoneBook_ReqSync:{
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mSIMDriver->requestSync(driver::SIMDriver::PhoneBookService);
+            onPhoneContactListUpdated();
+            onPhoneHistoryListUpdated();
             break;
         }
         }
@@ -34,9 +34,11 @@ void PhoneBookServiceImpl::onMsqReceived()
 void PhoneBookServiceImpl::initialize()
 {
     LOG_INFO("PhoneBookServiceImpl initialize");
-    Connection::connect(mSIMDriver->onDriverReady, std::bind(&PhoneBookServiceImpl::onDriverReady, this));
+    Connection::connect(mSIMDriver->onDriverReady, std::bind(&PhoneBookServiceImpl::onSIMDriverReady, this));
     Connection::connect(mSIMDriver->onPhoneContactListUpdated, std::bind(&PhoneBookServiceImpl::onPhoneContactListUpdated, this));
     Connection::connect(mSIMDriver->onPhoneHistoryListUpdated, std::bind(&PhoneBookServiceImpl::onPhoneHistoryListUpdated, this));
+    
+    mSIMDriver->connectDriver();
 }
 
 void PhoneBookServiceImpl::finialize()
@@ -48,26 +50,13 @@ void PhoneBookServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        if (mIsDriverReady)
-        {
-            mDeploy->responseDriverReady(clientName);
-        }
-        else 
-        {
-            mClientWaitReady.push_back(clientName);
-            mSIMDriver->connectDriver();
-        }
+        mDeploy->responseServiceReady(clientName);
     }
 }
 
-void PhoneBookServiceImpl::onDriverReady()
+void PhoneBookServiceImpl::onSIMDriverReady()
 {
-    mIsDriverReady = true;
-    for (const auto& client : mClientWaitReady)
-    {
-        mDeploy->responseDriverReady(client);
-    }
-    mClientWaitReady.clear();
+    // To do
 }
 
 void PhoneBookServiceImpl::onPhoneContactListUpdated()

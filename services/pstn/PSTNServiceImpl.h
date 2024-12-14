@@ -24,7 +24,7 @@ public:
     void finialize() override;
     void registerClient(const std::string& clientName) override;
 
-    void onDriverReady();
+    void onSIMDriverReady();
 private:
     void onTimeUpdated(int);
     void onCallStatusUpdated(service::CallStatus, const std::string&);

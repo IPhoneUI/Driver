@@ -5,7 +5,7 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
-#include <flashmemory/FlashMemoryProvider.h>
+#include <audio/AudioServiceDef.h>
 
 namespace driver {
 
@@ -16,14 +16,34 @@ public:
     static void initialize();
     void connectDriver() override;
 
-    // void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
-    // void requestSync(base::msq::Msq_FlashMemoryReq type, const std::string& clientName);
+    void readDataFromDatabase();
     void requestChangeAirPlaneMode(bool airPlane);
+
+    std::list<service::VoiceRecordingData*> getVoiceRecordingList() const
+    {
+        return mRecordingData;
+    }
+
+    std::list<service::VoiceRecordingData*> getVoiceDeleteRecordingList() const
+    {
+        return mDeleteRecordingData;
+    }
+
+    bool getAirPlaneMode() const
+    {
+        return mAirPlaneMode;
+    }
+
+    Signal<std::list<service::VoiceRecordingData*>> onVoiceRecordingDataUpdated;
+    Signal<std::list<service::VoiceRecordingData*>> onVoiceDeleteRecordingDataUpdated;
+    Signal<bool> onAirPlaneModeUpdated;
 
 private:
     explicit FlashMemoryDriver();
 
-    base::shm::FlashMemoryProvider* mProvider;
+    std::list<service::VoiceRecordingData*> mRecordingData;
+    std::list<service::VoiceRecordingData*> mDeleteRecordingData;
+    bool mAirPlaneMode;
 };
 
 }

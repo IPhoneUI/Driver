@@ -7,7 +7,6 @@ static AudioServiceDeploy* gInstance = nullptr;
 
 AudioServiceDeploy::AudioServiceDeploy()
 {
-    mSpeakerProvider = base::shm::SpeakerProvider::instance();
 }
 
 AudioServiceDeploy::~AudioServiceDeploy()
@@ -23,42 +22,49 @@ AudioServiceDeploy* AudioServiceDeploy::instance()
     return gInstance;
 }
 
-void AudioServiceDeploy::responseDriverReady(const std::string& clientName)
+void AudioServiceDeploy::responseServiceReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     mMqSender.startMsq(base::msq::Msq_Audio_RespReady);
     mMqSender.sendMsq(clientName);
 }
 
-void AudioServiceDeploy::responseSync(const std::string& clientName)
+void AudioServiceDeploy::responseVolumeUpdated(int volume)
 {
-    {
+    mClientManager.deploy([this, volume](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_Audio_RespRecordingUpdated);
-        mMqSender.sendMsq(clientName);
-    }
-
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_Audio_RespDelRecordingUpdated);
-        mMqSender.sendMsq(clientName);
-    }
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        bool isMute = mSpeakerProvider->getIsMuted();
-        mMqSender.startMsq(base::msq::Msq_Audio_RespMuteUpdated);
-        mMqSender.addParam(isMute);
-        mMqSender.sendMsq(clientName);
-    }
-
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        int volume = mSpeakerProvider->getVolume();
         mMqSender.startMsq(base::msq::Msq_Audio_RespVolumeUpdated);
         mMqSender.addParam(volume);
-        mMqSender.sendMsq(clientName);
-    }
+        mMqSender.sendMsq(mqName);
+    });
 }
 
+void AudioServiceDeploy::responseMuteUpdated(bool isMuted)
+{
+    mClientManager.deploy([this, isMuted](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_Audio_RespMuteUpdated);
+        mMqSender.addParam(isMuted);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void AudioServiceDeploy::responseRecordingDataUpdated()
+{
+    mClientManager.deploy([this](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_Audio_RespRecordingUpdated);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void AudioServiceDeploy::responseDeleteRecordingDataUpdated()
+{
+    mClientManager.deploy([this](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_Audio_RespDelRecordingUpdated);
+        mMqSender.sendMsq(mqName);
+    });
+}
 
 }

@@ -16,15 +16,28 @@ public:
     static void initialize();
     void connectDriver() override;
 
-    // void registerClient(base::msq::Msq_Client clientId, const std::string& clientName);
-    // void requestSync(base::msq::Msq_SpeakerReq type, const std::string& clientName);
+    void readDataFromDatabase();
+    
+    bool getIsMuted() const
+    {
+        return mIsMuted;
+    }
 
-    // void requestChangeAudioMute(const bool& status);
+    int getVolume() const
+    {
+        return mVolume;
+    }
+
+    void requestChangeAudioMute(bool isMuted);
+
+    Signal<bool> onMuteUpdated;
+    Signal<int> onVolumeUpdated;
     
 private:    
     explicit SpeakerDriver();
 
-    base::shm::SpeakerProvider* mProvider;
+    bool mIsMuted {false};
+    int mVolume {0};
 };
 
 }

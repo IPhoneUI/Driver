@@ -17,7 +17,7 @@ class WifiServiceDeploy : public common::BaseDeploy
 public:
     static WifiServiceDeploy* instance();
 
-    void responseDriverReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName);
     void responseSync(const std::string& clientName);
     void responseChangeWifiStatus(bool status);
     void responseDiscoveryDeviceUpdated(const base::shm::WifiDiscoveryDeviceShmem& device);

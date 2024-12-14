@@ -99,26 +99,13 @@ void SIMDriver::readDataFromDatabase()
     {
         common::Repository& repo = dataRepo.getRepository("sim");
 
-        std::string number = repo[common::ParameterIndex::SIM_PhoneNumber];
-        mPhoneNumber = number;
-
-        std::string network = repo[common::ParameterIndex::SIM_Network];
-        mNetwork = network;
-
-        int phoneSignal = repo[common::ParameterIndex::SIM_PhoneSignal];
-        mPhoneSignal = phoneSignal;
-
-        std::string wifiPass = repo[common::ParameterIndex::SIM_WifiPassword];
-        mWifiPassword = wifiPass;
-        
-        bool allowAccess = repo[common::ParameterIndex::SIM_AllowAccess];
-        mAllowAccess = allowAccess;
-
-        bool cellularSts = repo[common::ParameterIndex::SIM_CellularStatus];
-        mCellularSts = cellularSts;
-
-        bool maxCompa = repo[common::ParameterIndex::SIM_MaxCompatibility];
-        mMaxCompatibility = maxCompa;
+        mPhoneNumber = std::string(repo[common::ParameterIndex::SIM_PhoneNumber]);
+        mNetwork = std::string(repo[common::ParameterIndex::SIM_Network]);
+        mPhoneSignal = repo[common::ParameterIndex::SIM_PhoneSignal];
+        mWifiPassword = std::string(repo[common::ParameterIndex::SIM_WifiPassword]);        
+        mAllowAccess = repo[common::ParameterIndex::SIM_AllowAccess];
+        mCellularSts = repo[common::ParameterIndex::SIM_CellularStatus];
+        mMaxCompatibility = repo[common::ParameterIndex::SIM_MaxCompatibility];
 
         auto contactMap = repo[common::ParameterIndex::SIM_Contact].toList();
         int count = 0;
@@ -154,45 +141,33 @@ void SIMDriver::readDataFromDatabase()
     }
 }
 
-void SIMDriver::requestSync(ServiceReq type)
+void SIMDriver::requestChangeCellularStatus(bool status)
 {
-    if (type == PhoneBookService)
-    {
-        onPhoneContactListUpdated.emit();
-        onPhoneHistoryListUpdated.emit();
-    }
+    if (mCellularSts == status)
+        return;
+    
+    mCellularSts = status;
+    onCellularStatusUpdated.emit(mCellularSts);
 }
 
-// void SIMDriver::requestChangeCellularStatus(bool status)
-// {
-//     auto result = mProvider->setIsCellular(status);
+void SIMDriver::requestChangeAllowAccess(bool status)
+{
+    if (mAllowAccess == status)
+        return;
+    
+    mAllowAccess = status;
+    onAllowAccessUpdated.emit(mAllowAccess);
+}
 
-//     if (result == base::shm::DataSetResult_Valid)
-//     {
-//         mDeploy->responseChangeCellularStatus(status);
-//     }
-// }
+void SIMDriver::requestChangeMaxCompatibility(bool status)
+{
+    if (mMaxCompatibility == status)
+        return;
+    
+    mMaxCompatibility = status;
+    onMaxCompatibilityUpdated.emit(mMaxCompatibility);
+}
 
-// void SIMDriver::requestChangeAllowAccess(bool status)
-// {
-//     auto result = mProvider->setIsAllowAccess(status);
-
-//     if (result == base::shm::DataSetResult_Valid)
-//     {
-//         mDeploy->responseChangeAllowAccess(status);
-//     }
-// }
-
-// void SIMDriver::requestChangeMaxCompatibility(bool status)
-// {
-//     auto result = mProvider->setIsMaxCompatibility(status);
-
-//     if (result == base::shm::DataSetResult_Valid)
-//     {
-//         mDeploy->responseChangeMaxCompatibility(status);
-//     }
-// }
-//
 void SIMDriver::callNumber(const std::string& number)
 {
     if (mCallInfo != nullptr)
@@ -204,7 +179,7 @@ void SIMDriver::callNumber(const std::string& number)
 
     for (auto it = mContacts.begin(); it != mContacts.end(); ++it)
     {
-        if ((*it).phoneNumber == number)
+        if (strcmp((*it).phoneNumber.c_str(), number.c_str()) == 0)
         {
             mCallInfo->name = std::string((*it).formatName);
             mCallInfo->avatar = std::string((*it).photo);

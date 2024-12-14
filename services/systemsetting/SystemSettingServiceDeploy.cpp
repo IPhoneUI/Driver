@@ -22,7 +22,7 @@ SystemSettingServiceDeploy* SystemSettingServiceDeploy::instance()
     return gInstance;
 }
 
-void SystemSettingServiceDeploy::responseDriverReady(const std::string& clientName)
+void SystemSettingServiceDeploy::responseServiceReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     mMqSender.startMsq(base::msq::Msq_SysSett_RespReady);

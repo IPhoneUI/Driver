@@ -17,10 +17,6 @@ namespace driver {
 class SIMDriver : public common::BaseDriver 
 {
 public:
-    enum ServiceReq {
-        PhoneBookService,
-        PSTNService
-    };
 
     static SIMDriver* getInstance();
     static void initialize();
@@ -28,11 +24,10 @@ public:
     void execute(milliseconds delta) override;
     void readDataFromDatabase();
 
-    // void requestChangeCellularStatus(bool status);
-    // void requestChangeAllowAccess(bool status);
-    // void requestChangeMaxCompatibility(bool status);
+    void requestChangeCellularStatus(bool status);
+    void requestChangeAllowAccess(bool status);
+    void requestChangeMaxCompatibility(bool status);
 
-    void requestSync(ServiceReq type);
     void connectDriver() override;
     void callNumber(const std::string& number);
     void answerCall();
@@ -49,11 +44,30 @@ public:
         return mHistories;
     }
 
+    bool getAllowAccess() const
+    {
+        return mAllowAccess;
+    }
+
+    bool getCellularStatus() const
+    {
+        return mCellularSts;
+    }
+
+    bool getMaxCompatibitily() const
+    {
+        return mMaxCompatibility;
+    }
+
     Signal<service::CallStatus, const std::string&> onCallStatusUpdated;
     Signal<const std::string&, const std::string&, const std::string&> onCallInfoUpdated;
     Signal<int> onTimeUpdated;
     Signal<> onPhoneContactListUpdated;
     Signal<> onPhoneHistoryListUpdated;
+
+    Signal<bool> onAllowAccessUpdated;
+    Signal<bool> onCellularStatusUpdated;
+    Signal<bool> onMaxCompatibilityUpdated;
 
 private:
     enum class PSTNEvent {

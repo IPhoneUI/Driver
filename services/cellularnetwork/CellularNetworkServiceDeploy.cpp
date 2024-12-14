@@ -23,7 +23,7 @@ CellularNetworkServiceDeploy* CellularNetworkServiceDeploy::instance()
     return gInstance;
 }
 
-void CellularNetworkServiceDeploy::responseDriverReady(const std::string& clientName)
+void CellularNetworkServiceDeploy::responseServiceReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     mMqSender.startMsq(base::msq::Msq_CelNetwork_RespReady);

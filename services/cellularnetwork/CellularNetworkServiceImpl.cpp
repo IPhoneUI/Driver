@@ -5,8 +5,8 @@ namespace service {
 
 CellularNetworkServiceImpl::CellularNetworkServiceImpl()
 {
-    mSIMProvider = base::shm::SIMProvider::instance();
     mDeploy = CellularNetworkServiceDeploy::instance();
+    mSIMDriver = driver::SIMDriver::getInstance();
 }
 
 void CellularNetworkServiceImpl::onMsqReceived()
@@ -22,23 +22,31 @@ void CellularNetworkServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_CelNetwork_ReqSync: {
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->responseSync(clientName);
+            {
+                bool allowAccess = mSIMDriver->getAllowAccess();
+                mDeploy->responseChangeAllowAccess(allowAccess);
+
+                bool cellularSts = mSIMDriver->getAllowAccess();
+                mDeploy->responseChangeCellularStatus(cellularSts);
+
+                bool maxCompa = mSIMDriver->getMaxCompatibitily();
+                mDeploy->responseChangeMaxCompatibility(maxCompa);
+            }
             break;
         }
         case base::msq::Msq_CelNetwork_ReqChangeAllowAcess: {
             bool allowAcess = mMqReceiver.get<bool>(messages[1]);
-            requestChangeAllowAccess(allowAcess);
+            mSIMDriver->requestChangeAllowAccess(allowAcess);
             break;
         }
         case base::msq::Msq_CelNetwork_ReqChangeMaxCompatibility: {
             bool maxCompa = mMqReceiver.get<bool>(messages[1]);
-            requestChangeMaxCompatibility(maxCompa);
+            mSIMDriver->requestChangeMaxCompatibility(maxCompa);
             break;
         }
         case base::msq::Msq_CelNetwork_ReqChangeCellulatr: {
             bool cellularStatus = mMqReceiver.get<bool>(messages[1]);
-            requestChangeCellularStatus(cellularStatus);
+            mSIMDriver->requestChangeCellularStatus(cellularStatus);
             break;
         }
         }
@@ -48,51 +56,45 @@ void CellularNetworkServiceImpl::onMsqReceived()
 void CellularNetworkServiceImpl::initialize()
 {
     LOG_INFO("CellularNetworkServiceImpl initialize");
-    mSIMProvider->initialize();
+    Connection::connect(mSIMDriver->onDriverReady, std::bind(&CellularNetworkServiceImpl::onSIMDriverReady, this));
+    Connection::connect(mSIMDriver->onAllowAccessUpdated, std::bind(&CellularNetworkServiceImpl::onAllowAccessUpdated, this, std::placeholders::_1));
+    Connection::connect(mSIMDriver->onCellularStatusUpdated, std::bind(&CellularNetworkServiceImpl::onCellularStatusUpdated, this, std::placeholders::_1));
+    Connection::connect(mSIMDriver->onMaxCompatibilityUpdated, std::bind(&CellularNetworkServiceImpl::onMaxCompatibilityUpdated, this, std::placeholders::_1));
+
+    mSIMDriver->connectDriver();
 }
 
 void CellularNetworkServiceImpl::finialize()
 {
     LOG_INFO("CellularNetworkServiceImpl finialize");
-    mSIMProvider->closeShmem();
 }
 
 void CellularNetworkServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseDriverReady(clientName);
+        mDeploy->responseServiceReady(clientName);
     }
 }
 
-void CellularNetworkServiceImpl::requestChangeCellularStatus(bool status)
+void CellularNetworkServiceImpl::onSIMDriverReady()
 {
-    auto result = mSIMProvider->setIsCellular(status);
-
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeCellularStatus(status);
-    }
+    // To do
 }
 
-void CellularNetworkServiceImpl::requestChangeAllowAccess(bool status)
+void CellularNetworkServiceImpl::onCellularStatusUpdated(bool status)
 {
-    auto result = mSIMProvider->setIsAllowAccess(status);
-
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeAllowAccess(status);
-    }
+    mDeploy->responseChangeCellularStatus(status);
 }
 
-void CellularNetworkServiceImpl::requestChangeMaxCompatibility(bool status)
+void CellularNetworkServiceImpl::onAllowAccessUpdated(bool status)
 {
-    auto result = mSIMProvider->setIsMaxCompatibility(status);
+    mDeploy->responseChangeAllowAccess(status);
+}
 
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeMaxCompatibility(status);
-    }
+void CellularNetworkServiceImpl::onMaxCompatibilityUpdated(bool status)
+{
+    mDeploy->responseChangeMaxCompatibility(status);
 }
 
 }

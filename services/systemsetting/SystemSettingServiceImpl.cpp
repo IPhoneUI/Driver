@@ -6,7 +6,7 @@ namespace service {
 SystemSettingServiceImpl::SystemSettingServiceImpl()
 {
     mDeploy = SystemSettingServiceDeploy::instance();
-    mFlmemProvider = base::shm::FlashMemoryProvider::instance();
+    mFMemDriver = driver::FlashMemoryDriver::getInstance();
 }
 
 void SystemSettingServiceImpl::onMsqReceived()
@@ -22,13 +22,13 @@ void SystemSettingServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_SysSett_ReqSync: {
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->responseSync(clientName);
+            bool airPlane = mFMemDriver->getAirPlaneMode();
+            mDeploy->responseChangeAirPlaneMode(airPlane);
             break;
         }
         case base::msq::Msq_SysSett_ReqChangeAirPlaneMode: {
             bool airplane = mMqReceiver.get<bool>(messages[1]);
-            requestChangeAirPlaneMode(airplane);
+            mFMemDriver->requestChangeAirPlaneMode(airplane);
             break;
         }
         }
@@ -38,31 +38,33 @@ void SystemSettingServiceImpl::onMsqReceived()
 void SystemSettingServiceImpl::initialize()
 {
     LOG_INFO("SystemSettingServiceImpl initialize");
-    mFlmemProvider->initialize();
+    Connection::connect(mFMemDriver->onDriverReady, std::bind(&SystemSettingServiceImpl::onFMemDriverReady, this));
+    Connection::connect(mFMemDriver->onAirPlaneModeUpdated, std::bind(&SystemSettingServiceImpl::onAirPlaneModeUpdated, this, std::placeholders::_1));
+    
+    mFMemDriver->connectDriver();
 }
 
 void SystemSettingServiceImpl::finialize()
 {
     LOG_INFO("SystemSettingServiceImpl finialize");
-    mFlmemProvider->closeShmem();
 }
 
 void SystemSettingServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseDriverReady(clientName);
+        mDeploy->responseServiceReady(clientName);
     }
 }
 
-void SystemSettingServiceImpl::requestChangeAirPlaneMode(bool airPlane)
+void SystemSettingServiceImpl::onFMemDriverReady()
 {
-    auto result = mFlmemProvider->setAirPlaneMode(airPlane);
+    // To do
+}
 
-    if (result == base::shm::DataSetResult_Valid)
-    {
-        mDeploy->responseChangeAirPlaneMode(airPlane);
-    }
+void SystemSettingServiceImpl::onAirPlaneModeUpdated(bool airPlane)
+{
+    mDeploy->responseChangeAirPlaneMode(airPlane);
 }
 
 }

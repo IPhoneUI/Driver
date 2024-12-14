@@ -6,8 +6,9 @@
 #include <functional>
 #include <common/BaseServiceImpl.h>
 #include "AudioServiceDeploy.h"
-#include <flashmemory/FlashMemoryProvider.h>
-#include <speaker/SpeakerProvider.h>
+#include <speaker/SpeakerDriver.h>
+#include <flashmemory/FlashMemoryDriver.h>
+#include <audio/AudioProvider.h>
 
 namespace service {
 
@@ -21,10 +22,22 @@ public:
     void finialize() override;
     void registerClient(const std::string& clientName) override;
 
+public:
+    void onSpeakerDriverReady();
+    void onVolumeUpdated(int);
+    void onMuteUpdated(bool);
+
+public:
+    void onFMemDriverReady();
+    void onVoiceRecordingDataUpdated(std::list<service::VoiceRecordingData*>);
+    void onVoiceDeleteRecordingDataUpdated(std::list<service::VoiceRecordingData*>);
+
 private:
     AudioServiceDeploy* mDeploy;
-    base::shm::FlashMemoryProvider* mFlmemProvider;
-    base::shm::SpeakerProvider* mSpeakerProvider;
+    driver::SpeakerDriver* mSpeakerDriver;
+    driver::FlashMemoryDriver* mFMemDriver;
+
+    base::shm::AudioProvider* mAudioProvider;
 };
 
 }

@@ -22,7 +22,7 @@ PhoneBookServiceDeploy* PhoneBookServiceDeploy::instance()
     return gInstance;
 }
 
-void PhoneBookServiceDeploy::responseDriverReady(const std::string& clientName)
+void PhoneBookServiceDeploy::responseServiceReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     mMqSender.startMsq(base::msq::Msq_PhoneBook_RespReady);

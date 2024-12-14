@@ -5,8 +5,8 @@
 #include <thread>
 #include <functional>
 #include <common/BaseServiceImpl.h>
-#include <sim/SIMProvider.h>
 #include "CellularNetworkServiceDeploy.h"
+#include <sim/SIMDriver.h>
 
 namespace service {
 
@@ -20,13 +20,16 @@ public:
     void finialize() override;
     void registerClient(const std::string& clientName) override;
 
-    void requestChangeCellularStatus(bool status);
-    void requestChangeAllowAccess(bool status);
-    void requestChangeMaxCompatibility(bool status);
+public:
+    void onSIMDriverReady();
+    void onAllowAccessUpdated(bool);
+    void onMaxCompatibilityUpdated(bool);
+    void onCellularStatusUpdated(bool);
 
 private:
-    base::shm::SIMProvider* mSIMProvider;
     CellularNetworkServiceDeploy* mDeploy;
+
+    driver::SIMDriver* mSIMDriver;
 };
 
 }

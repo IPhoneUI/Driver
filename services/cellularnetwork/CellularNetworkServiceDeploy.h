@@ -17,7 +17,7 @@ class CellularNetworkServiceDeploy : public common::BaseDeploy
 public:
     static CellularNetworkServiceDeploy* instance();
 
-    void responseDriverReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName);
     void responseSync(const std::string& clientName);
     void responseChangeCellularStatus(bool status);
     void responseChangeAllowAccess(bool status);

@@ -73,7 +73,7 @@ void WifiServiceImpl::registerClient(const std::string& clientName)
 {
     if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseDriverReady(clientName);
+        mDeploy->responseServiceReady(clientName);
     }
 }
 

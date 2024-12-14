@@ -23,7 +23,7 @@ WifiServiceDeploy* WifiServiceDeploy::instance()
     return gInstance;
 }
 
-void WifiServiceDeploy::responseDriverReady(const std::string& clientName)
+void WifiServiceDeploy::responseServiceReady(const std::string& clientName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     mMqSender.startMsq(base::msq::Msq_Wifi_RespReady);
