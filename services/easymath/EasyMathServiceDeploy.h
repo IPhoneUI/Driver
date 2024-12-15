@@ -9,7 +9,6 @@
 #include <shared_mutex>
 #include <common/BaseDeploy.h>
 #include <audio/AudioServiceDef.h>
-#include <speaker/SpeakerProvider.h>
 
 namespace service {
 

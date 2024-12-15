@@ -7,7 +7,6 @@
 #include <string>
 #include <list>
 #include <common/BaseDriver.h>
-#include <sim/SIMProvider.h>
 #include <pstn/PSTNServiceDef.h>
 #include <event/EventQueue.h>
 #include <phonebook/PhoneBookServiceDef.h>

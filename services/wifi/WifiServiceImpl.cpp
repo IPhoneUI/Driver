@@ -9,6 +9,7 @@ WifiServiceImpl::WifiServiceImpl()
 {
     mDeploy = WifiServiceDeploy::instance();
     mProvider = base::shm::WifiProvider::instance();
+    mWifiDriver = driver::WifiDriver::getInstance();
 }
 
 void WifiServiceImpl::onMsqReceived()
@@ -24,49 +25,47 @@ void WifiServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_Wifi_ReqSync: {
-            std::string clientName = mMqReceiver.get<std::string>(messages[1]);
-            mDeploy->responseSync(clientName);
+            requestSync();
             break;
         }
         case base::msq::Msq_Wifi_ReqChangeWifiStatus: {
             bool status = mMqReceiver.get<bool>(messages[1]);
-            requestChangeWifiStatus(status);
+            mWifiDriver->requestChangeWifiStatus(status);
             break;
         }
         case base::msq::Msq_Wifi_ReqStartDiscovery: {
-            // driver::WifiDiscovery::instance().startDiscovery();
+            mWifiDriver->startDiscovery();
             break;
         }
         case base::msq::Msq_Wifi_ReqCheckPassword: {
             std::string address = mMqReceiver.get<std::string>(messages[1]);
             std::string password = mMqReceiver.get<std::string>(messages[2]);
-            requestCheckDevicePassword(address, password);
+            mWifiDriver->requestCheckDevicePassword(address, password);
             break;
         }
         case base::msq::Msq_Wifi_ReqConnectDevice: {
             std::string address = mMqReceiver.get<std::string>(messages[1]);
-            requestConnectDevice(address);
+            mWifiDriver->requestConnectDevice(address);
         }
         }
     }
 }
 
-// void WifiServiceImpl::execute(milliseconds delta)
-// {
-//     // driver::WifiDiscovery::instance().execute(delta);
-//     // driver::WifiPairing::instance().execute(delta);
-// }
-
 void WifiServiceImpl::initialize()
 {
     LOG_INFO("WifiServiceImpl initialize");
-    mProvider->initialize();
+    Connection::connect(mWifiDriver->onDriverReady, std::bind(&WifiServiceImpl::onWifiDriverReady, this));
+    Connection::connect(mWifiDriver->onWifiStatusUpdated, std::bind(&WifiServiceImpl::onWifiStatusUpdated, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onPairedDeviceListUpdated, std::bind(&WifiServiceImpl::onPairedDeviceListUpdated, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onConnectedDeviceUpdated, std::bind(&WifiServiceImpl::onConnectedDeviceUpdated, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onAddDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onAddDiscoryDeviceInfo, this, std::placeholders::_1));
+
+    mWifiDriver->connectDriver();
 }
 
 void WifiServiceImpl::finialize()
 {
     LOG_INFO("WifiServiceImpl finialize");
-    mProvider->closeShmem();
 }
 
 void WifiServiceImpl::registerClient(const std::string& clientName)
@@ -77,59 +76,49 @@ void WifiServiceImpl::registerClient(const std::string& clientName)
     }
 }
 
-void WifiServiceImpl::requestChangeWifiStatus(bool status)
+void WifiServiceImpl::requestSync()
 {
-    auto result = mProvider->setWifiStatus(status);
-    if (result == base::shm::DataSetResult_Valid)
+    bool wifiStatus = mWifiDriver->getWifiStatus();
+    mDeploy->responseChangeWifiStatus(wifiStatus);
+
+    auto pairedList = mWifiDriver->getPairedDeviceList();
+    onPairedDeviceListUpdated(pairedList);
+
+    auto connectedDevice = mWifiDriver->getConnectedDevice();
+    onConnectedDeviceUpdated(connectedDevice);
+}
+
+void WifiServiceImpl::onWifiDriverReady()
+{
+    // To do
+}
+
+void WifiServiceImpl::onWifiStatusUpdated(bool status)
+{
+    mDeploy->responseChangeWifiStatus(status);
+}
+
+void WifiServiceImpl::onPairedDeviceListUpdated(const std::list<service::WifiDeviceInfo*>& list)
+{
+    bool result = mProvider->setPairedDeviceList(list);
+    if (result)
     {
-        mDeploy->responseChangeWifiStatus(status);
+        mDeploy->responsePairedListUpdated();
     }
 }
 
-void WifiServiceImpl::requestConnectDevice(const std::string& address)
+void WifiServiceImpl::onConnectedDeviceUpdated(service::WifiDeviceInfo* device)
 {
-    LOG_INFO("Request connect device with address: %s", address.c_str());
-    for (const auto& item : base::shm::WifiProvider::instance()->getPairedDeviceList())
+    bool result = mProvider->setConnectedDevice(device);
+    if (result)
     {
-        if (item.deviceinfo.address == address)
-        {
-            // driver::WifiPairing::instance().requestConnectDevice(address);
-            return;
-        }
-    }
-    for (const auto& item : base::shm::WifiProvider::instance()->getPairedDeviceList())
-    {
-        if (item.deviceinfo.address == address)
-        {
-            // driver::WifiDiscovery::instance().requestConnectDevice(address);
-            return;
-        }
+        mDeploy->responseConnectedDeviceUpdated();
     }
 }
 
-void WifiServiceImpl::requestCheckDevicePassword(const std::string& address, const std::string& password)
+void WifiServiceImpl::onAddDiscoryDeviceInfo(service::WifiDiscoveryDeviceInfo* device)
 {
-    std::function<bool(std::string, std::string, std::list<base::shm::WifiDeviceShmem>)> checkPassword = [](std::string address, std::string password, std::list<base::shm::WifiDeviceShmem> discoveryList) -> bool 
-    {
-        for (auto it = discoveryList.begin(); it != discoveryList.end(); it++) 
-        {
-            if (std::strcmp((*it).deviceinfo.address, address.c_str()) && std::strcmp((*it).password, password.c_str())) 
-            {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    bool result = false;
-    std::list<base::shm::WifiDeviceShmem> list = base::shm::WifiProvider::instance()->getPairedDeviceList();
-    if (checkPassword(address, password, list)) 
-    {
-        result = true;
-    }
-
-    mDeploy->responseCheckDevicePassword(result);
+    mDeploy->responseDiscoveryDeviceUpdated(device);
 }
-
 
 }

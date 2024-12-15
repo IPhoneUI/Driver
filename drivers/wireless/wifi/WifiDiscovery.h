@@ -1,43 +1,39 @@
-// #ifndef WIFIDISCOVERY_H
-// #define WIFIDISCOVERY_H
+#ifndef WIFIDISCOVERY_H
+#define WIFIDISCOVERY_H
 
-// #include "WifiDeploy.h"
-// #include <wifi/WifiServiceDef.h>
-// #include <wifi/WifiProvider.h>
-// #include "WifiDriver.h"
+#include <wifi/WifiServiceDef.h>
+#include <common/BaseDriver.h>
 
-// namespace driver {
+namespace driver {
 
-// class WifiDiscovery {
-// public: 
-//     static WifiDiscovery& instance();
-//     virtual ~WifiDiscovery();
+class WifiDriver;
+class WifiDiscovery {
+public: 
+    WifiDiscovery(WifiDriver *driver);
 
-//     void execute(milliseconds delta);
+    void execute(milliseconds delta);
+    void readData();
+    void startDiscovery();
+    void stopDiscovery();
+    void requestConnectDevice(const std::string&);
 
-//     void startDiscovery();
-//     void stopDiscovery();
-//     void requestConnectDevice(const std::string&);
+private:
+    void handleDiscovering(milliseconds delta);
+    void handleConnectDevice(milliseconds delta);
 
-// private:
-//     WifiDiscovery();
-//     void handleDiscovering(milliseconds delta);
-//     void handleConnectDevice(milliseconds delta);
+    WifiDriver* mWifiDriver;
+    std::list<service::WifiDiscoveryDeviceInfo*> mDiscoryDeviceList;
+    service::WifiDiscoveryDeviceInfo* mDevice;
+    bool mDiscoveryFlag {false};
+    bool mConnectDeviceFlag {false};
+    std::string mDiscoryDeviceAddr {""};
+    int mStep {0};
+    milliseconds mTime {milliseconds(0)};
+    milliseconds mDiscoveringTime {milliseconds(0)};
+    service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
+};
 
-//     base::shm::WifiDiscoveryDeviceShmem mDevice;
-//     bool mDiscoveryFlag {false};
-//     bool mConnectDeviceFlag {false};
-//     std::string mDiscoryDeviceAddr {""};
-//     int mStep {0};
-//     milliseconds mTime {milliseconds(0)};
-//     milliseconds mDiscoveringTime {milliseconds(0)};
-//     service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
-
-//     WifiDeploy* mWifiDeploy;
-//     base::shm::WifiProvider* mWifiProvider;
-// };
-
-// }
+}
 
 
-// #endif // WIFIDISCOVERY_H
+#endif // WIFIDISCOVERY_H

@@ -8,7 +8,6 @@
 #include <mutex>
 #include <shared_mutex>
 #include <common/BaseDeploy.h>
-#include <flashmemory/FlashMemoryProvider.h>
 
 namespace service {
 
@@ -18,7 +17,6 @@ public:
     static SystemSettingServiceDeploy* instance();
 
     void responseServiceReady(const std::string& clientName);
-    void responseSync(const std::string& clientName);
     void responseChangeAirPlaneMode(bool airPlane);
 
 private:

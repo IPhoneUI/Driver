@@ -5,7 +5,6 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
-#include <speaker/SpeakerProvider.h>
 
 namespace driver {
 

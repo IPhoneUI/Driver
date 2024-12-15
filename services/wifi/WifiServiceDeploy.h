@@ -8,7 +8,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <common/BaseDeploy.h>
-#include <wifi/WifiProvider.h>
+#include <wifi/WifiServiceDef.h>
 
 namespace service {
 
@@ -18,17 +18,17 @@ public:
     static WifiServiceDeploy* instance();
 
     void responseServiceReady(const std::string& clientName);
-    void responseSync(const std::string& clientName);
     void responseChangeWifiStatus(bool status);
-    void responseDiscoveryDeviceUpdated(const base::shm::WifiDiscoveryDeviceShmem& device);
+    void responseDiscoveryDeviceUpdated(service::WifiDiscoveryDeviceInfo* device);
     void responseCheckDevicePassword(bool result);
+    void responseConnectedDeviceUpdated();
+    void responsePairedListUpdated();
 
 private:
     explicit WifiServiceDeploy();
     ~WifiServiceDeploy();
 
     std::mutex mMutex;
-    base::shm::WifiProvider* mProvider; 
 };
 
 }

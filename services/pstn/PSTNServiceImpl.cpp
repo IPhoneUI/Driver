@@ -24,7 +24,6 @@ void PSTNServiceImpl::onMsqReceived()
         }
         case base::msq::Msq_PSTN_ReqCallNumber: {
             std::string phoneNumber = mMqReceiver.get<std::string>(messages[1]);
-            LOG_INFO("impl phoneNumber: %s", phoneNumber.c_str());
             mSIMDriver->callNumber(phoneNumber);
             break;
         }
