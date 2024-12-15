@@ -1,5 +1,6 @@
 #include "DriverExecution.h"
 #include <utils/Logger.h>
+#include "BaseDriver.h"
 
 namespace common {
 
@@ -39,7 +40,8 @@ void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
             return;
         }
     }
-
+    
+    obj->readDataFromDatabase();
     mDrivers.emplace(clientName, obj);
 }
 

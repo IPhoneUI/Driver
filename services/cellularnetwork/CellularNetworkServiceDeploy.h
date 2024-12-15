@@ -8,7 +8,6 @@
 #include <mutex>
 #include <shared_mutex>
 #include <common/BaseDeploy.h>
-#include <sim/SIMProvider.h>
 
 namespace service {
 
@@ -18,7 +17,6 @@ public:
     static CellularNetworkServiceDeploy* instance();
 
     void responseServiceReady(const std::string& clientName);
-    void responseSync(const std::string& clientName);
     void responseChangeCellularStatus(bool status);
     void responseChangeAllowAccess(bool status);
     void responseChangeMaxCompatibility(bool status);
@@ -28,7 +26,6 @@ private:
     ~CellularNetworkServiceDeploy();
 
     std::mutex mMutex;
-    base::shm::SIMProvider* mSIMProvider;
 };
 
 }

@@ -6,6 +6,7 @@
 #include <functional>
 #include <common/BaseServiceImpl.h>
 #include <wifi/WifiProvider.h>
+#include <wifi/WifiDriver.h>
 #include "WifiServiceDeploy.h"
 
 namespace service {
@@ -18,15 +19,20 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-    // void execute(milliseconds delta) override;
 
     void registerClient(const std::string& clientName);
-    void requestChangeWifiStatus(bool status);
-    void requestCheckDevicePassword(const std::string& address, const std::string& password);
-    void requestConnectDevice(const std::string& address);
+    void requestSync();
+
+public:
+    void onWifiDriverReady();
+    void onWifiStatusUpdated(bool);
+    void onPairedDeviceListUpdated(const std::list<service::WifiDeviceInfo*>&);
+    void onConnectedDeviceUpdated(service::WifiDeviceInfo* device);
+    void onAddDiscoryDeviceInfo(service::WifiDiscoveryDeviceInfo* device);
 
 private:
     WifiServiceDeploy* mDeploy;
+    driver::WifiDriver* mWifiDriver;
     base::shm::WifiProvider* mProvider;
 };
 

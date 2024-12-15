@@ -29,17 +29,6 @@ void SystemSettingServiceDeploy::responseServiceReady(const std::string& clientN
     mMqSender.sendMsq(clientName);
 }
 
-void SystemSettingServiceDeploy::responseSync(const std::string& clientName)
-{
-    base::shm::FlashMemoryProvider* provider = base::shm::FlashMemoryProvider::instance();
-
-    std::lock_guard<std::mutex> lock(mMutex);
-    bool airplane = provider->getAirPlaneMode();
-    mMqSender.startMsq(base::msq::Msq_SysSett_RespAirPlaneModeUpdated);
-    mMqSender.addParam(airplane);
-    mMqSender.sendMsq(clientName);
-}
-
 void SystemSettingServiceDeploy::responseChangeAirPlaneMode(bool airPlane)
 {
     mClientManager.deploy([this, airPlane](std::string mqName) {

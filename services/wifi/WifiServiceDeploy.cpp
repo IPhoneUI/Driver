@@ -7,7 +7,6 @@ static WifiServiceDeploy* gInstance = nullptr;
 
 WifiServiceDeploy::WifiServiceDeploy()
 {
-    mProvider = base::shm::WifiProvider::instance();
 }
 
 WifiServiceDeploy::~WifiServiceDeploy()
@@ -30,25 +29,22 @@ void WifiServiceDeploy::responseServiceReady(const std::string& clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void WifiServiceDeploy::responseSync(const std::string& clientName)
+void WifiServiceDeploy::responsePairedListUpdated()
 {
-    {
-        bool status = mProvider->getWifiStatus();
-        std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_Wifi_RespStatusUpdated);
-        mMqSender.addParam(status);
-        mMqSender.sendMsq(clientName);
-    }
-    {
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_Wifi_RespPairedListUpdated);
-        mMqSender.sendMsq(clientName);
-    }
-    {
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void WifiServiceDeploy::responseConnectedDeviceUpdated()
+{
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_Wifi_RespConnectedDeviceUpdated);
-        mMqSender.sendMsq(clientName);
-    }
+        mMqSender.sendMsq(mqName);
+    });
 }
 
 void WifiServiceDeploy::responseChangeWifiStatus(bool status)
@@ -61,15 +57,15 @@ void WifiServiceDeploy::responseChangeWifiStatus(bool status)
     });
 }
 
-void WifiServiceDeploy::responseDiscoveryDeviceUpdated(const base::shm::WifiDiscoveryDeviceShmem& device)
+void WifiServiceDeploy::responseDiscoveryDeviceUpdated(service::WifiDiscoveryDeviceInfo* device)
 {
     mClientManager.deploy([this, device](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_Wifi_RespDiscoveryDeviceUpdated);
-        mMqSender.addParam(device.name);
-        mMqSender.addParam(device.address);
-        mMqSender.addParam(device.privateAddr);
-        mMqSender.addParam(device.speedmode);
+        mMqSender.addParam(device->name.c_str());
+        mMqSender.addParam(device->address.c_str());
+        mMqSender.addParam(device->privateAddr);
+        mMqSender.addParam(static_cast<int>(device->speedmode));
         mMqSender.sendMsq(mqName);
     });
 }

@@ -1,37 +1,34 @@
-// #ifndef WIFIPAIRING_H
-// #define WIFIPAIRING_H
+#ifndef WIFIPAIRING_H
+#define WIFIPAIRING_H
 
-// #include "WifiDeploy.h"
-// #include <wifi/WifiServiceDef.h>
-// #include <wifi/WifiProvider.h>
-// #include "WifiDriver.h"
+#include <wifi/WifiServiceDef.h>
+#include <common/BaseDriver.h>
 
-// namespace driver {
+namespace driver {
 
-// class WifiPairing {
-// public: 
-//     static WifiPairing& instance();
-//     virtual ~WifiPairing();
+class WifiDriver;
+class WifiPairing {
+public: 
+    WifiPairing(WifiDriver* driver);
 
-//     void execute(milliseconds delta);
-//     std::list<base::shm::WifiDeviceShmem> getPairedDeviceList();
-//     void requestConnectDevice(const std::string& addr);
+    void execute(milliseconds delta);
+    std::list<service::WifiDeviceInfo*> getPairedDeviceList();
+    void requestConnectDevice(const std::string& addr);
 
-// private:
-//     WifiPairing();
+    void readData();
 
-//     std::string mPairingAddr {""};
-//     bool mPairingFlag {false};
-//     int mStep {0};
-//     milliseconds mTime {milliseconds(0)};
-//     service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
-//     base::shm::WifiDeviceShmem* mPairingDevice;
+private:
+    WifiDriver* mWifiDriver;
+    std::string mPairingAddr {""};
+    bool mPairingFlag {false};
+    int mStep {0};
+    milliseconds mTime {milliseconds(0)};
+    service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
+    std::list<service::WifiDeviceInfo*> mPairedDeviceList;
+    service::WifiDeviceInfo* mPairingDevice;
+};
 
-//     base::shm::WifiProvider* mWifiProvider;
-//     WifiDeploy* mWifiDeploy;
-// };
-
-// }
+}
 
 
-// #endif // WIFIPAIRING_H
+#endif // WIFIPAIRING_H

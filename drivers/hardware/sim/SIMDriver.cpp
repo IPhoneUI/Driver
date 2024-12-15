@@ -1,6 +1,5 @@
 #include "SIMDriver.h"
 #include <utils/Logger.h>
-#include <DriverExecution.h>
 
 namespace driver {
 
@@ -9,7 +8,6 @@ static SIMDriver* gInstance = 0;
 SIMDriver::SIMDriver()
 {
     common::DriverExecution::instance().addDriver("SIMDriver", this);
-    readDataFromDatabase();
 }
 
 SIMDriver* SIMDriver::getInstance()

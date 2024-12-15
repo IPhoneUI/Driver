@@ -7,7 +7,7 @@ static FlashMemoryDriver* gInstance = 0;
 
 FlashMemoryDriver::FlashMemoryDriver()
 {
-    readDataFromDatabase();
+    common::DriverExecution::instance().addDriver("FlashMemoryDriver", this);
 }
 
 FlashMemoryDriver* FlashMemoryDriver::getInstance()

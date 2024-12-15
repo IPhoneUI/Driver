@@ -7,7 +7,6 @@
 #include <string>
 #include <list>
 #include <common/BaseDriver.h>
-#include <sim/SIMProvider.h>
 #include <pstn/PSTNServiceDef.h>
 #include <event/EventQueue.h>
 #include <phonebook/PhoneBookServiceDef.h>
@@ -22,7 +21,7 @@ public:
     static void initialize();
     
     void execute(milliseconds delta) override;
-    void readDataFromDatabase();
+    void readDataFromDatabase() override;
 
     void requestChangeCellularStatus(bool status);
     void requestChangeAllowAccess(bool status);

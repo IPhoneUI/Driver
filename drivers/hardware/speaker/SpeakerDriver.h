@@ -5,7 +5,6 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
-#include <speaker/SpeakerProvider.h>
 
 namespace driver {
 
@@ -16,7 +15,7 @@ public:
     static void initialize();
     void connectDriver() override;
 
-    void readDataFromDatabase();
+    void readDataFromDatabase() override;
     
     bool getIsMuted() const
     {

@@ -5,7 +5,6 @@
 #include <thread>
 #include <functional>
 #include <common/BaseServiceImpl.h>
-#include <sim/SIMProvider.h>
 #include <event/EventQueue.h>
 #include <pstn/PSTNServiceDef.h>
 #include <sim/SIMDriver.h>
