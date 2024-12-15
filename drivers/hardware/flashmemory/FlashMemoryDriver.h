@@ -16,7 +16,7 @@ public:
     static void initialize();
     void connectDriver() override;
 
-    void readDataFromDatabase();
+    void readDataFromDatabase() override;
     void requestChangeAirPlaneMode(bool airPlane);
 
     std::list<service::VoiceRecordingData*> getVoiceRecordingList() const

@@ -7,7 +7,7 @@ static SpeakerDriver* gInstance = 0;
 
 SpeakerDriver::SpeakerDriver()
 {
-    readDataFromDatabase();
+    common::DriverExecution::instance().addDriver("SpeakerDriver", this);
 }
 
 SpeakerDriver* SpeakerDriver::getInstance()

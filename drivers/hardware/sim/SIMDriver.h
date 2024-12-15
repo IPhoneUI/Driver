@@ -21,7 +21,7 @@ public:
     static void initialize();
     
     void execute(milliseconds delta) override;
-    void readDataFromDatabase();
+    void readDataFromDatabase() override;
 
     void requestChangeCellularStatus(bool status);
     void requestChangeAllowAccess(bool status);

@@ -12,8 +12,6 @@
 #include <mutex>
 #include <shared_mutex>
 
-static constexpr int16_t delayMicroSeconds = 10000; // 0.01s
-
 namespace common {
 
 class ServiceFactory {
@@ -32,7 +30,7 @@ public:
             while (true)
             {
                 ins->onMsqReceived();
-                usleep(delayMicroSeconds);
+                usleep(10000);
             }
         });
 

@@ -15,7 +15,7 @@ public:
     static void initialize();
     void connectDriver() override;
 
-    void readDataFromDatabase();
+    void readDataFromDatabase() override;
     
     bool getIsMuted() const
     {

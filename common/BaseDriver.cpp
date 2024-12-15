@@ -6,4 +6,8 @@ void BaseDriver::execute(milliseconds delta)
 {
 }
 
+void BaseDriver::readDataFromDatabase()
+{
+}
+
 }

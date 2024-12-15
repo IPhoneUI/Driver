@@ -20,7 +20,7 @@ public:
     
     void execute(milliseconds delta) override;
     void connectDriver() override;
-    void readDataFromDatabase();
+    void readDataFromDatabase() override;
 
     bool getWifiStatus() const
     {

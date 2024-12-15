@@ -1,7 +1,6 @@
 #ifndef DRIVEREXECUTION_H
 #define DRIVEREXECUTION_H
 
-#include <BaseDriver.h>
 #include <unordered_map>
 #include <thread>
 #include <stdio.h>
@@ -11,12 +10,12 @@
 #include <chrono>
 #include <mutex>
 #include <shared_mutex>
-#include "BaseDriver.h"
 
 static constexpr int16_t delayMicroSeconds = 10000; // 0.01s
 
 namespace common {
 
+class BaseDriver;
 class DriverExecution {
 public:
     ~DriverExecution();

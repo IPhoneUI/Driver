@@ -10,6 +10,7 @@
 #include <msq/MsqSender.h>
 #include <ClientManager.h>
 #include <msq/MsqDef.h>
+#include "DriverExecution.h"
 
 namespace common {
 

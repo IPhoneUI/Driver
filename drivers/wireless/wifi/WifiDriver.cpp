@@ -1,6 +1,5 @@
 #include "WifiDriver.h"
 #include <utils/Logger.h>
-#include <common/DriverExecution.h>
 
 namespace driver {
 
@@ -9,10 +8,9 @@ static WifiDriver* gInstance = 0;
 WifiDriver::WifiDriver()
     : mConnectedDevice(new service::WifiDeviceInfo())
 {
-    common::DriverExecution::instance().addDriver("WifiDriver", this);
     mWifiPairing = new WifiPairing(this);
     mWifiDiscovery = new WifiDiscovery(this);
-    readDataFromDatabase();
+    common::DriverExecution::instance().addDriver("WifiDriver", this);
 }
 
 void WifiDriver::execute(milliseconds delta)
