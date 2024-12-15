@@ -18,6 +18,9 @@ class EasyMathServiceDeploy : public common::BaseDeploy
 public:
     static EasyMathServiceDeploy* instance();
 
+    void responseServiceReady(const std::string& clientName);
+    void responseStartGame(const bool& status);
+
 private:
     explicit EasyMathServiceDeploy();
     ~EasyMathServiceDeploy();

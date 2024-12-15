@@ -15,8 +15,14 @@ public:
     static void initialize();
     void connectDriver() override;
 
+    void startGame();
+
+    Signal<bool> onStartGame;
+
 private:
     explicit EasyMathServer();
+
+    bool mIsStartGame {false};
 };
 
 }

@@ -13,7 +13,7 @@ EasyMathServer* EasyMathServer::getInstance()
 {
     if (gInstance == nullptr)
     {
-        throw std::runtime_error("The EasyMathServer has not been initialized yet");
+        // throw std::runtime_error("The EasyMathServer has not been initialized yet");
         gInstance = new EasyMathServer();
     }
 
@@ -33,6 +33,14 @@ void EasyMathServer::connectDriver()
 {
     mIsReady = true;
     onDriverReady.emit();
+}
+
+void EasyMathServer::startGame()
+{
+    if (mIsStartGame == true)
+        return;
+    mIsStartGame = true;
+    onStartGame.emit(mIsStartGame);
 }
 
 }
