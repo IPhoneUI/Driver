@@ -5,6 +5,7 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
+#include <easymath/EasyMathDef.h>
 
 namespace driver {
 
@@ -15,8 +16,20 @@ public:
     static void initialize();
     void connectDriver() override;
 
+    void setRangeNumber(const int& range);
+    int getRangeNumber() const;
+
+    void setHighestScore(const int& score);
+    int getHighestScore() const;
+
+    Signal<> onHighestScoreUpdated;
+    Signal<> onRangeNumberUpdated;
+
 private:
     explicit EasyMathServer();
+
+    int mHighestCore {0};
+    int mRangeNumber {0};
 };
 
 }
