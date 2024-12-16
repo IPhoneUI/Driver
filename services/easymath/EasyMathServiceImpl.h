@@ -30,6 +30,11 @@ public:
         mInterval = interval;
     }
 
+    int getInterval() const
+    {
+        return mInterval;
+    }
+
     enum State {
         Waiting,
         Incorrect,

@@ -162,8 +162,11 @@ void EasyMathServiceImpl::submitCommand(int command)
     case GameEvent::GameOver:
         mDeploy->responseScore(mScore);
         mMonitors->stop();
+        resetGame();
         break;
     case GameEvent::NextLevel:
+        mDeploy->responseTimeOut(mMonitors->getInterval());
+        mMonitors->stop();
         nextLevel();
         break;
     default:

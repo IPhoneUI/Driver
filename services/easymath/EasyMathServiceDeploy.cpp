@@ -62,4 +62,14 @@ void EasyMathServiceDeploy::responseScore(const int& score)
     });
 }
 
+void EasyMathServiceDeploy::responseTimeOut(const int &interval)
+{
+    mClientManager.deploy([this, interval](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_EasyMath_TimeOut);
+        mMqSender.addParam(interval);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 }

@@ -22,6 +22,7 @@ public:
     void responseStartGame(const bool& status);
     void responseExpressionChanged(const service::ExpressionInfo& info);
     void responseScore(const int& score);
+    void responseTimeOut(const int& interval);
 
 private:
     explicit EasyMathServiceDeploy();
