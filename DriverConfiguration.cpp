@@ -34,7 +34,6 @@ DriverConfiguration::~DriverConfiguration()
 void DriverConfiguration::start()
 {
     LOG_INFO("DriverConfiguration Start");
-    driver::EasyMathServer::initialize();
     driver::FlashMemoryDriver::initialize();
     driver::WifiDriver::initialize();
     driver::SIMDriver::initialize();

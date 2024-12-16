@@ -16,36 +16,20 @@ public:
     static void initialize();
     void connectDriver() override;
 
-    void startGame();
-    void generateExpression();
-    int getRandomNumber(const int& min, const int& max);
-    void requestCheckingResult(const bool& result);
-    int getResult();
-    void resetGame();
-    void nextLevel();
+    void setRangeNumber(const int& range);
+    int getRangeNumber() const;
 
-    int getScore() const;
+    void setHighestScore(const int& score);
+    int getHighestScore() const;
 
-    Signal<bool> onStartGame;
-    Signal<const service::ExpressionInfo&> onExpressionChanged;
-    Signal<int> onGameOver;
-    Signal<bool> onAnswerResult;
+    Signal<> onHighestScoreUpdated;
+    Signal<> onRangeNumberUpdated;
 
 private:
     explicit EasyMathServer();
 
-    service::ExpressionInfo mExprInfo;
-
-    bool mIsGameRunning {false};
-    int mResult {0};
-    bool mRandomResult {false};
-    int mFirstArgument {0};
-    int mSecondArgument {0};
-    int mResultDummy {0};
-    int mLevel {0};
-    int mRangeNum {10};
-    std::mutex mMutex;
-    int mScore {0};
+    int mHighestCore {0};
+    int mRangeNumber {0};
 };
 
 }

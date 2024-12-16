@@ -9,36 +9,52 @@
 #include <easymath/EasyMathServer.h>
 #include <utility>
 #include <chrono>
+#include <cmath>
 
 namespace service {
 
 class MonitorProgress {
 public:
-    MonitorProgress() {
-        // mThreadTracking = std::thread(&execute);
-
+    MonitorProgress()
+    {
     }
-    MonitorProgress(const int interval) : mInterval(interval) {}
 
-    void setInterval(const int interval) { mInterval = interval; }
+    MonitorProgress(const int interval) : mInterval(interval)
+    {
+    }
 
-    enum class State {
+    void setInterval(const int interval)
+    {
+        mInterval = interval;
+    }
+
+    enum State {
         Waiting,
         Incorrect,
         Correct,
         None
     };
 
-    void setCommander(std::function<void(int)> func) {
-        mCommander = func;
+    void setCommander(std::function<void(int)> func)
+    {
+        if (func != nullptr) {
+            mCommander = func;
+        }
     }
 
-    void setState(State state) { mState = state; }
+    void setState(State state)
+    {
+        if (mState != state) {
+            mState = state;
+        }
+    }
 
-    void execute(milliseconds deltal) {
+    void trackingWorker()
+    {
+        milliseconds deltal = milliseconds(10);
 
-        LOG_INFO("HEHEHEEH");
-        if (mIsStart == true) {
+        while (mIsStart) {
+
             static milliseconds timeOut = milliseconds(0);
 
             timeOut += deltal;
@@ -62,8 +78,18 @@ public:
         }
     }
 
-    void start() {
+    void start()
+    {
+        if (mIsStart == true) {
+            return;
+        }
         mIsStart = true;
+        mThreadTracking = std::thread(&MonitorProgress::trackingWorker, this);
+        mThreadTracking.detach();
+    }
+
+    void stop() {
+        mIsStart = false;
     }
 
     std::mutex mMutex;
@@ -82,19 +108,37 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-
     void registerClient(const std::string& clientName);
-    void onStartGame(const bool& isStart);
-    void onExpressionChanged(const service::ExpressionInfo& info);
-    void onAnswerResult(const bool& result);
 
+    void startGame();
+    void generateExpression();
+    int getRandomNumber(const int& min, const int& max);
+    void requestCheckingResult(const bool& result);
+    int getResult();
+    void resetGame();
+    void nextLevel();
+
+    void onHighestScoreChanged();
+    void onRangeNumberChanged();
     void submitCommand(int command);
-
 
 private:
     EasyMathServiceDeploy* mDeploy;
     driver::EasyMathServer* mEasyMathServer;
     MonitorProgress* mMonitors {nullptr};
+
+    service::ExpressionInfo mExprInfo;
+
+    bool mIsGameRunning {false};
+    int mResult {0};
+    bool mRandomResult {false};
+    int mFirstArgument {0};
+    int mSecondArgument {0};
+    int mResultDummy {0};
+    int mLevel {0};
+    int mRangeNum {10};
+    std::mutex mMutex;
+    int mScore {0};
 };
 
 }
