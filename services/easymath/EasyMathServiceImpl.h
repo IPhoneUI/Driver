@@ -13,6 +13,8 @@
 
 namespace service {
 
+using time_clock = std::chrono::system_clock;
+
 class MonitorProgress {
 public:
     MonitorProgress()
@@ -51,13 +53,17 @@ public:
 
     void trackingWorker()
     {
-        milliseconds deltal = milliseconds(10);
+        static time_clock::time_point lastUpdate = time_clock::now();
+
+        static milliseconds timeOut = milliseconds(0);
 
         while (mIsStart) {
 
-            static milliseconds timeOut = milliseconds(0);
+            milliseconds delta = std::chrono::duration_cast<milliseconds>(time_clock::now() - lastUpdate);
 
-            timeOut += deltal;
+            lastUpdate = time_clock::now();
+
+            timeOut += delta;
 
             if (mState == State::Incorrect) {
                 mCommander(static_cast<int>(GameEvent::GameOver));
@@ -75,6 +81,8 @@ public:
                 setState(State::None);
                 mIsStart = false;
             }
+
+            usleep(10000);
         }
     }
 
