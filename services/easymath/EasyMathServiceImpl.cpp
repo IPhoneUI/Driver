@@ -161,6 +161,7 @@ void EasyMathServiceImpl::submitCommand(int command)
     {
     case GameEvent::GameOver:
         mDeploy->responseScore(mScore);
+        mMonitors->stop();
         break;
     case GameEvent::NextLevel:
         nextLevel();
