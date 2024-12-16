@@ -18,6 +18,7 @@ class BaseDeploy
 {
 public:
     bool registerClient(const std::string& clientName);
+    virtual void responseServiceReady(const std::string& clientName) = 0;
 
 protected:
     base::msq::MsqSender mMqSender;

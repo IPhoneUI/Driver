@@ -6,6 +6,7 @@
 namespace service {
 
 WifiServiceImpl::WifiServiceImpl()
+    : common::BaseServiceImpl(WifiServiceDeploy::instance())
 {
     mDeploy = WifiServiceDeploy::instance();
     mProvider = base::shm::WifiProvider::instance();
@@ -67,15 +68,6 @@ void WifiServiceImpl::finialize()
 {
     LOG_INFO("WifiServiceImpl finialize");
 }
-
-void WifiServiceImpl::registerClient(const std::string& clientName)
-{
-    if (mDeploy->registerClient(clientName))
-    {
-        mDeploy->responseServiceReady(clientName);
-    }
-}
-
 void WifiServiceImpl::requestSync()
 {
     bool wifiStatus = mWifiDriver->getWifiStatus();

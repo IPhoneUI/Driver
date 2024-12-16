@@ -16,7 +16,7 @@ class SystemSettingServiceDeploy : public common::BaseDeploy
 public:
     static SystemSettingServiceDeploy* instance();
 
-    void responseServiceReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName) override;
     void responseChangeAirPlaneMode(bool airPlane);
 
 private:

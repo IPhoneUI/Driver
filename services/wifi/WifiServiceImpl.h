@@ -20,7 +20,6 @@ public:
     void initialize() override;
     void finialize() override;
 
-    void registerClient(const std::string& clientName);
     void requestSync();
 
 public:

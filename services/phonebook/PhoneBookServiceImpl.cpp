@@ -4,6 +4,7 @@
 namespace service {
 
 PhoneBookServiceImpl::PhoneBookServiceImpl()
+    : common::BaseServiceImpl(PhoneBookServiceDeploy::instance())
 {
     mSIMDriver = driver::SIMDriver::getInstance();
     mDeploy = PhoneBookServiceDeploy::instance();
@@ -44,14 +45,6 @@ void PhoneBookServiceImpl::initialize()
 void PhoneBookServiceImpl::finialize()
 {
     LOG_INFO("PhoneBookServiceImpl finialize");
-}
-
-void PhoneBookServiceImpl::registerClient(const std::string& clientName)
-{
-    if (mDeploy->registerClient(clientName))
-    {
-        mDeploy->responseServiceReady(clientName);
-    }
 }
 
 void PhoneBookServiceImpl::onSIMDriverReady()

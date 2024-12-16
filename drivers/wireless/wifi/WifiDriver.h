@@ -16,7 +16,6 @@ class WifiDriver : public common::BaseDriver
 {
 public:
     static WifiDriver* getInstance();
-    static void initialize();
     
     void execute(milliseconds delta) override;
     void connectDriver() override;
@@ -46,6 +45,7 @@ public:
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;
     Signal<const std::list<service::WifiDeviceInfo*>&> onPairedDeviceListUpdated;
     Signal<service::WifiDiscoveryDeviceInfo*> onAddDiscoryDeviceInfo;
+    Signal<service::WifiDiscoveryDeviceInfo*> onRemoveDiscoryDeviceInfo;
 
 private:
     explicit WifiDriver();

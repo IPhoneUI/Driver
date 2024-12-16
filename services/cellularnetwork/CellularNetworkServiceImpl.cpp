@@ -4,6 +4,7 @@
 namespace service {
 
 CellularNetworkServiceImpl::CellularNetworkServiceImpl()
+    : common::BaseServiceImpl(CellularNetworkServiceDeploy::instance())
 {
     mDeploy = CellularNetworkServiceDeploy::instance();
     mSIMDriver = driver::SIMDriver::getInstance();
@@ -22,31 +23,22 @@ void CellularNetworkServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_CelNetwork_ReqSync: {
-            {
-                bool allowAccess = mSIMDriver->getAllowAccess();
-                mDeploy->responseChangeAllowAccess(allowAccess);
-
-                bool cellularSts = mSIMDriver->getAllowAccess();
-                mDeploy->responseChangeCellularStatus(cellularSts);
-
-                bool maxCompa = mSIMDriver->getMaxCompatibitily();
-                mDeploy->responseChangeMaxCompatibility(maxCompa);
-            }
+            requestSync();
             break;
         }
         case base::msq::Msq_CelNetwork_ReqChangeAllowAcess: {
             bool allowAcess = mMqReceiver.get<bool>(messages[1]);
-            mSIMDriver->requestChangeAllowAccess(allowAcess);
+            mSIMDriver->changeAllowAccess(allowAcess);
             break;
         }
         case base::msq::Msq_CelNetwork_ReqChangeMaxCompatibility: {
             bool maxCompa = mMqReceiver.get<bool>(messages[1]);
-            mSIMDriver->requestChangeMaxCompatibility(maxCompa);
+            mSIMDriver->changeMaxCompatibility(maxCompa);
             break;
         }
         case base::msq::Msq_CelNetwork_ReqChangeCellulatr: {
             bool cellularStatus = mMqReceiver.get<bool>(messages[1]);
-            mSIMDriver->requestChangeCellularStatus(cellularStatus);
+            mSIMDriver->changeCellularStatus(cellularStatus);
             break;
         }
         }
@@ -69,12 +61,19 @@ void CellularNetworkServiceImpl::finialize()
     LOG_INFO("CellularNetworkServiceImpl finialize");
 }
 
-void CellularNetworkServiceImpl::registerClient(const std::string& clientName)
+void CellularNetworkServiceImpl::requestSync()
 {
-    if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseServiceReady(clientName);
+        bool allowAccess = mSIMDriver->getAllowAccess();
+        mDeploy->responseChangeAllowAccess(allowAccess);
+
+        bool cellularSts = mSIMDriver->getAllowAccess();
+        mDeploy->responseChangeCellularStatus(cellularSts);
+
+        bool maxCompa = mSIMDriver->getMaxCompatibitily();
+        mDeploy->responseChangeMaxCompatibility(maxCompa);
     }
+
 }
 
 void CellularNetworkServiceImpl::onSIMDriverReady()

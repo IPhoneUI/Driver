@@ -20,15 +20,6 @@ FlashMemoryDriver* FlashMemoryDriver::getInstance()
     return gInstance;
 }
 
-void FlashMemoryDriver::initialize()
-{
-    LOG_INFO("FlashMemoryDriver initialize");
-    if (gInstance == nullptr)
-    {
-        gInstance = new FlashMemoryDriver();
-    }
-}
-
 void FlashMemoryDriver::connectDriver()
 {
     mIsReady = true;
@@ -67,7 +58,7 @@ void FlashMemoryDriver::readDataFromDatabase()
     }
 }
 
-void FlashMemoryDriver::requestChangeAirPlaneMode(bool airPlane)
+void FlashMemoryDriver::changeAirPlaneMode(bool airPlane)
 {
     if (mAirPlaneMode == airPlane)
         return; 

@@ -17,7 +17,7 @@ class PhoneBookServiceDeploy : public common::BaseDeploy
 public:
     static PhoneBookServiceDeploy* instance();
 
-    void responseServiceReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName) override;
     void responsePhoneContactListUpdated();
     void responsePhoneHistoryListUpdated();
 

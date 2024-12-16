@@ -20,15 +20,6 @@ SpeakerDriver* SpeakerDriver::getInstance()
     return gInstance;
 }
 
-void SpeakerDriver::initialize()
-{
-    LOG_INFO("SpeakerDriver initialize");
-    if (gInstance == nullptr)
-    {
-        gInstance = new SpeakerDriver();
-    }
-}
-
 void SpeakerDriver::connectDriver()
 {
     mIsReady = true;
@@ -46,7 +37,7 @@ void SpeakerDriver::readDataFromDatabase()
     }
 }
 
-void SpeakerDriver::requestChangeAudioMute(bool isMuted)
+void SpeakerDriver::changeAudioMute(bool isMuted)
 {
     if (mIsMuted == isMuted)
         return;

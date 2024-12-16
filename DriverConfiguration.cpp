@@ -34,11 +34,6 @@ DriverConfiguration::~DriverConfiguration()
 void DriverConfiguration::start()
 {
     LOG_INFO("DriverConfiguration Start");
-    driver::FlashMemoryDriver::initialize();
-    driver::WifiDriver::initialize();
-    driver::SIMDriver::initialize();
-    driver::SpeakerDriver::initialize();
-
     common::ServiceFactory::instance().initialize();
 }
 

@@ -19,7 +19,6 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-    void registerClient(const std::string& clientName) override;
 
     void onSIMDriverReady();
 

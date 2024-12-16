@@ -12,9 +12,8 @@ class SpeakerDriver : public common::BaseDriver
 {
 public:
     static SpeakerDriver* getInstance();
-    static void initialize();
+    
     void connectDriver() override;
-
     void readDataFromDatabase() override;
     
     bool getIsMuted() const
@@ -27,7 +26,7 @@ public:
         return mVolume;
     }
 
-    void requestChangeAudioMute(bool isMuted);
+    void changeAudioMute(bool isMuted);
 
     Signal<bool> onMuteUpdated;
     Signal<int> onVolumeUpdated;

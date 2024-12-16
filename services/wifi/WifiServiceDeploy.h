@@ -17,7 +17,7 @@ class WifiServiceDeploy : public common::BaseDeploy
 public:
     static WifiServiceDeploy* instance();
 
-    void responseServiceReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName) override;
     void responseChangeWifiStatus(bool status);
     void responseDiscoveryDeviceUpdated(service::WifiDiscoveryDeviceInfo* device);
     void responseCheckDevicePassword(bool result);

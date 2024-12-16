@@ -60,14 +60,6 @@ void PSTNServiceImpl::finialize()
     LOG_INFO("PSTNServiceImpl finialize");
 }
 
-void PSTNServiceImpl::registerClient(const std::string& clientName)
-{
-    if (mDeploy->registerClient(clientName))
-    {
-        mDeploy->responseServiceReady(clientName);
-    }
-}
-
 void PSTNServiceImpl::onSIMDriverReady()
 {
     // To do

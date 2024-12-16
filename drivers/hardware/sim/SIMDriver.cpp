@@ -20,15 +20,6 @@ SIMDriver* SIMDriver::getInstance()
     return gInstance;
 }
 
-void SIMDriver::initialize()
-{
-    LOG_INFO("SIMDriver initialize");
-    if (gInstance == nullptr)
-    {
-        gInstance = new SIMDriver();
-    }
-}
-
 void SIMDriver::execute(milliseconds delta)
 {
     static milliseconds checkActiveState = milliseconds(0); 
@@ -139,7 +130,7 @@ void SIMDriver::readDataFromDatabase()
     }
 }
 
-void SIMDriver::requestChangeCellularStatus(bool status)
+void SIMDriver::changeCellularStatus(bool status)
 {
     if (mCellularSts == status)
         return;
@@ -148,7 +139,7 @@ void SIMDriver::requestChangeCellularStatus(bool status)
     onCellularStatusUpdated.emit(mCellularSts);
 }
 
-void SIMDriver::requestChangeAllowAccess(bool status)
+void SIMDriver::changeAllowAccess(bool status)
 {
     if (mAllowAccess == status)
         return;
@@ -157,7 +148,7 @@ void SIMDriver::requestChangeAllowAccess(bool status)
     onAllowAccessUpdated.emit(mAllowAccess);
 }
 
-void SIMDriver::requestChangeMaxCompatibility(bool status)
+void SIMDriver::changeMaxCompatibility(bool status)
 {
     if (mMaxCompatibility == status)
         return;

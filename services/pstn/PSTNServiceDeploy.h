@@ -16,7 +16,7 @@ class PSTNServiceDeploy : public common::BaseDeploy
 {
 public:
     static PSTNServiceDeploy* instance();
-    void responseServiceReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName) override;
     void responseCallStatusUpdated(service::CallStatus status, const std::string& number);
     void responseCallInfoUpdated(const std::string& number, const std::string& name, const std::string& avatar);
     void responseTimeUpdated(int time);

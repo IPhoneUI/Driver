@@ -16,7 +16,7 @@ class CellularNetworkServiceDeploy : public common::BaseDeploy
 public:
     static CellularNetworkServiceDeploy* instance();
 
-    void responseServiceReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName) override;
     void responseChangeCellularStatus(bool status);
     void responseChangeAllowAccess(bool status);
     void responseChangeMaxCompatibility(bool status);

@@ -13,11 +13,11 @@ class FlashMemoryDriver : public common::BaseDriver
 {
 public:
     static FlashMemoryDriver* getInstance();
-    static void initialize();
-    void connectDriver() override;
 
+    void connectDriver() override;
     void readDataFromDatabase() override;
-    void requestChangeAirPlaneMode(bool airPlane);
+
+    void changeAirPlaneMode(bool airPlane);
 
     std::list<service::VoiceRecordingData*> getVoiceRecordingList() const
     {

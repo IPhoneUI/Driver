@@ -9,6 +9,7 @@
 #include <speaker/SpeakerDriver.h>
 #include <flashmemory/FlashMemoryDriver.h>
 #include <audio/AudioProvider.h>
+#include "BaseDeploy.h"
 
 namespace service {
 
@@ -20,7 +21,8 @@ public:
     void onMsqReceived() override;
     void initialize() override;
     void finialize() override;
-    void registerClient(const std::string& clientName) override;
+
+    void requestSync();
 
 public:
     void onSpeakerDriverReady();

@@ -13,12 +13,6 @@ WifiDriver::WifiDriver()
     common::DriverExecution::instance().addDriver("WifiDriver", this);
 }
 
-void WifiDriver::execute(milliseconds delta)
-{
-    mWifiPairing->execute(delta);
-    mWifiDiscovery->execute(delta);
-}
-
 WifiDriver* WifiDriver::getInstance()
 {
     if (gInstance == nullptr)
@@ -29,13 +23,10 @@ WifiDriver* WifiDriver::getInstance()
     return gInstance;
 }
 
-void WifiDriver::initialize()
+void WifiDriver::execute(milliseconds delta)
 {
-    LOG_INFO("WifiDriver initialize");
-    if (gInstance == nullptr)
-    {
-        gInstance = new WifiDriver();
-    }
+    mWifiPairing->execute(delta);
+    mWifiDiscovery->execute(delta);
 }
 
 void WifiDriver::connectDriver()

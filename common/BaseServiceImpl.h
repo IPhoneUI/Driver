@@ -20,19 +20,13 @@ namespace common {
 class BaseServiceImpl 
 {
 public:
-    BaseServiceImpl(BaseDeploy* deploy)
-        : mDeploy(deploy)
-    {}
-
-    BaseServiceImpl()
-    {}
+    BaseServiceImpl(BaseDeploy* deploy);
+    BaseServiceImpl();
     
     virtual void initialize() = 0;
     virtual void finialize() = 0;
     virtual void onMsqReceived() = 0;
-    virtual void registerClient(const std::string& clientName) = 0;
-    void onDriverReady()
-    {}
+    virtual void registerClient(const std::string& clientName);
 
 protected:
     base::msq::MsqReceiver mMqReceiver;

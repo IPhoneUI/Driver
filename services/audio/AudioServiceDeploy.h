@@ -16,7 +16,8 @@ class AudioServiceDeploy : public common::BaseDeploy
 public:
     static AudioServiceDeploy* instance();
 
-    void responseServiceReady(const std::string& clientName);
+    void responseServiceReady(const std::string& clientName) override;
+    
     void responseVolumeUpdated(int volume);
     void responseMuteUpdated(bool isMuted);
 

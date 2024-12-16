@@ -4,6 +4,7 @@
 namespace service {
 
 SystemSettingServiceImpl::SystemSettingServiceImpl()
+    : common::BaseServiceImpl(SystemSettingServiceDeploy::instance())
 {
     mDeploy = SystemSettingServiceDeploy::instance();
     mFMemDriver = driver::FlashMemoryDriver::getInstance();
@@ -22,13 +23,12 @@ void SystemSettingServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_SysSett_ReqSync: {
-            bool airPlane = mFMemDriver->getAirPlaneMode();
-            mDeploy->responseChangeAirPlaneMode(airPlane);
+            requestSync();
             break;
         }
         case base::msq::Msq_SysSett_ReqChangeAirPlaneMode: {
             bool airplane = mMqReceiver.get<bool>(messages[1]);
-            mFMemDriver->requestChangeAirPlaneMode(airplane);
+            mFMemDriver->changeAirPlaneMode(airplane);
             break;
         }
         }
@@ -49,12 +49,10 @@ void SystemSettingServiceImpl::finialize()
     LOG_INFO("SystemSettingServiceImpl finialize");
 }
 
-void SystemSettingServiceImpl::registerClient(const std::string& clientName)
+void SystemSettingServiceImpl::requestSync()
 {
-    if (mDeploy->registerClient(clientName))
-    {
-        mDeploy->responseServiceReady(clientName);
-    }
+    bool airPlane = mFMemDriver->getAirPlaneMode();
+    mDeploy->responseChangeAirPlaneMode(airPlane);
 }
 
 void SystemSettingServiceImpl::onFMemDriverReady()

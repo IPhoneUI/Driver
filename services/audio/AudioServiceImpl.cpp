@@ -4,11 +4,12 @@
 namespace service {
 
 AudioServiceImpl::AudioServiceImpl()
+    : mDeploy(AudioServiceDeploy::instance())
+    , mSpeakerDriver(driver::SpeakerDriver::getInstance())
+    , mFMemDriver(driver::FlashMemoryDriver::getInstance())
+    , mAudioProvider(base::shm::AudioProvider::instance())
+    , common::BaseServiceImpl(AudioServiceDeploy::instance())
 {
-    mDeploy = AudioServiceDeploy::instance();
-    mSpeakerDriver = driver::SpeakerDriver::getInstance();
-    mFMemDriver = driver::FlashMemoryDriver::getInstance();
-    mAudioProvider = base::shm::AudioProvider::instance();
 }
 
 void AudioServiceImpl::onMsqReceived()
@@ -24,25 +25,12 @@ void AudioServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_Audio_ReqSync: {
-            {
-                bool isMuted = mSpeakerDriver->getIsMuted();
-                mDeploy->responseMuteUpdated(isMuted);
-
-                int volume = mSpeakerDriver->getVolume();
-                mDeploy->responseVolumeUpdated(volume);
-            }
-            {
-                auto recordingList = mFMemDriver->getVoiceRecordingList();
-                onVoiceRecordingDataUpdated(recordingList);
-
-                auto deleteRecordingList = mFMemDriver->getVoiceDeleteRecordingList();
-                onVoiceDeleteRecordingDataUpdated(deleteRecordingList);
-            }
+            requestSync();
             break;
         }
         case base::msq::Msq_Audio_ReqChangeMute: {
             bool mute = mMqReceiver.get<bool>(messages[1]);
-            mSpeakerDriver->requestChangeAudioMute(mute);
+            mSpeakerDriver->changeAudioMute(mute);
         }
         }
     }
@@ -68,11 +56,21 @@ void AudioServiceImpl::finialize()
     LOG_INFO("AudioServiceImpl finialize");
 }
 
-void AudioServiceImpl::registerClient(const std::string& clientName)
+void AudioServiceImpl::requestSync()
 {
-    if (mDeploy->registerClient(clientName))
     {
-        mDeploy->responseServiceReady(clientName);
+        bool isMuted = mSpeakerDriver->getIsMuted();
+        mDeploy->responseMuteUpdated(isMuted);
+
+        int volume = mSpeakerDriver->getVolume();
+        mDeploy->responseVolumeUpdated(volume);
+    }
+    {
+        auto recordingList = mFMemDriver->getVoiceRecordingList();
+        onVoiceRecordingDataUpdated(recordingList);
+
+        auto deleteRecordingList = mFMemDriver->getVoiceDeleteRecordingList();
+        onVoiceDeleteRecordingDataUpdated(deleteRecordingList);
     }
 }
 

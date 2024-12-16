@@ -18,14 +18,13 @@ class SIMDriver : public common::BaseDriver
 public:
 
     static SIMDriver* getInstance();
-    static void initialize();
     
     void execute(milliseconds delta) override;
     void readDataFromDatabase() override;
 
-    void requestChangeCellularStatus(bool status);
-    void requestChangeAllowAccess(bool status);
-    void requestChangeMaxCompatibility(bool status);
+    void changeCellularStatus(bool status);
+    void changeAllowAccess(bool status);
+    void changeMaxCompatibility(bool status);
 
     void connectDriver() override;
     void callNumber(const std::string& number);
