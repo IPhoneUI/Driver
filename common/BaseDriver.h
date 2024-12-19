@@ -15,7 +15,6 @@ class BaseDriver
 public:
     virtual void connectDriver() = 0;
     virtual void execute(milliseconds delta);
-    virtual void readDataFromDatabase();
 
     Signal<> onDriverReady;
 

@@ -45,10 +45,6 @@ void WifiDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void WifiDriver::readDataFromDatabase()
-{
-}
-
 void WifiDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)

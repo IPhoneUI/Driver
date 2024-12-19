@@ -41,7 +41,6 @@ void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
         }
     }
     
-    obj->readDataFromDatabase();
     mDrivers.emplace(clientName, obj);
 }
 

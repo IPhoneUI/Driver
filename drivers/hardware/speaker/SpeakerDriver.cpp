@@ -35,10 +35,6 @@ void SpeakerDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void SpeakerDriver::readDataFromDatabase()
-{
-}
-
 void SpeakerDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)

@@ -37,10 +37,6 @@ void FlashMemoryDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void FlashMemoryDriver::readDataFromDatabase()
-{
-}
-
 void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)

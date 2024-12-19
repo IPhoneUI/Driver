@@ -20,7 +20,6 @@ public:
     static SIMDriver* getInstance();
     
     void execute(milliseconds delta) override;
-    void readDataFromDatabase() override;
 
     void changeCellularStatus(bool status);
     void changeAllowAccess(bool status);

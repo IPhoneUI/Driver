@@ -23,7 +23,7 @@ SIMDriver::SIMDriver()
 
         Connection::connect(repoPtr->onRepoStateChanged, std::bind(&SIMDriver::onRepoStateChanged, this, std::placeholders::_1));
     }
-    
+
     common::DriverExecution::instance().addDriver("SIMDriver", this);
 }
 
@@ -146,11 +146,6 @@ void SIMDriver::onRepoStateChanged(common::Repository::State state)
             ++count;
         }
     }
-}
-
-void SIMDriver::readDataFromDatabase()
-{
-
 }
 
 void SIMDriver::changeCellularStatus(bool status)

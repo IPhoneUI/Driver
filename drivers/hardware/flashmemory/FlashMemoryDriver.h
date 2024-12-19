@@ -15,7 +15,6 @@ public:
     static FlashMemoryDriver* getInstance();
 
     void connectDriver() override;
-    void readDataFromDatabase() override;
 
     void changeAirPlaneMode(bool airPlane);
 

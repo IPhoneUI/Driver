@@ -14,7 +14,6 @@ public:
     static SpeakerDriver* getInstance();
     
     void connectDriver() override;
-    void readDataFromDatabase() override;
     
     bool getIsMuted() const
     {
@@ -33,7 +32,7 @@ public:
     
 private: 
     void onRepoStateChanged(common::Repository::State state);
-    
+
 private:    
     explicit SpeakerDriver();
 
