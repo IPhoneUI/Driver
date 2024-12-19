@@ -40,7 +40,7 @@ public:
     void push();
 
     Repository* addRepository(const std::string& reponame);
-    Repository& getRepository(const std::string& name);
+    Repository& repository(const std::string& name);
 
 private:
     DataRepoManager();

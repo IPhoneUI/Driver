@@ -86,7 +86,7 @@ void SIMDriver::readDataFromDatabase()
 
     if (dataRepo.isReady())
     {
-        common::Repository& repo = dataRepo.getRepository("sim");
+        common::Repository& repo = dataRepo.repository("sim");
 
         mPhoneNumber = std::string(repo[common::ParameterIndex::SIM_PhoneNumber]);
         mNetwork = std::string(repo[common::ParameterIndex::SIM_Network]);
@@ -100,7 +100,7 @@ void SIMDriver::readDataFromDatabase()
         int count = 0;
         for (auto it = contactMap.begin(); it != contactMap.end(); ++it)
         {
-            std::unordered_map<std::string, common::Parameter> item = (*it);
+            std::unordered_map<std::string, common::PTree> item = (*it);
             mContacts.push_back({
                 static_cast<uint32_t>(count),
                 std::string(item["firstname"]),
@@ -108,7 +108,7 @@ void SIMDriver::readDataFromDatabase()
                 std::string(item["formatname"]),
                 std::string(item["phonenumber"]),
                 std::string(item["photo"]),
-                bool(item["isfav"])
+                (item["isfav"])
             });
             ++count;
         }
@@ -117,7 +117,7 @@ void SIMDriver::readDataFromDatabase()
         auto historyMap = repo[common::ParameterIndex::SIM_History].toList();
         for (auto it = historyMap.begin(); it != historyMap.end(); ++it)
         {
-            std::unordered_map<std::string, common::Parameter> item = (*it);
+            std::unordered_map<std::string, common::PTree> item = (*it);
             mHistories.push_back({
                 static_cast<uint32_t>(count),
                 std::string(item["formatName"]),

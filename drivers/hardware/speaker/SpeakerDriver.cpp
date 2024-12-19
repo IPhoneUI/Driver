@@ -31,7 +31,7 @@ void SpeakerDriver::readDataFromDatabase()
     common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
     if (dataRepo.isReady())
     {
-        common::Repository& repo = dataRepo.getRepository("speaker");
+        common::Repository& repo = dataRepo.repository("speaker");
         mIsMuted = repo[common::ParameterIndex::Speaker_Muted];
         mVolume = repo[common::ParameterIndex::Speaker_Volume];
     }

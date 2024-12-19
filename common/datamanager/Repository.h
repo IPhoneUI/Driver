@@ -4,7 +4,7 @@
 #include <string>
 #include <shared_mutex>
 #include <utils/filesystem.h>
-#include <utils/Variant.h>
+#include "Parameter.h"
 #include <unordered_map>
 
 namespace common {
@@ -54,7 +54,7 @@ struct ConfigParameter {
 
     std::string name;
     ParameterIndex index;
-    utils::Variant value;
+    Parameter value;
 };
 
 class Repository {
@@ -71,7 +71,7 @@ public:
 
     bool pull();
 
-    utils::Variant operator[](ParameterIndex index);
+    Parameter operator[](ParameterIndex index);
 
     void addParameter(const std::string& keyName, ParameterIndex index);
 

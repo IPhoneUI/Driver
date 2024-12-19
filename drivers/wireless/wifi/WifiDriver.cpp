@@ -44,11 +44,11 @@ void WifiDriver::readDataFromDatabase()
 
     if (dataRepo.isReady())
     {
-        common::Repository& repo = dataRepo.getRepository("wifi");
+        common::Repository& repo = dataRepo.repository("wifi");
 
         auto dataMap = repo[common::ParameterIndex::Wifi_Data].toList();
         {
-            std::unordered_map<std::string, common::Parameter> item = (*dataMap.begin());
+            std::unordered_map<std::string, common::PTree> item = (*dataMap.begin());
             mConnectedDevice->password = std::string(item["password"]);
             mConnectedDevice->autoconnectstatus = item["autoconnect"];
             mConnectedDevice->deviceinfo.name = std::string(item["name"]);

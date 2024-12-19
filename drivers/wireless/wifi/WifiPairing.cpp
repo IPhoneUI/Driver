@@ -16,7 +16,7 @@ void WifiPairing::readData()
 
     if (dataRepo.isReady())
     {
-        common::Repository& repo = dataRepo.getRepository("wifi");
+        common::Repository& repo = dataRepo.repository("wifi");
         auto dataMap = repo[common::ParameterIndex::Wifi_Data].toList();
 
         int count = 0;

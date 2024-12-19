@@ -11,21 +11,21 @@ Repository::Repository(const std::string& name) :
     mPath = filesystem::parent_path(__FILE__) + "/database/" + mName + ".json";
 }
 
-utils::Variant Repository::operator[](ParameterIndex index)
+Parameter Repository::operator[](ParameterIndex index)
 {
     if (index < 0 || index >= ParameterIndex::ParameterMax)
-        return utils::Variant();
+        return Parameter();
 
     std::shared_lock<std::shared_mutex> lock(mMutex);
     for (auto it = mConfigParameters.begin(); it != mConfigParameters.end(); ++it)
     {
         if ((*it)->index == static_cast<int>(index))
         {
-            return utils::Variant((*it)->value);
+            return Parameter((*it)->value);
         }
     }
 
-    return utils::Variant();
+    return Parameter();
 }
 
 void Repository::addParameter(const std::string& keyName, ParameterIndex index)
@@ -34,7 +34,7 @@ void Repository::addParameter(const std::string& keyName, ParameterIndex index)
 
     if (param != nullptr)
     {
-        LOG_WARN("Parameter %s is exists! addParameter is failed [%s]", keyName, SERVICE_NAME);
+        LOG_WARN("PTree %s is exists! addParameter is failed [%s]", keyName, SERVICE_NAME);
         return;
     }
 
@@ -72,7 +72,7 @@ bool Repository::pull()
             {
                 if (field.second.empty())
                 {
-                    parameter->value = utils::Variant(field.second);
+                    parameter->value = Parameter(field.second);
                 }
                 else 
                 {
@@ -92,7 +92,7 @@ bool Repository::pull()
                         ptreeMap.push_back(dataMap);
                     }
 
-                    parameter->value = utils::Variant(ptreeMap);
+                    parameter->value = Parameter(ptreeMap);
                 }
             }
         }

@@ -1,43 +1,70 @@
 #include "Parameter.h"
+#include <any>
 
 namespace common {
 
-Parameter::Parameter(const boost::property_tree::ptree& ptree)
-    : mData(ptree)
+Parameter::Parameter(const PTree &value)
+    : mType(ParameterType)
 {
+    parameter = value;
 }
 
-Parameter::Parameter(const Parameter &param)
+Parameter::Parameter(const std::list<std::unordered_map<std::string, PTree>> &value)
+    : mType(ParameterListType)
 {
-    mData = param.mData;
+    parameters = value;
 }
 
-Parameter::Parameter(Parameter &&param)
+Parameter::Parameter(const Parameter &other)
 {
-    mData = std::move(param.mData);
+    parameters = other.parameters;
+    parameter = other.parameter;
+    mType = other.mType;
 }
 
-Parameter &Parameter::operator=(const Parameter &param)
+Parameter::Parameter(Parameter &&other)
 {
-    if (this != &param)
-    {
-        mData = param.mData;
-    }
+    parameters = std::move(other.parameters);
+    parameter = std::move(other.parameter);
+    mType = std::move(other.mType);
+}
+
+Parameter &Parameter::operator=(const Parameter &other)
+{
+    parameters = other.parameters;
+    parameter = other.parameter;
+    mType = other.mType;
+
     return *this;
 }
 
-Parameter &Parameter::operator=(Parameter &&param)
+Parameter &Parameter::operator=(Parameter &&other)
 {
-    if (this != &param)
-    {
-        mData = std::move(param.mData);
-    }
+    parameters = std::move(other.parameters);
+    parameter = std::move(other.parameter);
+    mType = std::move(other.mType);
+
     return *this;
 }
 
-boost::property_tree::ptree Parameter::data() const
+Parameter::Parameter(boost::property_tree::ptree ptree)
+    : mType(ParameterType)
 {
-    return mData;
+    parameter = PTree(ptree);
+}
+
+Parameter::Parameter(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap)
+    : mType(ParameterListType)
+{
+    for (const auto &param_map : ptreeMap)
+    {
+        std::unordered_map<std::string, PTree> temp_map;
+        for (const auto &pair : param_map)
+        {
+            temp_map.emplace(pair.first, PTree(pair.second));
+        }
+        parameters.push_back(temp_map);
+    }
 }
 
 }

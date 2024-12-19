@@ -22,19 +22,19 @@ DataRepoManager::DataRepoManager()
         simRepo->addParameter("history", ParameterIndex::SIM_History);
     }
 
-    Repository* speakerRepo = addRepository("flashmemory");
-    if (speakerRepo != nullptr)
+    Repository* flashmemoryRepo = addRepository("flashmemory");
+    if (flashmemoryRepo != nullptr)
     {
-        speakerRepo->addParameter("recording", ParameterIndex::FMem_Recording);
-        speakerRepo->addParameter("delete_recording", ParameterIndex::FMem_DeleteRecording);
-        speakerRepo->addParameter("airplane_mode", ParameterIndex::FMem_AirPlaneMode);
+        flashmemoryRepo->addParameter("recording", ParameterIndex::FMem_Recording);
+        flashmemoryRepo->addParameter("delete_recording", ParameterIndex::FMem_DeleteRecording);
+        flashmemoryRepo->addParameter("airplane_mode", ParameterIndex::FMem_AirPlaneMode);
     }
 
-    Repository* cloudRepo = addRepository("speaker");
-    if (cloudRepo != nullptr)
+    Repository* speakerRepo = addRepository("speaker");
+    if (speakerRepo != nullptr)
     {
-        cloudRepo->addParameter("muted", ParameterIndex::Speaker_Muted);
-        cloudRepo->addParameter("volume", ParameterIndex::Speaker_Volume);
+        speakerRepo->addParameter("muted", ParameterIndex::Speaker_Muted);
+        speakerRepo->addParameter("volume", ParameterIndex::Speaker_Volume);
     }
 
     Repository* wifiRepo = addRepository("wifi");
@@ -42,7 +42,6 @@ DataRepoManager::DataRepoManager()
     {
         wifiRepo->addParameter("data", ParameterIndex::Wifi_Data);
     }
-
 
     setState(WaitToSyncDataState);
 
@@ -63,7 +62,7 @@ void DataRepoManager::setState(State state)
     mState = state;
 }
 
-Repository& DataRepoManager::getRepository(const std::string& name)
+Repository& DataRepoManager::repository(const std::string& name)
 {
     static Repository empty;
     if (mState != ReadyState)
