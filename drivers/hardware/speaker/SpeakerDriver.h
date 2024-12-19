@@ -31,6 +31,9 @@ public:
     Signal<bool> onMuteUpdated;
     Signal<int> onVolumeUpdated;
     
+private: 
+    void onRepoStateChanged(common::Repository::State state);
+    
 private:    
     explicit SpeakerDriver();
 

@@ -7,8 +7,6 @@
 #include <string>
 #include <memory>
 #include <mutex>
-#include "BaseServiceImpl.h"
-#include "BaseDriver.h"
 
 class Connection;
 template<typename... Args>

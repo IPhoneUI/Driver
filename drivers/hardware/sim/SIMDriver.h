@@ -76,6 +76,7 @@ private:
 
     explicit SIMDriver();
     void updateTimeCall(milliseconds delta);
+    void onRepoStateChanged(common::Repository::State state);
 
 private:
     service::CallInformation* mCallInfo;

@@ -13,6 +13,7 @@
 #include <speaker/SpeakerDriver.h>
 #include <sim/SIMDriver.h>
 #include <easymath/EasyMathServer.h>
+#include <datamanager/DataRepoManager.h>
 
 namespace driver {
 
@@ -35,12 +36,14 @@ void DriverConfiguration::start()
 {
     LOG_INFO("DriverConfiguration Start");
     common::ServiceFactory::instance().initialize();
+    common::DataRepoManager::instance().pull();
 }
 
 void DriverConfiguration::stop()
 {
     LOG_INFO("DriverConfiguration Stop");
     common::ServiceFactory::instance().finialize();
+    common::DataRepoManager::instance().push();
 }
 
 }

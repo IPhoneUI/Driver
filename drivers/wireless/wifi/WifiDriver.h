@@ -47,6 +47,9 @@ public:
     Signal<service::WifiDiscoveryDeviceInfo*> onAddDiscoryDeviceInfo;
     Signal<service::WifiDiscoveryDeviceInfo*> onRemoveDiscoryDeviceInfo;
 
+private: 
+    void onRepoStateChanged(common::Repository::State state);
+
 private:
     explicit WifiDriver();
 

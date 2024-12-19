@@ -6,6 +6,7 @@
 #include <utils/filesystem.h>
 #include "Parameter.h"
 #include <unordered_map>
+#include <Connection.h>
 
 namespace common {
 
@@ -59,6 +60,15 @@ struct ConfigParameter {
 
 class Repository {
 public:
+    enum State {
+        IdleState,
+        WaitToPullCompleted,
+        PullCompleted,
+        PullError,
+        WaitToPushCompleted,
+        PushError
+    };
+
     Repository()
     {}
     
@@ -69,17 +79,27 @@ public:
         return mName;
     }
 
+    State state() const
+    {
+        return mState;
+    }
+
     bool pull();
+
+    void setState(State value);
 
     Parameter operator[](ParameterIndex index);
 
     void addParameter(const std::string& keyName, ParameterIndex index);
+
+    Signal<State> onRepoStateChanged;
 
 private:
     ConfigParameter* findParameter(const std::string& name);
 
     std::string mName;
     std::string mPath;
+    State mState {IdleState};
 
     mutable std::shared_mutex mMutex;
     std::vector<ConfigParameter*> mConfigParameters;

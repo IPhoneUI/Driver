@@ -10,6 +10,16 @@ WifiDriver::WifiDriver()
 {
     mWifiPairing = new WifiPairing(this);
     mWifiDiscovery = new WifiDiscovery(this);
+
+    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+    auto wifiRepo = dataRepo.addRepository("wifi");
+    if (wifiRepo != nullptr)
+    {
+        wifiRepo->addParameter("data", common::ParameterIndex::Wifi_Data);
+
+        Connection::connect(wifiRepo->onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
+    }
+
     common::DriverExecution::instance().addDriver("WifiDriver", this);
 }
 
@@ -37,13 +47,16 @@ void WifiDriver::connectDriver()
 
 void WifiDriver::readDataFromDatabase()
 {
-    mWifiPairing->readData();
-    mWifiDiscovery->readData();
-    
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+}
 
-    if (dataRepo.isReady())
+void WifiDriver::onRepoStateChanged(common::Repository::State state)
+{
+    if (state == common::Repository::PullCompleted)
     {
+        mWifiPairing->readData();
+        mWifiDiscovery->readData();
+    
+        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
         common::Repository& repo = dataRepo.repository("wifi");
 
         auto dataMap = repo[common::ParameterIndex::Wifi_Data].toList();

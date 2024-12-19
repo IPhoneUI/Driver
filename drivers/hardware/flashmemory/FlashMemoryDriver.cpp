@@ -7,6 +7,17 @@ static FlashMemoryDriver* gInstance = 0;
 
 FlashMemoryDriver::FlashMemoryDriver()
 {
+    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+    auto flashmemoryRepo = dataRepo.addRepository("flashmemory");
+    if (flashmemoryRepo != nullptr)
+    {
+        flashmemoryRepo->addParameter("recording", common::ParameterIndex::FMem_Recording);
+        flashmemoryRepo->addParameter("delete_recording", common::ParameterIndex::FMem_DeleteRecording);
+        flashmemoryRepo->addParameter("airplane_mode", common::ParameterIndex::FMem_AirPlaneMode);
+
+        Connection::connect(flashmemoryRepo->onRepoStateChanged, std::bind(&FlashMemoryDriver::onRepoStateChanged, this, std::placeholders::_1));
+    }
+
     common::DriverExecution::instance().addDriver("FlashMemoryDriver", this);
 }
 
@@ -28,10 +39,15 @@ void FlashMemoryDriver::connectDriver()
 
 void FlashMemoryDriver::readDataFromDatabase()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    if (dataRepo.isReady())
+}
+
+void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
+{
+    if (state == common::Repository::PullCompleted)
     {
+        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
         common::Repository& repo = dataRepo.repository("flashmemory");
+
         auto recordingMap = repo[common::ParameterIndex::FMem_Recording].toList();
         for (auto it = recordingMap.begin(); it != recordingMap.end(); ++it)
         {

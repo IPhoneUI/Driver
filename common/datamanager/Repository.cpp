@@ -58,10 +58,11 @@ ConfigParameter* Repository::findParameter(const std::string& name)
 
 bool Repository::pull()
 {
-    std::unique_lock<std::shared_mutex> lock(mMutex);
-
     try 
     {
+        std::unique_lock<std::shared_mutex> lock(mMutex);
+
+        setState(WaitToPullCompleted);
         boost::property_tree::ptree ptree;
 
         boost::property_tree::read_json(mPath, ptree);
@@ -96,22 +97,36 @@ bool Repository::pull()
                 }
             }
         }
-
+        lock.unlock();
+        setState(PullCompleted);
     } 
     catch (const boost::property_tree::json_parser_error &e) 
     {
         LOG_ERR("JSON parsing error: %s", e.what());
+        // setState(PullError);
     } 
     catch (const std::runtime_error &e) 
     {
         LOG_ERR("Runtime error: %s", e.what());
+        // setState(PullError);
     } 
     catch (const std::exception &e) 
     {
         LOG_ERR("Exception: %s", e.what());
+        // setState(PullError);
     }
 
     return true;
+}
+
+void Repository::setState(State value)
+{
+    if (mState == value)
+        return;
+
+    mState = value;
+    LOG_INFO("Repository [%s] change state to %d", mName.c_str(), (int)mState);
+    onRepoStateChanged.emit(mState);
 }
 
 }

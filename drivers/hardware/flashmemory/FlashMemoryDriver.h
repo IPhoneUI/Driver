@@ -38,6 +38,9 @@ public:
     Signal<std::list<service::VoiceRecordingData*>> onVoiceDeleteRecordingDataUpdated;
     Signal<bool> onAirPlaneModeUpdated;
 
+private: 
+    void onRepoStateChanged(common::Repository::State state);
+
 private:
     explicit FlashMemoryDriver();
 

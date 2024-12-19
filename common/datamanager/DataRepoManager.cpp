@@ -8,44 +8,6 @@ namespace common {
 
 DataRepoManager::DataRepoManager()
 {
-    Repository* simRepo = addRepository("sim");
-    if (simRepo != nullptr)
-    {
-        simRepo->addParameter("phonenumber", ParameterIndex::SIM_PhoneNumber);
-        simRepo->addParameter("network", ParameterIndex::SIM_Network);
-        simRepo->addParameter("phonesignal", ParameterIndex::SIM_PhoneSignal);
-        simRepo->addParameter("wifipassword", ParameterIndex::SIM_WifiPassword);
-        simRepo->addParameter("allowaccess", ParameterIndex::SIM_AllowAccess);
-        simRepo->addParameter("cellular", ParameterIndex::SIM_CellularStatus);
-        simRepo->addParameter("maxcompatibility", ParameterIndex::SIM_MaxCompatibility);
-        simRepo->addParameter("contact", ParameterIndex::SIM_Contact);
-        simRepo->addParameter("history", ParameterIndex::SIM_History);
-    }
-
-    Repository* flashmemoryRepo = addRepository("flashmemory");
-    if (flashmemoryRepo != nullptr)
-    {
-        flashmemoryRepo->addParameter("recording", ParameterIndex::FMem_Recording);
-        flashmemoryRepo->addParameter("delete_recording", ParameterIndex::FMem_DeleteRecording);
-        flashmemoryRepo->addParameter("airplane_mode", ParameterIndex::FMem_AirPlaneMode);
-    }
-
-    Repository* speakerRepo = addRepository("speaker");
-    if (speakerRepo != nullptr)
-    {
-        speakerRepo->addParameter("muted", ParameterIndex::Speaker_Muted);
-        speakerRepo->addParameter("volume", ParameterIndex::Speaker_Volume);
-    }
-
-    Repository* wifiRepo = addRepository("wifi");
-    if (wifiRepo != nullptr)
-    {
-        wifiRepo->addParameter("data", ParameterIndex::Wifi_Data);
-    }
-
-    setState(WaitToSyncDataState);
-
-    pull();
 }
 
 DataRepoManager& DataRepoManager::instance()
@@ -54,20 +16,9 @@ DataRepoManager& DataRepoManager::instance()
     return ins;
 }
 
-void DataRepoManager::setState(State state)
-{
-    if (mState == state)
-        return;
-    
-    mState = state;
-}
-
 Repository& DataRepoManager::repository(const std::string& name)
 {
     static Repository empty;
-    if (mState != ReadyState)
-        return empty;
-
     auto it = mRepos.find(name);
 
     if (it != mRepos.end())
@@ -101,8 +52,6 @@ void DataRepoManager::pull()
     {
         (*it).second->pull();
     }
-
-    setState(ReadyState);
 }
 
 void DataRepoManager::push()

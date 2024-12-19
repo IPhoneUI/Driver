@@ -7,6 +7,23 @@ static SIMDriver* gInstance = 0;
 
 SIMDriver::SIMDriver()
 {
+    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+    auto repoPtr = dataRepo.addRepository("sim");
+    if (repoPtr)
+    {
+        repoPtr->addParameter("phonenumber", common::ParameterIndex::SIM_PhoneNumber);
+        repoPtr->addParameter("network", common::ParameterIndex::SIM_Network);
+        repoPtr->addParameter("phonesignal", common::ParameterIndex::SIM_PhoneSignal);
+        repoPtr->addParameter("wifipassword", common::ParameterIndex::SIM_WifiPassword);
+        repoPtr->addParameter("allowaccess", common::ParameterIndex::SIM_AllowAccess);
+        repoPtr->addParameter("cellular", common::ParameterIndex::SIM_CellularStatus);
+        repoPtr->addParameter("maxcompatibility", common::ParameterIndex::SIM_MaxCompatibility);
+        repoPtr->addParameter("contact", common::ParameterIndex::SIM_Contact);
+        repoPtr->addParameter("history", common::ParameterIndex::SIM_History);
+
+        Connection::connect(repoPtr->onRepoStateChanged, std::bind(&SIMDriver::onRepoStateChanged, this, std::placeholders::_1));
+    }
+    
     common::DriverExecution::instance().addDriver("SIMDriver", this);
 }
 
@@ -80,12 +97,13 @@ void SIMDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void SIMDriver::readDataFromDatabase()
+void SIMDriver::onRepoStateChanged(common::Repository::State state)
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+    LOG_INFO("State changed: %d", (int)state);
 
-    if (dataRepo.isReady())
+    if (state == common::Repository::PullCompleted)
     {
+        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
         common::Repository& repo = dataRepo.repository("sim");
 
         mPhoneNumber = std::string(repo[common::ParameterIndex::SIM_PhoneNumber]);
@@ -128,6 +146,11 @@ void SIMDriver::readDataFromDatabase()
             ++count;
         }
     }
+}
+
+void SIMDriver::readDataFromDatabase()
+{
+
 }
 
 void SIMDriver::changeCellularStatus(bool status)

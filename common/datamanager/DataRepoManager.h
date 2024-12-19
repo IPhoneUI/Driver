@@ -28,14 +28,6 @@ public:
 
     static DataRepoManager& instance();
 
-    bool isReady() const
-    {
-        return mState == ReadyState;
-    }
-
-    void setState(State state);
-
-
     void pull();
     void push();
 
@@ -46,7 +38,6 @@ private:
     DataRepoManager();
 
     std::mutex mMutex;
-    State mState;
     std::unordered_map<std::string, Repository*> mRepos;
 };
 

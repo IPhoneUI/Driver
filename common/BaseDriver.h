@@ -4,6 +4,7 @@
 #include <string>
 #include <Connection.h>
 #include <datamanager/DataRepoManager.h>
+#include <DriverExecution.h>
 
 namespace common {
 
