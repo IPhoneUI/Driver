@@ -47,6 +47,41 @@ Parameter &Parameter::operator=(Parameter &&other)
     return *this;
 }
 
+template <typename T>
+Parameter &Parameter::operator=(const T& value)
+{
+    mVariant.setValue(value);
+    return *this;
+}
+
+template <>
+Parameter& Parameter::operator=<bool>(const bool& value)
+{
+    mVariant.setValue(value);
+    return *this;
+}
+
+template <>
+Parameter& Parameter::operator=<double>(const double& value)
+{
+    mVariant.setValue(value);
+    return *this;
+}
+
+template <>
+Parameter& Parameter::operator=<int>(const int& value)
+{
+    mVariant.setValue(value);
+    return *this;
+}
+
+template <>
+Parameter& Parameter::operator=<std::string>(const std::string& value)
+{
+    mVariant.setValue(value);
+    return *this;
+}
+
 Parameter::Parameter(boost::property_tree::ptree ptree)
     : mType(VariantType)
 {

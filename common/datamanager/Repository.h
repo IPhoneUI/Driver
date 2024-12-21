@@ -89,7 +89,7 @@ public:
 
     void setState(State value);
 
-    Parameter operator[](ParameterIndex index);
+    Parameter& operator[](ParameterIndex index);
 
     void addParameter(const std::string& keyName, ParameterIndex index);
 

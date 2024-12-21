@@ -27,6 +27,12 @@ public:
         return mData.get_value<T>();
     }
 
+    template <typename T>
+    void setValue(const T& value)
+    {
+        mData.put_value(value);
+    }
+
     template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
     operator T() const;
 

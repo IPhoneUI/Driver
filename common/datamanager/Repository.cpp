@@ -11,21 +11,22 @@ Repository::Repository(const std::string& name) :
     mPath = filesystem::parent_path(__FILE__) + "/database/" + mName + ".json";
 }
 
-Parameter Repository::operator[](ParameterIndex index)
+Parameter& Repository::operator[](ParameterIndex index)
 {
+    static Parameter invalidParam; 
     if (index < 0 || index >= ParameterIndex::ParameterMax)
-        return Parameter();
+        return invalidParam;
 
     std::shared_lock<std::shared_mutex> lock(mMutex);
     for (auto it = mConfigParameters.begin(); it != mConfigParameters.end(); ++it)
     {
         if ((*it)->index == static_cast<int>(index))
         {
-            return Parameter((*it)->value);
+            return (*it)->value;
         }
     }
 
-    return Parameter();
+    return invalidParam;
 }
 
 void Repository::addParameter(const std::string& keyName, ParameterIndex index)
