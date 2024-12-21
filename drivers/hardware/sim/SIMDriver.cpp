@@ -31,10 +31,18 @@ SIMDriver* SIMDriver::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new SIMDriver();
+        throw std::runtime_error("The SIMDriver has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void SIMDriver::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new SIMDriver();
+    }
 }
 
 void SIMDriver::execute(milliseconds delta)
@@ -106,41 +114,41 @@ void SIMDriver::onRepoStateChanged(common::Repository::State state)
         common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
         common::Repository& repo = dataRepo.repository("sim");
 
-        mPhoneNumber = std::string(repo[common::ParameterIndex::SIM_PhoneNumber]);
-        mNetwork = std::string(repo[common::ParameterIndex::SIM_Network]);
+        mPhoneNumber = repo[common::ParameterIndex::SIM_PhoneNumber];
+        mNetwork = repo[common::ParameterIndex::SIM_Network];
         mPhoneSignal = repo[common::ParameterIndex::SIM_PhoneSignal];
-        mWifiPassword = std::string(repo[common::ParameterIndex::SIM_WifiPassword]);        
+        mWifiPassword = repo[common::ParameterIndex::SIM_WifiPassword];        
         mAllowAccess = repo[common::ParameterIndex::SIM_AllowAccess];
         mCellularSts = repo[common::ParameterIndex::SIM_CellularStatus];
         mMaxCompatibility = repo[common::ParameterIndex::SIM_MaxCompatibility];
 
-        auto contactMap = repo[common::ParameterIndex::SIM_Contact].toList();
+        utils::VariantList contactList = repo[common::ParameterIndex::SIM_Contact];
         int count = 0;
-        for (auto it = contactMap.begin(); it != contactMap.end(); ++it)
+        for (const auto &contact : contactList)
         {
-            std::unordered_map<std::string, common::PTree> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = contact;
             mContacts.push_back({
                 static_cast<uint32_t>(count),
-                std::string(item["firstname"]),
-                std::string(item["lastname"]),
-                std::string(item["formatname"]),
-                std::string(item["phonenumber"]),
-                std::string(item["photo"]),
-                (item["isfav"])
+                item["firstname"],
+                item["lastname"],
+                item["formatname"],
+                item["phonenumber"],
+                item["photo"],
+                item["isfav"]
             });
             ++count;
         }
 
         count = 0;
-        auto historyMap = repo[common::ParameterIndex::SIM_History].toList();
-        for (auto it = historyMap.begin(); it != historyMap.end(); ++it)
+        utils::VariantList historyList = repo[common::ParameterIndex::SIM_History];
+        for (const auto &history : historyList)
         {
-            std::unordered_map<std::string, common::PTree> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = history;
             mHistories.push_back({
                 static_cast<uint32_t>(count),
-                std::string(item["formatName"]),
-                std::string(item["phoneNumber"]),
-                std::string(item["time"]),
+                item["formatName"],
+                item["phoneNumber"],
+                item["time"],
                 static_cast<service::PhoneCallingType>(int(item["phoneType"]))
             });
             ++count;

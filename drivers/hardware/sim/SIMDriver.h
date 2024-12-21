@@ -18,6 +18,7 @@ class SIMDriver : public common::BaseDriver
 public:
 
     static SIMDriver* getInstance();
+    static void initialize();
     
     void execute(milliseconds delta) override;
 

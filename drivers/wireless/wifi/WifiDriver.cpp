@@ -16,6 +16,7 @@ WifiDriver::WifiDriver()
     if (wifiRepo != nullptr)
     {
         wifiRepo->addParameter("data", common::ParameterIndex::Wifi_Data);
+        wifiRepo->addParameter("wifistatus", common::ParameterIndex::Wifi_Status);
 
         Connection::connect(wifiRepo->onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
     }
@@ -27,10 +28,18 @@ WifiDriver* WifiDriver::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new WifiDriver();
+        throw std::runtime_error("The WifiDriver has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void WifiDriver::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new WifiDriver();
+    }
 }
 
 void WifiDriver::execute(milliseconds delta)
@@ -55,16 +64,18 @@ void WifiDriver::onRepoStateChanged(common::Repository::State state)
         common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
         common::Repository& repo = dataRepo.repository("wifi");
 
-        auto dataMap = repo[common::ParameterIndex::Wifi_Data].toList();
+        utils::VariantList dataList = repo[common::ParameterIndex::Wifi_Data];
         {
-            std::unordered_map<std::string, common::PTree> item = (*dataMap.begin());
-            mConnectedDevice->password = std::string(item["password"]);
+            std::unordered_map<std::string, utils::Variant> item = (*dataList.begin());
+            mConnectedDevice->password = item["password"];
             mConnectedDevice->autoconnectstatus = item["autoconnect"];
-            mConnectedDevice->deviceinfo.name = std::string(item["name"]);
-            mConnectedDevice->deviceinfo.address = std::string(item["address"]);
+            mConnectedDevice->deviceinfo.name = item["name"];
+            mConnectedDevice->deviceinfo.address = item["address"];
             mConnectedDevice->deviceinfo.privateAddr = item["privateaddress"];
             mConnectedDevice->deviceinfo.speedmode = static_cast<service::WifiSpeedMode>(int(item["wifisignal"]));
         }
+
+        mWifiStatus = repo[common::ParameterIndex::Wifi_Status];
     }
 }
 

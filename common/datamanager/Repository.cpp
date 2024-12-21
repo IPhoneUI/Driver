@@ -34,7 +34,7 @@ void Repository::addParameter(const std::string& keyName, ParameterIndex index)
 
     if (param != nullptr)
     {
-        LOG_WARN("PTree %s is exists! addParameter is failed [%s]", keyName, SERVICE_NAME);
+        LOG_WARN("Variant %s is exists! addParameter is failed [%s]", keyName, SERVICE_NAME);
         return;
     }
 
@@ -103,17 +103,17 @@ bool Repository::pull()
     catch (const boost::property_tree::json_parser_error &e) 
     {
         LOG_ERR("JSON parsing error: %s", e.what());
-        // setState(PullError);
+        setState(PullError);
     } 
     catch (const std::runtime_error &e) 
     {
         LOG_ERR("Runtime error: %s", e.what());
-        // setState(PullError);
+        setState(PullError);
     } 
     catch (const std::exception &e) 
     {
         LOG_ERR("Exception: %s", e.what());
-        // setState(PullError);
+        setState(PullError);
     }
 
     return true;

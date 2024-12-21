@@ -13,6 +13,8 @@ public:
 
     void start();
     void stop();
+    void initDriver();
+    void addService();
 };
 
 }

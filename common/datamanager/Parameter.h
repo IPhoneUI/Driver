@@ -4,66 +4,111 @@
 #include <list>
 #include <unordered_map>
 #include <utils/filesystem.h>
-#include <datamanager/PTree.h>
+#include <utils/Variant.h>
+#include <utils/VariantList.h>
 
 namespace common {
 
-class Parameter {
-public: 
-    enum Type {
-        NoneType,
-        ParameterType,
-        ParameterListType
+class Parameter
+{
+public:
+    enum Type
+    {
+        Unknown,
+        VariantType,
+        VariantListType
     };
 
     Parameter() {}
 
-    Parameter(const Parameter& other);
+    Parameter(const Parameter &other);
 
-    Parameter& operator=(const Parameter &other);
+    Parameter &operator=(const Parameter &other);
 
-    Parameter(Parameter&& other);
+    Parameter(Parameter &&other);
 
-    Parameter& operator=(Parameter &&other);
+    Parameter &operator=(Parameter &&other);
 
     Parameter(boost::property_tree::ptree ptree);
 
     Parameter(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap);
 
-    Parameter(const PTree& parameter);
+    Parameter(const utils::Variant &variant);
 
-    Parameter(const std::list<std::unordered_map<std::string, PTree>>& parameter);
+    Parameter(const utils::VariantList &variantList);
 
-    Type type() const
-    {
-        return mType;
-    }
+    template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
+    operator T() const;
 
-    std::list<std::unordered_map<std::string, PTree>> toList() const
-    {
-        if (mType == ParameterListType)
-            return parameters;
-        else 
-            return {};
-    }
+    template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type = true>
+    operator T() const;
 
-    template <typename T>
-    operator T() const
-    {
-        if (mType == ParameterType)
-            return parameter.data().get_value<T>();
-        else if (mType == ParameterListType)
-            return T();
-        else 
-            return T();
-    }
+    template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+    operator T() const;
 
 private:
-    Type mType {NoneType};
-    PTree parameter;
-    std::list<std::unordered_map<std::string, PTree>> parameters;
+    Type mType{Unknown};
+    utils::Variant mVariant;
+    utils::VariantList mVariantList;
 };
+
+template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant;
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantListType)
+        return mVariantList;
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.value<bool>();
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.value<std::string>();
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.value<double>();
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.value<int>();
+    throw std::bad_cast();
+}
 
 }
 
-#endif 
+#endif

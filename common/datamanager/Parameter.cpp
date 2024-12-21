@@ -3,36 +3,36 @@
 
 namespace common {
 
-Parameter::Parameter(const PTree &value)
-    : mType(ParameterType)
+Parameter::Parameter(const utils::Variant &variant)
+    : mType(VariantType)
 {
-    parameter = value;
+    mVariant = variant;
 }
 
-Parameter::Parameter(const std::list<std::unordered_map<std::string, PTree>> &value)
-    : mType(ParameterListType)
+Parameter::Parameter(const utils::VariantList &variantList)
+    : mType(VariantListType)
 {
-    parameters = value;
+    mVariantList = variantList;
 }
 
 Parameter::Parameter(const Parameter &other)
 {
-    parameters = other.parameters;
-    parameter = other.parameter;
+    mVariantList = other.mVariantList;
+    mVariant = other.mVariant;
     mType = other.mType;
 }
 
 Parameter::Parameter(Parameter &&other)
 {
-    parameters = std::move(other.parameters);
-    parameter = std::move(other.parameter);
+    mVariantList = std::move(other.mVariantList);
+    mVariant = std::move(other.mVariant);
     mType = std::move(other.mType);
 }
 
 Parameter &Parameter::operator=(const Parameter &other)
 {
-    parameters = other.parameters;
-    parameter = other.parameter;
+    mVariantList = other.mVariantList;
+    mVariant = other.mVariant;
     mType = other.mType;
 
     return *this;
@@ -40,30 +40,30 @@ Parameter &Parameter::operator=(const Parameter &other)
 
 Parameter &Parameter::operator=(Parameter &&other)
 {
-    parameters = std::move(other.parameters);
-    parameter = std::move(other.parameter);
+    mVariantList = std::move(other.mVariantList);
+    mVariant = std::move(other.mVariant);
     mType = std::move(other.mType);
 
     return *this;
 }
 
 Parameter::Parameter(boost::property_tree::ptree ptree)
-    : mType(ParameterType)
+    : mType(VariantType)
 {
-    parameter = PTree(ptree);
+    mVariant = utils::Variant(ptree);
 }
 
 Parameter::Parameter(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap)
-    : mType(ParameterListType)
+    : mType(VariantListType)
 {
     for (const auto &param_map : ptreeMap)
     {
-        std::unordered_map<std::string, PTree> temp_map;
+        std::unordered_map<std::string, utils::Variant> temp_map;
         for (const auto &pair : param_map)
         {
-            temp_map.emplace(pair.first, PTree(pair.second));
+            temp_map.emplace(pair.first, utils::Variant(pair.second));
         }
-        parameters.push_back(temp_map);
+        mVariantList.push(temp_map);
     }
 }
 

@@ -13,8 +13,7 @@ EasyMathServer* EasyMathServer::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new EasyMathServer();
-        // throw std::runtime_error("The CalculatorController has not been initialized yet");
+        throw std::runtime_error("The EasyMathServer has not been initialized yet");
     }
 
     return gInstance;

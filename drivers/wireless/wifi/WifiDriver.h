@@ -16,6 +16,7 @@ class WifiDriver : public common::BaseDriver
 {
 public:
     static WifiDriver* getInstance();
+    static void initialize();
     
     void execute(milliseconds delta) override;
     void connectDriver() override;

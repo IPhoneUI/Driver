@@ -15,21 +15,19 @@ void WifiPairing::readData()
     common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
     common::Repository& repo = dataRepo.repository("wifi");
     
-    auto dataMap = repo[common::ParameterIndex::Wifi_Data].toList();
+    utils::VariantList dataList = repo[common::ParameterIndex::Wifi_Data];
     int count = 0;
     for (int i = 6; i < 14; ++i) 
     {   
-        auto item = *std::next(dataMap.begin(), i);
-        std::string name = std::string(item["name"]);
-        std::string address = std::string(item["address"]);
+        auto item = *std::next(dataList.begin(), i);
         service::WifiDiscoveryDeviceInfo deviceInfo(
-            name, 
-            address, 
+            item["name"], 
+            item["address"], 
             item["privateaddress"], 
             static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
         );
         service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
-            std::string(item["password"]), 
+            item["password"], 
             item["autoconnect"], 
             deviceInfo
         );

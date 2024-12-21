@@ -12,6 +12,7 @@ class SpeakerDriver : public common::BaseDriver
 {
 public:
     static SpeakerDriver* getInstance();
+    static void initialize();
     
     void connectDriver() override;
     

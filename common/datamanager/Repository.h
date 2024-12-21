@@ -25,6 +25,7 @@ enum Type {
     FMem_DeleteRecording,
     FMem_AirPlaneMode,
     Wifi_Data,
+    Wifi_Status,
     Speaker_Muted,
     Speaker_Volume,
     ParameterMax

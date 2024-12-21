@@ -13,6 +13,7 @@ class FlashMemoryDriver : public common::BaseDriver
 {
 public:
     static FlashMemoryDriver* getInstance();
+    static void initialize();
 
     void connectDriver() override;
 

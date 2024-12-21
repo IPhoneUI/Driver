@@ -25,10 +25,18 @@ FlashMemoryDriver* FlashMemoryDriver::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new FlashMemoryDriver();
+        throw std::runtime_error("The FlashMemoryDriver has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void FlashMemoryDriver::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new FlashMemoryDriver();
+    }
 }
 
 void FlashMemoryDriver::connectDriver()
@@ -44,24 +52,24 @@ void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
         common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
         common::Repository& repo = dataRepo.repository("flashmemory");
 
-        auto recordingMap = repo[common::ParameterIndex::FMem_Recording].toList();
-        for (auto it = recordingMap.begin(); it != recordingMap.end(); ++it)
+        utils::VariantList recordings = repo[common::ParameterIndex::FMem_Recording];
+        for (const auto &recording : recordings) 
         {
-            std::unordered_map<std::string, common::PTree> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = recording;
             service::VoiceRecordingData* data = new service::VoiceRecordingData();
-            data->name = std::string(item["name"]);
-            data->time = std::string(item["time"]);
+            data->name = item["name"];
+            data->time = item["time"];
             data->duration = item["duration"];
-            mRecordingData.push_back(data);     
+            mRecordingData.push_back(data);   
         }
 
-        auto deleteRecordingMap = repo[common::ParameterIndex::FMem_DeleteRecording].toList();
-        for (auto it = deleteRecordingMap.begin(); it != deleteRecordingMap.end(); ++it)
+        utils::VariantList deleteRecordings = repo[common::ParameterIndex::FMem_DeleteRecording];
+        for (const auto &recording : deleteRecordings) 
         {
-            std::unordered_map<std::string, common::PTree> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = recording;
             service::VoiceRecordingData* data = new service::VoiceRecordingData();
-            data->name = std::string(item["name"]);
-            data->time = std::string(item["time"]);
+            data->name = item["name"];
+            data->time = item["time"];
             data->duration = item["duration"];
             mDeleteRecordingData.push_back(data);       
         }

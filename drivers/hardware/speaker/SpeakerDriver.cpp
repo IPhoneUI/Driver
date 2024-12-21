@@ -23,10 +23,18 @@ SpeakerDriver* SpeakerDriver::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new SpeakerDriver();
+        throw std::runtime_error("The SpeakerDriver has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void SpeakerDriver::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new SpeakerDriver();
+    }
 }
 
 void SpeakerDriver::connectDriver()
