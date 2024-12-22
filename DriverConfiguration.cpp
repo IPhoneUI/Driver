@@ -13,7 +13,6 @@
 #include <wifi/WifiDriver.h>
 #include <speaker/SpeakerDriver.h>
 #include <sim/SIMDriver.h>
-#include <datamanager/DataRepoManager.h>
 #include <DriverExecution.h>
 
 namespace driver {
@@ -31,7 +30,6 @@ DriverConfiguration::~DriverConfiguration()
 void DriverConfiguration::start()
 {
     LOG_INFO("DriverConfiguration Start");
-    // common::DataRepoManager::instance().pull();
     common::ServiceFactory::instance().initialize();
 }
 
@@ -40,7 +38,6 @@ void DriverConfiguration::stop()
     LOG_INFO("DriverConfiguration Stop");
     common::ServiceFactory::instance().finialize();
     common::DriverExecution::instance().writeData();
-    common::DataRepoManager::instance().push();
 }
 
 void DriverConfiguration::addService()
