@@ -23,7 +23,7 @@ public:
 
     void addDriver(const std::string& clientName, BaseDriver *obj);
     void execute();
-    void writeData();
+    void finialize();
     
 private:
     DriverExecution();

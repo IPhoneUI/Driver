@@ -52,9 +52,20 @@ void WifiDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void WifiDriver::writeData()
+void WifiDriver::writeBuffer()
 {
     mRepo[common::ParameterIndex::Wifi_Status] = mWifiStatus;
+
+    utils::VariantList wifiList;
+    std::unordered_map<std::string, utils::Variant> item;
+    item["password"] = mConnectedDevice->password;
+    item["autoconnect"] = mConnectedDevice->autoconnectstatus;
+    item["name"] = mConnectedDevice->deviceinfo.name;
+    item["address"] = mConnectedDevice->deviceinfo.address;
+    item["privateaddress"] = mConnectedDevice->deviceinfo.privateAddr;
+    item["wifisignal"] = static_cast<int>(mConnectedDevice->deviceinfo.speedmode);
+
+    wifiList.push(item);
 }
 
 void WifiDriver::onRepoStateChanged(common::Repository::State state)

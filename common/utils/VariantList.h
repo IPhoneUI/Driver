@@ -23,6 +23,11 @@ public:
 
     VariantList &operator=(VariantList &&param);
 
+    size_t size() const
+    {
+        return mVariantList.size();
+    }
+
     void push(const std::unordered_map<std::string, Variant> &item);
 
     auto begin() 

@@ -22,7 +22,7 @@ public:
     
     void execute(milliseconds delta) override;
     void connectDriver() override;
-    void writeData() override;
+    void writeBuffer() override;
 
     bool getWifiStatus() const
     {

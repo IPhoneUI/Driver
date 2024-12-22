@@ -16,7 +16,7 @@ public:
     static void initialize();
 
     void connectDriver() override;
-    void writeData() override;
+    void writeBuffer() override;
 
     void changeAirPlaneMode(bool airPlane);
 

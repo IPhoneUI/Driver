@@ -21,7 +21,7 @@ public:
     static void initialize();
     
     void execute(milliseconds delta) override;
-    void writeData() override;
+    void writeBuffer() override;
     void connectDriver() override;
 
     void changeCellularStatus(bool status);

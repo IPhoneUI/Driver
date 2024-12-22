@@ -103,7 +103,7 @@ void SIMDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void SIMDriver::writeData()
+void SIMDriver::writeBuffer()
 {
     mRepo[common::ParameterIndex::SIM_PhoneNumber] = mPhoneNumber;
     mRepo[common::ParameterIndex::SIM_Network] = mNetwork;
@@ -112,12 +112,39 @@ void SIMDriver::writeData()
     mRepo[common::ParameterIndex::SIM_AllowAccess] = mAllowAccess;
     mRepo[common::ParameterIndex::SIM_CellularStatus] = mCellularSts;
     mRepo[common::ParameterIndex::SIM_MaxCompatibility] = mMaxCompatibility;
+
+    utils::VariantList contactList;
+    for (const auto& contactItem : mContacts)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        item["firstname"] = contactItem.firstName;
+        item["lastname"] = contactItem.lastName;
+        item["formatname"] = contactItem.formatName;
+        item["phonenumber"] = contactItem.phoneNumber;
+        item["photo"] = contactItem.photo;
+        item["isfav"] = contactItem.isFav;
+
+        contactList.push(item);
+    }
+
+    utils::VariantList historyList;
+    for (const auto& historyItem : mHistories)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        item["formatname"] = historyItem.formatName;
+        item["phonenumber"] = historyItem.phoneNumber;
+        item["time"] = historyItem.time;
+        item["phoneType"] = static_cast<int>(historyItem.callingType);
+
+        historyList.push(item);
+    }
+
+    mRepo[common::ParameterIndex::SIM_Contact] = contactList;
+    mRepo[common::ParameterIndex::SIM_History] = historyList;
 }
 
 void SIMDriver::onRepoStateChanged(common::Repository::State state)
 {
-    LOG_INFO("State changed: %d", (int)state);
-
     if (state == common::Repository::PullCompleted)
     {
         mPhoneNumber = mRepo[common::ParameterIndex::SIM_PhoneNumber];

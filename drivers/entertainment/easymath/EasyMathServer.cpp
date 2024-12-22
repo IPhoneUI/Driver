@@ -33,7 +33,7 @@ void EasyMathServer::connectDriver()
     onDriverReady.emit();
 }
 
-void EasyMathServer::writeData()
+void EasyMathServer::writeBuffer()
 {
 
 }

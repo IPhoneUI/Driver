@@ -35,4 +35,39 @@ Variant &Variant::operator=(Variant &&param)
     return *this;
 }
 
+template <typename T>
+Variant &Variant::operator=(const T &value)
+{
+    setValue(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<bool>(const bool& value)
+{
+    setValue(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<double>(const double& value)
+{
+    setValue(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<int>(const int& value)
+{
+    setValue(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<std::string>(const std::string& value)
+{
+    setValue(value);
+    return *this;
+}
+
 }

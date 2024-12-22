@@ -43,10 +43,35 @@ void FlashMemoryDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void FlashMemoryDriver::writeData()
+void FlashMemoryDriver::writeBuffer()
 {
     mRepo[common::ParameterIndex::FMem_AirPlaneMode] = mAirPlaneMode;
-    bool abc = mRepo[common::ParameterIndex::FMem_AirPlaneMode];
+    utils::VariantList recordingList;
+    for (const auto& recordingItem : mRecordingData)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        service::VoiceRecordingData* data = recordingItem;
+        item["name"] = data->name;
+        item["time"] = data->time;
+        item["duration"] = data->duration;
+
+        recordingList.push(item);
+    }
+
+    utils::VariantList deleteRecordingList; 
+    for (const auto& recordingItem : mDeleteRecordingData)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        service::VoiceRecordingData* data = recordingItem;
+        item["name"] = data->name;
+        item["time"] = data->time;
+        item["duration"] = data->duration;
+
+        deleteRecordingList.push(item);
+    }
+
+    mRepo[common::ParameterIndex::FMem_Recording] = recordingList;
+    mRepo[common::ParameterIndex::FMem_DeleteRecording] = deleteRecordingList;
 }
 
 void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)

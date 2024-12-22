@@ -42,10 +42,10 @@ void SpeakerDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void SpeakerDriver::writeData()
+void SpeakerDriver::writeBuffer()
 {
-    mIsMuted = mRepo[common::ParameterIndex::Speaker_Muted] = mIsMuted;
-    mVolume = mRepo[common::ParameterIndex::Speaker_Volume] = mVolume;
+    mRepo[common::ParameterIndex::Speaker_Muted] = mIsMuted;
+    mRepo[common::ParameterIndex::Speaker_Volume] = mVolume;
 }
 
 void SpeakerDriver::onRepoStateChanged(common::Repository::State state)

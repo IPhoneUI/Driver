@@ -32,6 +32,8 @@ public:
     template <typename T>
     Parameter &operator=(const T& value);
 
+    Parameter &operator=(const utils::VariantList &variantList);
+
     Parameter(boost::property_tree::ptree ptree);
 
     Parameter(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap);

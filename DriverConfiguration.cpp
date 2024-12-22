@@ -37,7 +37,7 @@ void DriverConfiguration::stop()
 {
     LOG_INFO("DriverConfiguration Stop");
     common::ServiceFactory::instance().finialize();
-    common::DriverExecution::instance().writeData();
+    common::DriverExecution::instance().finialize();
 }
 
 void DriverConfiguration::addService()

@@ -44,14 +44,14 @@ void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
     mDrivers.emplace(clientName, obj);
 }
 
-void DriverExecution::writeData()
+void DriverExecution::finialize()
 {
     auto it = mDrivers.begin();
     while (it != mDrivers.end())
     {
         if (it->second != nullptr)
         {
-            it->second->writeData();
+            it->second->writeBuffer();
             it++;
         }
     }

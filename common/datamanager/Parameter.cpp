@@ -47,6 +47,11 @@ Parameter &Parameter::operator=(Parameter &&other)
     return *this;
 }
 
+Parameter &Parameter::operator=(const utils::VariantList &variantList)
+{
+    mVariantList = variantList;
+}
+
 template <typename T>
 Parameter &Parameter::operator=(const T& value)
 {

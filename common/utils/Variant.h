@@ -22,6 +22,9 @@ public:
     Variant &operator=(Variant &&param);
 
     template <typename T>
+    Variant &operator=(const T &value);
+
+    template <typename T>
     T value() const
     {
         return mData.get_value<T>();
