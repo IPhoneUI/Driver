@@ -47,7 +47,6 @@ void FlashMemoryDriver::writeData()
 {
     mRepo[common::ParameterIndex::FMem_AirPlaneMode] = mAirPlaneMode;
     bool abc = mRepo[common::ParameterIndex::FMem_AirPlaneMode];
-    LOG_INFO("abc: %d", abc);
 }
 
 void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)

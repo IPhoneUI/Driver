@@ -44,7 +44,8 @@ void SpeakerDriver::connectDriver()
 
 void SpeakerDriver::writeData()
 {
-
+    mIsMuted = mRepo[common::ParameterIndex::Speaker_Muted] = mIsMuted;
+    mVolume = mRepo[common::ParameterIndex::Speaker_Volume] = mVolume;
 }
 
 void SpeakerDriver::onRepoStateChanged(common::Repository::State state)

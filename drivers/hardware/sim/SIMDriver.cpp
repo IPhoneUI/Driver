@@ -105,7 +105,13 @@ void SIMDriver::connectDriver()
 
 void SIMDriver::writeData()
 {
-
+    mRepo[common::ParameterIndex::SIM_PhoneNumber] = mPhoneNumber;
+    mRepo[common::ParameterIndex::SIM_Network] = mNetwork;
+    mRepo[common::ParameterIndex::SIM_PhoneSignal] = mPhoneSignal;
+    mRepo[common::ParameterIndex::SIM_WifiPassword] = mWifiPassword;        
+    mRepo[common::ParameterIndex::SIM_AllowAccess] = mAllowAccess;
+    mRepo[common::ParameterIndex::SIM_CellularStatus] = mCellularSts;
+    mRepo[common::ParameterIndex::SIM_MaxCompatibility] = mMaxCompatibility;
 }
 
 void SIMDriver::onRepoStateChanged(common::Repository::State state)

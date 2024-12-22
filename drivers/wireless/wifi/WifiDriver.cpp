@@ -54,7 +54,7 @@ void WifiDriver::connectDriver()
 
 void WifiDriver::writeData()
 {
-
+    mRepo[common::ParameterIndex::Wifi_Status] = mWifiStatus;
 }
 
 void WifiDriver::onRepoStateChanged(common::Repository::State state)
