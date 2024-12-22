@@ -8,18 +8,16 @@ static WifiDriver* gInstance = 0;
 WifiDriver::WifiDriver()
     : mConnectedDevice(new service::WifiDeviceInfo())
 {
+    mRepo.setName("wifi");
     mWifiPairing = new WifiPairing(this);
     mWifiDiscovery = new WifiDiscovery(this);
 
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    auto wifiRepo = dataRepo.addRepository("wifi");
-    if (wifiRepo != nullptr)
-    {
-        wifiRepo->addParameter("data", common::ParameterIndex::Wifi_Data);
-        wifiRepo->addParameter("wifistatus", common::ParameterIndex::Wifi_Status);
+    mRepo.addParam("data", common::ParameterIndex::Wifi_Data);
+    mRepo.addParam("wifistatus", common::ParameterIndex::Wifi_Status);
 
-        Connection::connect(wifiRepo->onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
-    }
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
+
+    mRepo.pull();
 
     common::DriverExecution::instance().addDriver("WifiDriver", this);
 }
@@ -54,6 +52,11 @@ void WifiDriver::connectDriver()
     onDriverReady.emit();
 }
 
+void WifiDriver::writeData()
+{
+
+}
+
 void WifiDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)
@@ -61,10 +64,7 @@ void WifiDriver::onRepoStateChanged(common::Repository::State state)
         mWifiPairing->readData();
         mWifiDiscovery->readData();
     
-        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-        common::Repository& repo = dataRepo.repository("wifi");
-
-        utils::VariantList dataList = repo[common::ParameterIndex::Wifi_Data];
+        utils::VariantList dataList = mRepo[common::ParameterIndex::Wifi_Data];
         {
             std::unordered_map<std::string, utils::Variant> item = (*dataList.begin());
             mConnectedDevice->password = item["password"];
@@ -75,7 +75,7 @@ void WifiDriver::onRepoStateChanged(common::Repository::State state)
             mConnectedDevice->deviceinfo.speedmode = static_cast<service::WifiSpeedMode>(int(item["wifisignal"]));
         }
 
-        mWifiStatus = repo[common::ParameterIndex::Wifi_Status];
+        mWifiStatus = mRepo[common::ParameterIndex::Wifi_Status];
     }
 }
 

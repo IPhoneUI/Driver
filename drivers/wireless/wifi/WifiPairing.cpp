@@ -11,11 +11,8 @@ WifiPairing::WifiPairing(WifiDriver* driver)
 }
 
 void WifiPairing::readData()
-{
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    common::Repository& repo = dataRepo.repository("wifi");
-    
-    utils::VariantList dataList = repo[common::ParameterIndex::Wifi_Data];
+{    
+    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
     int count = 0;
     for (int i = 6; i < 14; ++i) 
     {   

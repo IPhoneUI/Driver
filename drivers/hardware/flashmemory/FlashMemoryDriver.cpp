@@ -7,16 +7,14 @@ static FlashMemoryDriver* gInstance = 0;
 
 FlashMemoryDriver::FlashMemoryDriver()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    auto flashmemoryRepo = dataRepo.addRepository("flashmemory");
-    if (flashmemoryRepo != nullptr)
-    {
-        flashmemoryRepo->addParameter("recording", common::ParameterIndex::FMem_Recording);
-        flashmemoryRepo->addParameter("delete_recording", common::ParameterIndex::FMem_DeleteRecording);
-        flashmemoryRepo->addParameter("airplane_mode", common::ParameterIndex::FMem_AirPlaneMode);
+    mRepo.setName("flashmemory");
+    mRepo.addParam("recording", common::ParameterIndex::FMem_Recording);
+    mRepo.addParam("delete_recording", common::ParameterIndex::FMem_DeleteRecording);
+    mRepo.addParam("airplane_mode", common::ParameterIndex::FMem_AirPlaneMode);
 
-        Connection::connect(flashmemoryRepo->onRepoStateChanged, std::bind(&FlashMemoryDriver::onRepoStateChanged, this, std::placeholders::_1));
-    }
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&FlashMemoryDriver::onRepoStateChanged, this, std::placeholders::_1));
+
+    mRepo.pull();
 
     common::DriverExecution::instance().addDriver("FlashMemoryDriver", this);
 }
@@ -45,14 +43,16 @@ void FlashMemoryDriver::connectDriver()
     onDriverReady.emit();
 }
 
+void FlashMemoryDriver::writeData()
+{
+    mRepo[common::ParameterIndex::FMem_AirPlaneMode] = mAirPlaneMode;
+}
+
 void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)
     {
-        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-        common::Repository& repo = dataRepo.repository("flashmemory");
-
-        utils::VariantList recordings = repo[common::ParameterIndex::FMem_Recording];
+        utils::VariantList recordings = mRepo[common::ParameterIndex::FMem_Recording];
         for (const auto &recording : recordings) 
         {
             std::unordered_map<std::string, utils::Variant> item = recording;
@@ -63,7 +63,7 @@ void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
             mRecordingData.push_back(data);   
         }
 
-        utils::VariantList deleteRecordings = repo[common::ParameterIndex::FMem_DeleteRecording];
+        utils::VariantList deleteRecordings = mRepo[common::ParameterIndex::FMem_DeleteRecording];
         for (const auto &recording : deleteRecordings) 
         {
             std::unordered_map<std::string, utils::Variant> item = recording;
@@ -74,7 +74,7 @@ void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
             mDeleteRecordingData.push_back(data);       
         }
         
-        mAirPlaneMode = repo[common::ParameterIndex::FMem_AirPlaneMode];
+        mAirPlaneMode = mRepo[common::ParameterIndex::FMem_AirPlaneMode];
     }
 }
 

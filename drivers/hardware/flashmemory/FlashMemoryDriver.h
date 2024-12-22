@@ -16,6 +16,7 @@ public:
     static void initialize();
 
     void connectDriver() override;
+    void writeData() override;
 
     void changeAirPlaneMode(bool airPlane);
 
@@ -47,6 +48,8 @@ private:
     std::list<service::VoiceRecordingData*> mRecordingData;
     std::list<service::VoiceRecordingData*> mDeleteRecordingData;
     bool mAirPlaneMode;
+
+    common::Repository mRepo;
 };
 
 }

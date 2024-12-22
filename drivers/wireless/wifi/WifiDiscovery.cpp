@@ -19,10 +19,7 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::readData()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    common::Repository& repo = dataRepo.repository("wifi");
-    
-    utils::VariantList dataList = repo[common::ParameterIndex::Wifi_Data];
+    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
     int count = 0;
     for (int i = 1; i < 6; ++i) 
     {   

@@ -15,6 +15,7 @@ public:
     static void initialize();
     
     void connectDriver() override;
+    void writeData() override;
     
     bool getIsMuted() const
     {
@@ -36,6 +37,7 @@ private:
 
 private:    
     explicit SpeakerDriver();
+    common::Repository mRepo;
 
     bool mIsMuted {false};
     int mVolume {0};

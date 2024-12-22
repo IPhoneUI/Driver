@@ -29,7 +29,6 @@ enum Type {
     Speaker_Muted,
     Speaker_Volume,
     ParameterMax
-
 };
 }
 typedef ParameterEnumeration::Type ParameterIndex;
@@ -70,10 +69,7 @@ public:
         PushError
     };
 
-    Repository()
-    {}
-    
-    Repository(const std::string& name);
+    Repository() = default;
 
     std::string name() const
     {
@@ -85,18 +81,20 @@ public:
         return mState;
     }
 
-    bool pull();
+    void setName(const std::string& name);
+
+    void pull();
 
     void setState(State value);
 
     Parameter& operator[](ParameterIndex index);
 
-    void addParameter(const std::string& keyName, ParameterIndex index);
+    void addParam(const std::string& keyName, ParameterIndex index);
 
     Signal<State> onRepoStateChanged;
 
 private:
-    ConfigParameter* findParameter(const std::string& name);
+    ConfigParameter* findParam(const std::string& name);
 
     std::string mName;
     std::string mPath;

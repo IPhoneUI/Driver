@@ -44,6 +44,19 @@ void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
     mDrivers.emplace(clientName, obj);
 }
 
+void DriverExecution::writeData()
+{
+    auto it = mDrivers.begin();
+    while (it != mDrivers.end())
+    {
+        if (it->second != nullptr)
+        {
+            it->second->writeData();
+            it++;
+        }
+    }
+}
+
 void DriverExecution::execute()
 {
     mIsThreadRunning = true;

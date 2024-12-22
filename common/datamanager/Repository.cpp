@@ -5,15 +5,21 @@ namespace common {
 
 #define SERVICE_NAME base::utils::highlightString("Repository").c_str()
 
-Repository::Repository(const std::string& name) :
-    mName{name}
+void Repository::setName(const std::string& name)
 {
+    mName = name;
     mPath = filesystem::parent_path(__FILE__) + "/database/" + mName + ".json";
 }
 
 Parameter& Repository::operator[](ParameterIndex index)
 {
     static Parameter invalidParam; 
+    if (mName.empty() || mPath.empty())
+    {
+        LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
+        return invalidParam;
+    }
+    
     if (index < 0 || index >= ParameterIndex::ParameterMax)
         return invalidParam;
 
@@ -29,13 +35,19 @@ Parameter& Repository::operator[](ParameterIndex index)
     return invalidParam;
 }
 
-void Repository::addParameter(const std::string& keyName, ParameterIndex index)
+void Repository::addParam(const std::string& keyName, ParameterIndex index)
 {
-    ConfigParameter* param = findParameter(keyName);
+    if (mName.empty() || mPath.empty())
+    {
+        LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
+        return;
+    }
+
+    ConfigParameter* param = findParam(keyName);
 
     if (param != nullptr)
     {
-        LOG_WARN("Variant %s is exists! addParameter is failed [%s]", keyName, SERVICE_NAME);
+        LOG_WARN("Variant %s is exists! addParam is failed [%s]", keyName, SERVICE_NAME);
         return;
     }
 
@@ -44,7 +56,7 @@ void Repository::addParameter(const std::string& keyName, ParameterIndex index)
 }
 
 
-ConfigParameter* Repository::findParameter(const std::string& name)
+ConfigParameter* Repository::findParam(const std::string& name)
 {
     for (auto it = mConfigParameters.begin(); it != mConfigParameters.end(); ++it)
     {
@@ -57,19 +69,24 @@ ConfigParameter* Repository::findParameter(const std::string& name)
     return nullptr;
 }
 
-bool Repository::pull()
+void Repository::pull()
 {
+    if (mName.empty() || mPath.empty())
+    {
+        LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
+        return;
+    }
+
     try 
     {
         std::unique_lock<std::shared_mutex> lock(mMutex);
-
         setState(WaitToPullCompleted);
         boost::property_tree::ptree ptree;
 
         boost::property_tree::read_json(mPath, ptree);
         for (const auto &field : ptree) 
         {
-            ConfigParameter* parameter = findParameter(field.first);
+            ConfigParameter* parameter = findParam(field.first);
             if (parameter != nullptr)
             {
                 if (field.second.empty())
@@ -116,8 +133,6 @@ bool Repository::pull()
         LOG_ERR("Exception: %s", e.what());
         setState(PullError);
     }
-
-    return true;
 }
 
 void Repository::setState(State value)

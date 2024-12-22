@@ -7,15 +7,14 @@ static SpeakerDriver* gInstance = 0;
 
 SpeakerDriver::SpeakerDriver()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    auto speakerRepo = dataRepo.addRepository("speaker");
-    if (speakerRepo != nullptr)
-    {
-        speakerRepo->addParameter("muted", common::ParameterIndex::Speaker_Muted);
-        speakerRepo->addParameter("volume", common::ParameterIndex::Speaker_Volume);
+    mRepo.setName("speaker");
+    mRepo.addParam("muted", common::ParameterIndex::Speaker_Muted);
+    mRepo.addParam("volume", common::ParameterIndex::Speaker_Volume);
 
-        Connection::connect(speakerRepo->onRepoStateChanged, std::bind(&SpeakerDriver::onRepoStateChanged, this, std::placeholders::_1));
-    }
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&SpeakerDriver::onRepoStateChanged, this, std::placeholders::_1));
+
+    mRepo.pull();
+
     common::DriverExecution::instance().addDriver("SpeakerDriver", this);
 }
 
@@ -43,15 +42,17 @@ void SpeakerDriver::connectDriver()
     onDriverReady.emit();
 }
 
+void SpeakerDriver::writeData()
+{
+
+}
+
 void SpeakerDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)
     {
-        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-        common::Repository& repo = dataRepo.repository("speaker");
-
-        mIsMuted = repo[common::ParameterIndex::Speaker_Muted];
-        mVolume = repo[common::ParameterIndex::Speaker_Volume];
+        mIsMuted = mRepo[common::ParameterIndex::Speaker_Muted];
+        mVolume = mRepo[common::ParameterIndex::Speaker_Volume];
     }
 }
 

@@ -7,22 +7,20 @@ static SIMDriver* gInstance = 0;
 
 SIMDriver::SIMDriver()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    auto repoPtr = dataRepo.addRepository("sim");
-    if (repoPtr)
-    {
-        repoPtr->addParameter("phonenumber", common::ParameterIndex::SIM_PhoneNumber);
-        repoPtr->addParameter("network", common::ParameterIndex::SIM_Network);
-        repoPtr->addParameter("phonesignal", common::ParameterIndex::SIM_PhoneSignal);
-        repoPtr->addParameter("wifipassword", common::ParameterIndex::SIM_WifiPassword);
-        repoPtr->addParameter("allowaccess", common::ParameterIndex::SIM_AllowAccess);
-        repoPtr->addParameter("cellular", common::ParameterIndex::SIM_CellularStatus);
-        repoPtr->addParameter("maxcompatibility", common::ParameterIndex::SIM_MaxCompatibility);
-        repoPtr->addParameter("contact", common::ParameterIndex::SIM_Contact);
-        repoPtr->addParameter("history", common::ParameterIndex::SIM_History);
+    mRepo.setName("sim");
+    mRepo.addParam("phonenumber", common::ParameterIndex::SIM_PhoneNumber);
+    mRepo.addParam("network", common::ParameterIndex::SIM_Network);
+    mRepo.addParam("phonesignal", common::ParameterIndex::SIM_PhoneSignal);
+    mRepo.addParam("wifipassword", common::ParameterIndex::SIM_WifiPassword);
+    mRepo.addParam("allowaccess", common::ParameterIndex::SIM_AllowAccess);
+    mRepo.addParam("cellular", common::ParameterIndex::SIM_CellularStatus);
+    mRepo.addParam("maxcompatibility", common::ParameterIndex::SIM_MaxCompatibility);
+    mRepo.addParam("contact", common::ParameterIndex::SIM_Contact);
+    mRepo.addParam("history", common::ParameterIndex::SIM_History);
 
-        Connection::connect(repoPtr->onRepoStateChanged, std::bind(&SIMDriver::onRepoStateChanged, this, std::placeholders::_1));
-    }
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&SIMDriver::onRepoStateChanged, this, std::placeholders::_1));
+
+    mRepo.pull();
 
     common::DriverExecution::instance().addDriver("SIMDriver", this);
 }
@@ -105,24 +103,26 @@ void SIMDriver::connectDriver()
     onDriverReady.emit();
 }
 
+void SIMDriver::writeData()
+{
+
+}
+
 void SIMDriver::onRepoStateChanged(common::Repository::State state)
 {
     LOG_INFO("State changed: %d", (int)state);
 
     if (state == common::Repository::PullCompleted)
     {
-        common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-        common::Repository& repo = dataRepo.repository("sim");
+        mPhoneNumber = mRepo[common::ParameterIndex::SIM_PhoneNumber];
+        mNetwork = mRepo[common::ParameterIndex::SIM_Network];
+        mPhoneSignal = mRepo[common::ParameterIndex::SIM_PhoneSignal];
+        mWifiPassword = mRepo[common::ParameterIndex::SIM_WifiPassword];        
+        mAllowAccess = mRepo[common::ParameterIndex::SIM_AllowAccess];
+        mCellularSts = mRepo[common::ParameterIndex::SIM_CellularStatus];
+        mMaxCompatibility = mRepo[common::ParameterIndex::SIM_MaxCompatibility];
 
-        mPhoneNumber = repo[common::ParameterIndex::SIM_PhoneNumber];
-        mNetwork = repo[common::ParameterIndex::SIM_Network];
-        mPhoneSignal = repo[common::ParameterIndex::SIM_PhoneSignal];
-        mWifiPassword = repo[common::ParameterIndex::SIM_WifiPassword];        
-        mAllowAccess = repo[common::ParameterIndex::SIM_AllowAccess];
-        mCellularSts = repo[common::ParameterIndex::SIM_CellularStatus];
-        mMaxCompatibility = repo[common::ParameterIndex::SIM_MaxCompatibility];
-
-        utils::VariantList contactList = repo[common::ParameterIndex::SIM_Contact];
+        utils::VariantList contactList = mRepo[common::ParameterIndex::SIM_Contact];
         int count = 0;
         for (const auto &contact : contactList)
         {
@@ -140,7 +140,7 @@ void SIMDriver::onRepoStateChanged(common::Repository::State state)
         }
 
         count = 0;
-        utils::VariantList historyList = repo[common::ParameterIndex::SIM_History];
+        utils::VariantList historyList = mRepo[common::ParameterIndex::SIM_History];
         for (const auto &history : historyList)
         {
             std::unordered_map<std::string, utils::Variant> item = history;

@@ -33,6 +33,11 @@ void EasyMathServer::connectDriver()
     onDriverReady.emit();
 }
 
+void EasyMathServer::writeData()
+{
+
+}
+
 void EasyMathServer::setRangeNumber(const int &range)
 {
     if (mRangeNumber != range) {

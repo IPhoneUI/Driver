@@ -21,12 +21,13 @@ public:
     static void initialize();
     
     void execute(milliseconds delta) override;
+    void writeData() override;
+    void connectDriver() override;
 
     void changeCellularStatus(bool status);
     void changeAllowAccess(bool status);
     void changeMaxCompatibility(bool status);
 
-    void connectDriver() override;
     void callNumber(const std::string& number);
     void answerCall();
     void rejectCall();
@@ -81,6 +82,7 @@ private:
 private:
     service::CallInformation* mCallInfo;
     base::event::EventQueue<PSTNEvent> mEventQueue;
+    common::Repository mRepo;
 
     std::string mPhoneNumber;
     std::string mNetwork;
