@@ -19,28 +19,19 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::readData()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-
-    if (dataRepo.isReady())
-    {
-        common::Repository& repo = dataRepo.getRepository("wifi");
-        auto dataMap = repo[common::ParameterIndex::Wifi_Data].toList();
-        
-        int count = 0;
-        for (int i = 1; i < 6; ++i) 
-        {   
-            auto item = *std::next(dataMap.begin(), i);
-            std::string name = std::string(item["name"]);
-            std::string address = std::string(item["address"]);
-            service::WifiDiscoveryDeviceInfo* deviceInfo = new service::WifiDiscoveryDeviceInfo(
-                name, 
-                address, 
-                item["privateaddress"], 
-                static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
-            );
-            mDiscoryDeviceList.push_back(deviceInfo);
-            ++count;
-        }
+    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
+    int count = 0;
+    for (int i = 1; i < 6; ++i) 
+    {   
+        auto item = *std::next(dataList.begin(), i);
+        service::WifiDiscoveryDeviceInfo* deviceInfo = new service::WifiDiscoveryDeviceInfo(
+            item["name"], 
+            item["address"], 
+            item["privateaddress"], 
+            static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
+        );
+        mDiscoryDeviceList.push_back(deviceInfo);
+        ++count;
     }
 }
 

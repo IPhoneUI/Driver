@@ -12,6 +12,7 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/hardware
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/wireless
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/entertainment
+    /usr/include/nlohmann
 )
 
 find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem)

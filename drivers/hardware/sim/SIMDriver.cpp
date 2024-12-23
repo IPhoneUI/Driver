@@ -7,6 +7,21 @@ static SIMDriver* gInstance = 0;
 
 SIMDriver::SIMDriver()
 {
+    mRepo.setName("sim");
+    mRepo.addParam("phonenumber", common::ParameterIndex::SIM_PhoneNumber);
+    mRepo.addParam("network", common::ParameterIndex::SIM_Network);
+    mRepo.addParam("phonesignal", common::ParameterIndex::SIM_PhoneSignal);
+    mRepo.addParam("wifipassword", common::ParameterIndex::SIM_WifiPassword);
+    mRepo.addParam("allowaccess", common::ParameterIndex::SIM_AllowAccess);
+    mRepo.addParam("cellular", common::ParameterIndex::SIM_CellularStatus);
+    mRepo.addParam("maxcompatibility", common::ParameterIndex::SIM_MaxCompatibility);
+    mRepo.addParam("contact", common::ParameterIndex::SIM_Contact);
+    mRepo.addParam("history", common::ParameterIndex::SIM_History);
+
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&SIMDriver::onRepoStateChanged, this, std::placeholders::_1));
+
+    mRepo.pull();
+
     common::DriverExecution::instance().addDriver("SIMDriver", this);
 }
 
@@ -14,10 +29,18 @@ SIMDriver* SIMDriver::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new SIMDriver();
+        throw std::runtime_error("The SIMDriver has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void SIMDriver::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new SIMDriver();
+    }
 }
 
 void SIMDriver::execute(milliseconds delta)
@@ -80,49 +103,86 @@ void SIMDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void SIMDriver::readDataFromDatabase()
+void SIMDriver::writeBuffer()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
+    mRepo[common::ParameterIndex::SIM_PhoneNumber] = mPhoneNumber;
+    mRepo[common::ParameterIndex::SIM_Network] = mNetwork;
+    mRepo[common::ParameterIndex::SIM_PhoneSignal] = mPhoneSignal;
+    mRepo[common::ParameterIndex::SIM_WifiPassword] = mWifiPassword;        
+    mRepo[common::ParameterIndex::SIM_AllowAccess] = mAllowAccess;
+    mRepo[common::ParameterIndex::SIM_CellularStatus] = mCellularSts;
+    mRepo[common::ParameterIndex::SIM_MaxCompatibility] = mMaxCompatibility;
 
-    if (dataRepo.isReady())
+    utils::VariantList contactList;
+    for (const auto& contactItem : mContacts)
     {
-        common::Repository& repo = dataRepo.getRepository("sim");
+        std::unordered_map<std::string, utils::Variant> item;
+        item["firstname"] = contactItem.firstName;
+        item["lastname"] = contactItem.lastName;
+        item["formatname"] = contactItem.formatName;
+        item["phonenumber"] = contactItem.phoneNumber;
+        item["photo"] = contactItem.photo;
+        item["isfav"] = contactItem.isFav;
 
-        mPhoneNumber = std::string(repo[common::ParameterIndex::SIM_PhoneNumber]);
-        mNetwork = std::string(repo[common::ParameterIndex::SIM_Network]);
-        mPhoneSignal = repo[common::ParameterIndex::SIM_PhoneSignal];
-        mWifiPassword = std::string(repo[common::ParameterIndex::SIM_WifiPassword]);        
-        mAllowAccess = repo[common::ParameterIndex::SIM_AllowAccess];
-        mCellularSts = repo[common::ParameterIndex::SIM_CellularStatus];
-        mMaxCompatibility = repo[common::ParameterIndex::SIM_MaxCompatibility];
+        contactList.push(item);
+    }
 
-        auto contactMap = repo[common::ParameterIndex::SIM_Contact].toList();
+    utils::VariantList historyList;
+    for (const auto& historyItem : mHistories)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        item["formatname"] = historyItem.formatName;
+        item["phonenumber"] = historyItem.phoneNumber;
+        item["time"] = historyItem.time;
+        item["phoneType"] = static_cast<int>(historyItem.callingType);
+
+        historyList.push(item);
+    }
+
+    mRepo[common::ParameterIndex::SIM_Contact] = contactList;
+    mRepo[common::ParameterIndex::SIM_History] = historyList;
+    // mRepo.push();
+}
+
+void SIMDriver::onRepoStateChanged(common::Repository::State state)
+{
+    if (state == common::Repository::PullCompleted)
+    {
+        mPhoneNumber = mRepo[common::ParameterIndex::SIM_PhoneNumber];
+        mNetwork = mRepo[common::ParameterIndex::SIM_Network];
+        mPhoneSignal = mRepo[common::ParameterIndex::SIM_PhoneSignal];
+        mWifiPassword = mRepo[common::ParameterIndex::SIM_WifiPassword];        
+        mAllowAccess = mRepo[common::ParameterIndex::SIM_AllowAccess];
+        mCellularSts = mRepo[common::ParameterIndex::SIM_CellularStatus];
+        mMaxCompatibility = mRepo[common::ParameterIndex::SIM_MaxCompatibility];
+
+        utils::VariantList contactList = mRepo[common::ParameterIndex::SIM_Contact];
         int count = 0;
-        for (auto it = contactMap.begin(); it != contactMap.end(); ++it)
+        for (const auto &contact : contactList)
         {
-            std::unordered_map<std::string, common::Parameter> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = contact;
             mContacts.push_back({
                 static_cast<uint32_t>(count),
-                std::string(item["firstname"]),
-                std::string(item["lastname"]),
-                std::string(item["formatname"]),
-                std::string(item["phonenumber"]),
-                std::string(item["photo"]),
-                bool(item["isfav"])
+                item["firstname"],
+                item["lastname"],
+                item["formatname"],
+                item["phonenumber"],
+                item["photo"],
+                item["isfav"]
             });
             ++count;
         }
 
         count = 0;
-        auto historyMap = repo[common::ParameterIndex::SIM_History].toList();
-        for (auto it = historyMap.begin(); it != historyMap.end(); ++it)
+        utils::VariantList historyList = mRepo[common::ParameterIndex::SIM_History];
+        for (const auto &history : historyList)
         {
-            std::unordered_map<std::string, common::Parameter> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = history;
             mHistories.push_back({
                 static_cast<uint32_t>(count),
-                std::string(item["formatName"]),
-                std::string(item["phoneNumber"]),
-                std::string(item["time"]),
+                item["formatName"],
+                item["phoneNumber"],
+                item["time"],
                 static_cast<service::PhoneCallingType>(int(item["phoneType"]))
             });
             ++count;

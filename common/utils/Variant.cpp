@@ -1,70 +1,73 @@
 #include "Variant.h"
-#include <any>
 
-namespace common::utils {
+namespace utils {
 
-Variant::Variant(const Parameter &value)
-    : mType(ParameterType)
+Variant::Variant(const nlohmann::json& jsonVal)
+    : mJsonVal(jsonVal)
 {
-    parameter = value;
 }
 
-Variant::Variant(const std::list<std::unordered_map<std::string, Parameter>> &value)
-    : mType(ParameterListType)
+Variant::Variant(const Variant &param)
 {
-    parameters = value;
+    mJsonVal = param.mJsonVal;
 }
 
-Variant::Variant(const Variant &other)
+Variant::Variant(Variant &&param)
 {
-    parameters = other.parameters;
-    parameter = other.parameter;
-    mType = other.mType;
+    mJsonVal = std::move(param.mJsonVal);
 }
 
-Variant::Variant(Variant &&other)
+Variant &Variant::operator=(const Variant &param)
 {
-    parameters = std::move(other.parameters);
-    parameter = std::move(other.parameter);
-    mType = std::move(other.mType);
-}
-
-Variant &Variant::operator=(const Variant &other)
-{
-    parameters = other.parameters;
-    parameter = other.parameter;
-    mType = other.mType;
-
-    return *this;
-}
-
-Variant &Variant::operator=(Variant &&other)
-{
-    parameters = std::move(other.parameters);
-    parameter = std::move(other.parameter);
-    mType = std::move(other.mType);
-
-    return *this;
-}
-
-Variant::Variant(boost::property_tree::ptree ptree)
-    : mType(ParameterType)
-{
-    parameter = Parameter(ptree);
-}
-
-Variant::Variant(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap)
-    : mType(ParameterListType)
-{
-    for (const auto &param_map : ptreeMap)
+    if (this != &param)
     {
-        std::unordered_map<std::string, Parameter> temp_map;
-        for (const auto &pair : param_map)
-        {
-            temp_map.emplace(pair.first, Parameter(pair.second));
-        }
-        parameters.push_back(temp_map);
+        mJsonVal = param.mJsonVal;
     }
+    return *this;
+}
+
+Variant &Variant::operator=(Variant &&param)
+{
+    if (this != &param)
+    {
+        mJsonVal = std::move(param.mJsonVal);
+    }
+    return *this;
+}
+
+template <typename T>
+Variant &Variant::operator=(const T &value)
+{
+    set(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<bool>(const bool& value)
+{
+    set(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<double>(const double& value)
+{
+    set(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<int>(const int& value)
+{
+    set(value);
+    return *this;
+}
+
+template <>
+Variant& Variant::operator=<std::string>(const std::string& value)
+{
+    set(value);
+    return *this;
 }
 
 }

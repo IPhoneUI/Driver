@@ -18,15 +18,16 @@ class SIMDriver : public common::BaseDriver
 public:
 
     static SIMDriver* getInstance();
+    static void initialize();
     
     void execute(milliseconds delta) override;
-    void readDataFromDatabase() override;
+    void writeBuffer() override;
+    void connectDriver() override;
 
     void changeCellularStatus(bool status);
     void changeAllowAccess(bool status);
     void changeMaxCompatibility(bool status);
 
-    void connectDriver() override;
     void callNumber(const std::string& number);
     void answerCall();
     void rejectCall();
@@ -76,10 +77,12 @@ private:
 
     explicit SIMDriver();
     void updateTimeCall(milliseconds delta);
+    void onRepoStateChanged(common::Repository::State state);
 
 private:
     service::CallInformation* mCallInfo;
     base::event::EventQueue<PSTNEvent> mEventQueue;
+    common::Repository mRepo;
 
     std::string mPhoneNumber;
     std::string mNetwork;

@@ -41,8 +41,20 @@ void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
         }
     }
     
-    obj->readDataFromDatabase();
     mDrivers.emplace(clientName, obj);
+}
+
+void DriverExecution::finialize()
+{
+    auto it = mDrivers.begin();
+    while (it != mDrivers.end())
+    {
+        if (it->second != nullptr)
+        {
+            it->second->writeBuffer();
+            it++;
+        }
+    }
 }
 
 void DriverExecution::execute()

@@ -12,9 +12,10 @@ class SpeakerDriver : public common::BaseDriver
 {
 public:
     static SpeakerDriver* getInstance();
+    static void initialize();
     
     void connectDriver() override;
-    void readDataFromDatabase() override;
+    void writeBuffer() override;
     
     bool getIsMuted() const
     {
@@ -31,8 +32,12 @@ public:
     Signal<bool> onMuteUpdated;
     Signal<int> onVolumeUpdated;
     
+private: 
+    void onRepoStateChanged(common::Repository::State state);
+
 private:    
     explicit SpeakerDriver();
+    common::Repository mRepo;
 
     bool mIsMuted {false};
     int mVolume {0};

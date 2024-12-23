@@ -3,7 +3,8 @@
 
 #include <string>
 #include <Connection.h>
-#include <datamanager/DataRepoManager.h>
+#include <datamanager/Repository.h>
+#include <DriverExecution.h>
 
 namespace common {
 
@@ -14,7 +15,7 @@ class BaseDriver
 public:
     virtual void connectDriver() = 0;
     virtual void execute(milliseconds delta);
-    virtual void readDataFromDatabase();
+    virtual void writeBuffer() = 0;
 
     Signal<> onDriverReady;
 

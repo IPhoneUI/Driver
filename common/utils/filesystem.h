@@ -19,6 +19,9 @@
 #include <fcntl.h>
 #include <utils/Logger.h>
 #include <boost/algorithm/string.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace common::filesystem
 {

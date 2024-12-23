@@ -4,8 +4,9 @@
 #include <string>
 #include <shared_mutex>
 #include <utils/filesystem.h>
-#include <utils/Variant.h>
+#include "Parameter.h"
 #include <unordered_map>
+#include <Connection.h>
 
 namespace common {
 
@@ -24,10 +25,10 @@ enum Type {
     FMem_DeleteRecording,
     FMem_AirPlaneMode,
     Wifi_Data,
+    Wifi_Status,
     Speaker_Muted,
     Speaker_Volume,
     ParameterMax
-
 };
 }
 typedef ParameterEnumeration::Type ParameterIndex;
@@ -54,32 +55,55 @@ struct ConfigParameter {
 
     std::string name;
     ParameterIndex index;
-    utils::Variant value;
+    Parameter value;
 };
 
 class Repository {
 public:
-    Repository()
-    {}
-    
-    Repository(const std::string& name);
+    enum State {
+        IdleState,
+        WaitToPullCompleted,
+        PullCompleted,
+        PullError,
+        WaitToPushCompleted,
+        PushCompleted,
+        PushError
+    };
+
+    Repository() = default;
 
     std::string name() const
     {
         return mName;
     }
 
-    bool pull();
+    State state() const
+    {
+        return mState;
+    }
 
-    utils::Variant operator[](ParameterIndex index);
+    void setName(const std::string& name);
 
-    void addParameter(const std::string& keyName, ParameterIndex index);
+    void pull();
+
+    void push();
+
+    void writeJson(const boost::property_tree::ptree& ptree);
+
+    void setState(State value);
+
+    Parameter& operator[](ParameterIndex index);
+
+    void addParam(const std::string& keyName, ParameterIndex index);
+
+    Signal<State> onRepoStateChanged;
 
 private:
-    ConfigParameter* findParameter(const std::string& name);
+    ConfigParameter* findParam(const std::string& name);
 
     std::string mName;
     std::string mPath;
+    State mState {IdleState};
 
     mutable std::shared_mutex mMutex;
     std::vector<ConfigParameter*> mConfigParameters;

@@ -14,12 +14,15 @@ namespace driver {
 
 class WifiDriver : public common::BaseDriver 
 {
+    friend class WifiDiscovery;
+    friend class WifiPairing;
 public:
     static WifiDriver* getInstance();
+    static void initialize();
     
     void execute(milliseconds delta) override;
     void connectDriver() override;
-    void readDataFromDatabase() override;
+    void writeBuffer() override;
 
     bool getWifiStatus() const
     {
@@ -47,8 +50,12 @@ public:
     Signal<service::WifiDiscoveryDeviceInfo*> onRemoveDiscoryDeviceInfo;
     Signal<const std::string&> onRequestAuthencatePassword;
 
+private: 
+    void onRepoStateChanged(common::Repository::State state);
+
 private:
     explicit WifiDriver();
+    common::Repository mRepo;
 
     std::shared_mutex mMutex;
     bool mWifiStatus;

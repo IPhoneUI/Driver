@@ -13,9 +13,10 @@ class FlashMemoryDriver : public common::BaseDriver
 {
 public:
     static FlashMemoryDriver* getInstance();
+    static void initialize();
 
     void connectDriver() override;
-    void readDataFromDatabase() override;
+    void writeBuffer() override;
 
     void changeAirPlaneMode(bool airPlane);
 
@@ -38,12 +39,17 @@ public:
     Signal<std::list<service::VoiceRecordingData*>> onVoiceDeleteRecordingDataUpdated;
     Signal<bool> onAirPlaneModeUpdated;
 
+private: 
+    void onRepoStateChanged(common::Repository::State state);
+
 private:
     explicit FlashMemoryDriver();
 
     std::list<service::VoiceRecordingData*> mRecordingData;
     std::list<service::VoiceRecordingData*> mDeleteRecordingData;
     bool mAirPlaneMode;
+
+    common::Repository mRepo;
 };
 
 }

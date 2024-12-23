@@ -1,69 +1,89 @@
-#ifndef UTILS_VARIANT_T_H
-#define UTILS_VARIANT_T_H
+#ifndef UTILS_VARIANT_H
+#define UTILS_VARIANT_H
 
-#include <list>
 #include <unordered_map>
-#include <utils/filesystem.h>
-#include <datamanager/Parameter.h>
+#include "filesystem.h"
 
-namespace common::utils {
-
-class Variant {
-public: 
+namespace utils {
+    
+class Variant
+{
+public:
     enum Type {
-        NoneType,
-        ParameterType,
-        ParameterListType
+        Unknown,
+        Integer,
+        Boolean,
+        String,
+        Double
     };
 
     Variant() {}
 
-    Variant(const Variant& other);
+    Variant(const nlohmann::json& jsonVal);
 
-    Variant& operator=(const Variant &other);
+    Variant(const Variant &param);
 
-    Variant(Variant&& other);
+    Variant(Variant &&param);
 
-    Variant& operator=(Variant &&other);
+    Variant &operator=(const Variant &param);
 
-    Variant(boost::property_tree::ptree ptree);
+    Variant &operator=(Variant &&param);
 
-    Variant(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap);
+    template <typename T>
+    Variant &operator=(const T &value);
 
-    Variant(const Parameter& parameter);
-
-    Variant(const std::list<std::unordered_map<std::string, Parameter>>& parameter);
-
-    Type type() const
+    template <typename T>
+    void set(const T& value)
     {
-        return mType;
-    }
-
-    std::list<std::unordered_map<std::string, Parameter>> toList() const
-    {
-        if (mType == ParameterListType)
-            return parameters;
-        else 
-            return {};
+        mJsonVal = value;
     }
 
     template <typename T>
-    operator T() const
+    T get() const
     {
-        if (mType == ParameterType)
-            return parameter.data().get_value<T>();
-        else if (mType == ParameterListType)
-            return T();
-        else 
-            return T();
+        return mJsonVal.get<T>();
     }
 
+    template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+    operator T() const;
+
 private:
-    Type mType {NoneType};
-    Parameter parameter;
-    std::list<std::unordered_map<std::string, Parameter>> parameters;
+    nlohmann::json mJsonVal;
 };
+
+template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+inline Variant::operator T() const
+{
+    return mJsonVal.get<std::string>();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+inline Variant::operator T() const
+{
+    return mJsonVal.get<int>();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+inline Variant::operator T() const
+{
+    return mJsonVal.get<bool>();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+inline Variant::operator T() const
+{
+    return mJsonVal.get<double>();
+}
 
 }
 
-#endif 
+#endif

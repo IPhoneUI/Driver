@@ -120,5 +120,6 @@
             "password": "bamtambonlan",
             "autoconnect" : true
         }
-    ]
+    ],
+    "wifistatus": true
 }

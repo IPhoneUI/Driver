@@ -15,6 +15,7 @@ public:
     static EasyMathServer* getInstance();
     static void initialize();
     void connectDriver() override;
+    void writeBuffer() override;
 
     void setRangeNumber(const int& range);
     int getRangeNumber() const;

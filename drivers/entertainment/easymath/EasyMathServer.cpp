@@ -13,16 +13,29 @@ EasyMathServer* EasyMathServer::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new EasyMathServer();
+        throw std::runtime_error("The EasyMathServer has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void EasyMathServer::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new EasyMathServer();
+    }
 }
 
 void EasyMathServer::connectDriver()
 {
     mIsReady = true;
     onDriverReady.emit();
+}
+
+void EasyMathServer::writeBuffer()
+{
+
 }
 
 void EasyMathServer::setRangeNumber(const int &range)

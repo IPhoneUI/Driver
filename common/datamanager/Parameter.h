@@ -1,37 +1,122 @@
-#ifndef PARAMETER_H
-#define PARAMETER_H
+#ifndef UTILS_PARAMETER_H
+#define UTILS_PARAMETER_H
 
+#include <list>
 #include <unordered_map>
 #include <utils/filesystem.h>
+#include <utils/Variant.h>
+#include <utils/VariantList.h>
 
 namespace common {
 
 class Parameter
 {
 public:
+    enum Type
+    {
+        Unknown,
+        VariantType,
+        VariantListType
+    };
+
     Parameter() {}
 
-    Parameter(const boost::property_tree::ptree& ptree);
+    Parameter(const nlohmann::json& jsonVal);
+
+    Parameter(const Parameter &other);
+
+    Parameter &operator=(const Parameter &other);
+
+    Parameter(Parameter &&other);
+
+    Parameter &operator=(Parameter &&other);
     
-    Parameter(const Parameter &param);
+    Parameter(const utils::Variant &variant);
 
-    Parameter(Parameter &&param);
-
-    Parameter &operator=(const Parameter &param);
-    
-    Parameter &operator=(Parameter &&param);
-
-    boost::property_tree::ptree data() const;
+    Parameter(const utils::VariantList &variantList);
 
     template <typename T>
-    operator T() const
+    Parameter &operator=(const T& value);
+
+    Parameter &operator=(const utils::VariantList &variantList);
+
+
+    template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+    operator T() const;
+
+    Type type() const
     {
-        return mData.get_value<T>();
+        return mType;
     }
 
 private:
-    boost::property_tree::ptree mData;
+    Type mType{Unknown};
+    utils::Variant mVariant;
+    utils::VariantList mVariantList;
 };
+
+template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant;
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantListType)
+        return mVariantList;
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.get<bool>();
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.get<std::string>();
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.get<double>();
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+inline Parameter::operator T() const
+{
+    if (mType == VariantType)
+        return mVariant.get<int>();
+    throw std::bad_cast();
+}
 
 }
 

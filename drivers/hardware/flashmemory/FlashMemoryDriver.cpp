@@ -7,6 +7,15 @@ static FlashMemoryDriver* gInstance = 0;
 
 FlashMemoryDriver::FlashMemoryDriver()
 {
+    mRepo.setName("flashmemory");
+    mRepo.addParam("recording", common::ParameterIndex::FMem_Recording);
+    mRepo.addParam("delete_recording", common::ParameterIndex::FMem_DeleteRecording);
+    mRepo.addParam("airplane_mode", common::ParameterIndex::FMem_AirPlaneMode);
+
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&FlashMemoryDriver::onRepoStateChanged, this, std::placeholders::_1));
+
+    mRepo.pull();
+
     common::DriverExecution::instance().addDriver("FlashMemoryDriver", this);
 }
 
@@ -14,10 +23,18 @@ FlashMemoryDriver* FlashMemoryDriver::getInstance()
 {
     if (gInstance == nullptr)
     {
-        gInstance = new FlashMemoryDriver();
+        throw std::runtime_error("The FlashMemoryDriver has not been initialized yet");
     }
 
     return gInstance;
+}
+
+void FlashMemoryDriver::initialize()
+{
+    if (gInstance == nullptr)
+    {
+        gInstance = new FlashMemoryDriver();
+    }
 }
 
 void FlashMemoryDriver::connectDriver()
@@ -26,35 +43,66 @@ void FlashMemoryDriver::connectDriver()
     onDriverReady.emit();
 }
 
-void FlashMemoryDriver::readDataFromDatabase()
+void FlashMemoryDriver::writeBuffer()
 {
-    common::DataRepoManager& dataRepo = common::DataRepoManager::instance();
-    if (dataRepo.isReady())
+    mRepo[common::ParameterIndex::FMem_AirPlaneMode] = mAirPlaneMode;
+    utils::VariantList recordingList;
+    for (const auto& recordingItem : mRecordingData)
     {
-        common::Repository& repo = dataRepo.getRepository("flashmemory");
-        auto recordingMap = repo[common::ParameterIndex::FMem_Recording].toList();
-        for (auto it = recordingMap.begin(); it != recordingMap.end(); ++it)
+        std::unordered_map<std::string, utils::Variant> item;
+        service::VoiceRecordingData* data = recordingItem;
+        item["name"] = data->name;
+        item["time"] = data->time;
+        item["duration"] = data->duration;
+
+        recordingList.push(item);
+    }
+
+    utils::VariantList deleteRecordingList; 
+    for (const auto& recordingItem : mDeleteRecordingData)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        service::VoiceRecordingData* data = recordingItem;
+        item["name"] = data->name;
+        item["time"] = data->time;
+        item["duration"] = data->duration;
+
+        deleteRecordingList.push(item);
+    }
+
+    mRepo[common::ParameterIndex::FMem_Recording] = recordingList;
+    mRepo[common::ParameterIndex::FMem_DeleteRecording] = deleteRecordingList;
+
+    // mRepo.push();
+}
+
+void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
+{
+    if (state == common::Repository::PullCompleted)
+    {
+        utils::VariantList recordings = mRepo[common::ParameterIndex::FMem_Recording];
+        for (const auto &recording : recordings) 
         {
-            std::unordered_map<std::string, common::Parameter> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = recording;
             service::VoiceRecordingData* data = new service::VoiceRecordingData();
-            data->name = std::string(item["name"]);
-            data->time = std::string(item["time"]);
+            data->name = item["name"];
+            data->time = item["time"];
             data->duration = item["duration"];
-            mRecordingData.push_back(data);     
+            mRecordingData.push_back(data);   
         }
 
-        auto deleteRecordingMap = repo[common::ParameterIndex::FMem_DeleteRecording].toList();
-        for (auto it = deleteRecordingMap.begin(); it != deleteRecordingMap.end(); ++it)
+        utils::VariantList deleteRecordings = mRepo[common::ParameterIndex::FMem_DeleteRecording];
+        for (const auto &recording : deleteRecordings) 
         {
-            std::unordered_map<std::string, common::Parameter> item = (*it);
+            std::unordered_map<std::string, utils::Variant> item = recording;
             service::VoiceRecordingData* data = new service::VoiceRecordingData();
-            data->name = std::string(item["name"]);
-            data->time = std::string(item["time"]);
+            data->name = item["name"];
+            data->time = item["time"];
             data->duration = item["duration"];
-            mDeleteRecordingData.push_back(data);       
+            mDeleteRecordingData.push_back(data);  
         }
-        
-        mAirPlaneMode = repo[common::ParameterIndex::FMem_AirPlaneMode];
+
+        mAirPlaneMode = mRepo[common::ParameterIndex::FMem_AirPlaneMode];
     }
 }
 
