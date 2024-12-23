@@ -19,7 +19,7 @@ public:
 
     Variant() {}
 
-    Variant(const boost::property_tree::ptree &ptree);
+    Variant(const nlohmann::json& jsonVal);
 
     Variant(const Variant &param);
 
@@ -33,41 +33,15 @@ public:
     Variant &operator=(const T &value);
 
     template <typename T>
-    T value() const
+    void set(const T& value)
     {
-        return mData.get_value<T>();
-    }
-
-    Type type() const 
-    {
-        const std::vector<std::pair<Type, std::function<void()>>> typeChecks = 
-        {
-            {Integer, [&]() { mData.get_value<int>(); }},
-            {Boolean, [&]() { mData.get_value<bool>(); }},
-            {Double, [&]() { mData.get_value<double>(); }},
-            {String, [&]() { mData.get_value<std::string>(); }},
-        };
-
-        for (const auto& [type, check] : typeChecks) 
-        {
-            try 
-            {
-                check();
-                return type;
-            } 
-            catch (const boost::property_tree::ptree_bad_data&) 
-            {
-                // To do
-            }
-        }
-
-        throw std::runtime_error("Unsupported type");
+        mJsonVal = value;
     }
 
     template <typename T>
-    void setValue(const T& value)
+    T get() const
     {
-        mData.put_value(value);
+        return mJsonVal.get<T>();
     }
 
     template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
@@ -83,31 +57,31 @@ public:
     operator T() const;
 
 private:
-    boost::property_tree::ptree mData;
+    nlohmann::json mJsonVal;
 };
 
 template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
 inline Variant::operator T() const
 {
-    return mData.get_value<std::string>();
+    return mJsonVal.get<std::string>();
 }
 
 template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
 inline Variant::operator T() const
 {
-    return mData.get_value<int>();
+    return mJsonVal.get<int>();
 }
 
 template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
 inline Variant::operator T() const
 {
-    return mData.get_value<bool>();
+    return mJsonVal.get<bool>();
 }
 
 template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
 inline Variant::operator T() const
 {
-    return mData.get_value<double>();
+    return mJsonVal.get<double>();
 }
 
 }

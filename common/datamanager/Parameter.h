@@ -21,6 +21,8 @@ public:
 
     Parameter() {}
 
+    Parameter(const nlohmann::json& jsonVal);
+
     Parameter(const Parameter &other);
 
     Parameter &operator=(const Parameter &other);
@@ -28,19 +30,16 @@ public:
     Parameter(Parameter &&other);
 
     Parameter &operator=(Parameter &&other);
+    
+    Parameter(const utils::Variant &variant);
+
+    Parameter(const utils::VariantList &variantList);
 
     template <typename T>
     Parameter &operator=(const T& value);
 
     Parameter &operator=(const utils::VariantList &variantList);
 
-    Parameter(boost::property_tree::ptree ptree);
-
-    Parameter(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap);
-
-    Parameter(const utils::Variant &variant);
-
-    Parameter(const utils::VariantList &variantList);
 
     template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
     operator T() const;
@@ -91,7 +90,7 @@ template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
-        return mVariant.value<bool>();
+        return mVariant.get<bool>();
     throw std::bad_cast();
 }
 
@@ -99,7 +98,7 @@ template <typename T, typename std::enable_if<std::is_same<T, std::string>::valu
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
-        return mVariant.value<std::string>();
+        return mVariant.get<std::string>();
     throw std::bad_cast();
 }
 
@@ -107,7 +106,7 @@ template <typename T, typename std::enable_if<std::is_same<T, double>::value, bo
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
-        return mVariant.value<double>();
+        return mVariant.get<double>();
     throw std::bad_cast();
 }
 
@@ -115,7 +114,7 @@ template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
-        return mVariant.value<int>();
+        return mVariant.get<int>();
     throw std::bad_cast();
 }
 

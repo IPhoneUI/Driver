@@ -129,62 +129,30 @@ void Repository::pull()
         return;
     }
 
-    try 
+    std::unique_lock<std::shared_mutex> lock(mMutex);
+    setState(WaitToPullCompleted);
+    std::ifstream input_file(mPath);
+    if (!input_file.is_open()) 
     {
-        std::unique_lock<std::shared_mutex> lock(mMutex);
-        setState(WaitToPullCompleted);
-        boost::property_tree::ptree ptree;
-
-        boost::property_tree::read_json(mPath, ptree);
-        for (const auto &field : ptree) 
-        {
-            ConfigParameter* parameter = findParam(field.first);
-            if (parameter != nullptr)
-            {
-                if (field.second.empty())
-                {
-                    parameter->value = Parameter(field.second);
-                }
-                else 
-                {
-                    if (ptree.count(field.first) == 0)
-                        throw std::runtime_error("JSON does not contain 'data' key");
-                        
-                    std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap;
-                    for (const auto &item : ptree.get_child(field.first))
-                    {
-                        std::unordered_map<std::string, boost::property_tree::ptree> dataMap;
-
-                        for (const auto &field : item.second)
-                        {
-                            dataMap.emplace(field.first, field.second);
-                        }
-
-                        ptreeMap.push_back(dataMap);
-                    }
-
-                    parameter->value = Parameter(ptreeMap);
-                }
-            }
-        }
-        lock.unlock();
-        setState(PullCompleted);
-    } 
-    catch (const boost::property_tree::json_parser_error &e) 
-    {
-        LOG_ERR("JSON parsing error: %s", e.what());
         setState(PullError);
-    } 
-    catch (const std::runtime_error &e) 
-    {
-        LOG_ERR("Runtime error: %s", e.what());
-        setState(PullError);
-    } 
-    catch (const std::exception &e) 
-    {
-        LOG_ERR("Exception: %s", e.what());
-        setState(PullError);
+        return;
     }
+
+    json j;
+    input_file >> j;
+
+    for (auto it = j.begin(); it != j.end(); ++it) 
+    {
+        const std::string& key = it.key();
+        const nlohmann::json& value = it.value();
+        ConfigParameter* configParam = findParam(key);
+        if (configParam != nullptr)
+        {
+            configParam->value = Parameter(value);
+        }
+    }
+    lock.unlock();
+    setState(PullCompleted);
 }
 
 void Repository::push()
@@ -215,44 +183,44 @@ void Repository::push()
             }
             firstElement = false;
             file << "    \"" << parameter->name << "\": ";
-            if (parameter->value.type() == Parameter::VariantListType) 
-            {
-                // boost::property_tree::ptree listNode;
+            // if (parameter->value.type() == Parameter::VariantListType) 
+            // {
+            //     // boost::property_tree::ptree listNode;
 
-                // auto dataList = parameter->value.toList();
-                // for (const auto& dataMap : dataList) {
-                //     boost::property_tree::ptree mapNode;
-                //     for (const auto& [key, value] : dataMap) {
-                //         mapNode.put(key, value.get_value<std::string>());
-                //     }
-                //     listNode.push_back(std::make_pair("", mapNode));
-                // }
-                // ptree.add_child(parameter->name, listNode);
-            } 
-            else if (parameter->value.type() == Parameter::VariantType)
-            {
-                utils::Variant variant = parameter->value;
-                auto type = variant.type();
-                LOG_INFO("type: %d", type);
-                switch (type) {
-                case utils::Variant::Integer: {
-                    file << variant.value<int>();
-                    break;
-                }
-                case utils::Variant::Boolean: {
-                    file << (variant.value<bool>() ? "true" : "false");
-                    break;
-                }
-                case utils::Variant::String: {
-                    file << "\"" << variant.value<std::string>() << "\"";
-                    break;
-                }
-                case utils::Variant::Double: {
-                    file << variant.value<double>();
-                    break;
-                }
-                }
-            }
+            //     // auto dataList = parameter->value.toList();
+            //     // for (const auto& dataMap : dataList) {
+            //     //     boost::property_tree::ptree mapNode;
+            //     //     for (const auto& [key, value] : dataMap) {
+            //     //         mapNode.put(key, value.get_value<std::string>());
+            //     //     }
+            //     //     listNode.push_back(std::make_pair("", mapNode));
+            //     // }
+            //     // ptree.add_child(parameter->name, listNode);
+            // } 
+            // else if (parameter->value.type() == Parameter::VariantType)
+            // {
+            //     utils::Variant variant = parameter->value;
+            //     auto type = variant.type();
+            //     LOG_INFO("type: %d", type);
+            //     switch (type) {
+            //     case utils::Variant::Integer: {
+            //         file << variant.value<int>();
+            //         break;
+            //     }
+            //     case utils::Variant::Boolean: {
+            //         file << (variant.value<bool>() ? "true" : "false");
+            //         break;
+            //     }
+            //     case utils::Variant::String: {
+            //         file << "\"" << variant.value<std::string>() << "\"";
+            //         break;
+            //     }
+            //     case utils::Variant::Double: {
+            //         file << variant.value<double>();
+            //         break;
+            //     }
+            //     }
+            // }
         }
 
         file << "\n}\n";

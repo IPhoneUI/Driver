@@ -15,6 +15,32 @@ Parameter::Parameter(const utils::VariantList &variantList)
     mVariantList = variantList;
 }
 
+Parameter::Parameter(const nlohmann::json& jsonVal)
+{
+    if (jsonVal.is_array()) 
+    {
+        mType = VariantListType;
+        for (const auto& item : jsonVal) 
+        {
+            if (item.is_object()) 
+            {
+                std::unordered_map<std::string, utils::Variant> itemMap;
+                for (const auto& [key, val] : item.items()) 
+                {
+                    itemMap[key] = utils::Variant(val);
+                }
+                mVariantList.push(itemMap);
+            }
+        }
+    } 
+    else if (jsonVal.is_string() || jsonVal.is_number_integer() 
+            || jsonVal.is_boolean() || jsonVal.is_number_float()) 
+    {
+        mType = VariantType;
+        mVariant = utils::Variant(jsonVal);
+    }
+}
+
 Parameter::Parameter(const Parameter &other)
 {
     mVariantList = other.mVariantList;
@@ -50,61 +76,43 @@ Parameter &Parameter::operator=(Parameter &&other)
 Parameter &Parameter::operator=(const utils::VariantList &variantList)
 {
     mVariantList = variantList;
+
+    return *this;
 }
 
 template <typename T>
 Parameter &Parameter::operator=(const T& value)
 {
-    mVariant.setValue(value);
+    mVariant.set(value);
     return *this;
 }
 
 template <>
 Parameter& Parameter::operator=<bool>(const bool& value)
 {
-    mVariant.setValue(value);
+    mVariant.set(value);
     return *this;
 }
 
 template <>
 Parameter& Parameter::operator=<double>(const double& value)
 {
-    mVariant.setValue(value);
+    mVariant.set(value);
     return *this;
 }
 
 template <>
 Parameter& Parameter::operator=<int>(const int& value)
 {
-    mVariant.setValue(value);
+    mVariant.set(value);
     return *this;
 }
 
 template <>
 Parameter& Parameter::operator=<std::string>(const std::string& value)
 {
-    mVariant.setValue(value);
+    mVariant.set(value);
     return *this;
-}
-
-Parameter::Parameter(boost::property_tree::ptree ptree)
-    : mType(VariantType)
-{
-    mVariant = utils::Variant(ptree);
-}
-
-Parameter::Parameter(std::list<std::unordered_map<std::string, boost::property_tree::ptree>> ptreeMap)
-    : mType(VariantListType)
-{
-    for (const auto &param_map : ptreeMap)
-    {
-        std::unordered_map<std::string, utils::Variant> temp_map;
-        for (const auto &pair : param_map)
-        {
-            temp_map.emplace(pair.first, utils::Variant(pair.second));
-        }
-        mVariantList.push(temp_map);
-    }
 }
 
 }

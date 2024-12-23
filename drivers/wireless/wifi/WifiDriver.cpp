@@ -17,7 +17,7 @@ WifiDriver::WifiDriver()
 
     Connection::connect(mRepo.onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
 
-    mRepo.pull();
+    mRepo.pull();val:
 
     common::DriverExecution::instance().addDriver("WifiDriver", this);
 }

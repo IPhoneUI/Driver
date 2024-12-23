@@ -99,9 +99,9 @@ void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
             data->name = item["name"];
             data->time = item["time"];
             data->duration = item["duration"];
-            mDeleteRecordingData.push_back(data);       
+            mDeleteRecordingData.push_back(data);  
         }
-        
+
         mAirPlaneMode = mRepo[common::ParameterIndex::FMem_AirPlaneMode];
     }
 }

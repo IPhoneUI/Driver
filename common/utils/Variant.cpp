@@ -2,26 +2,26 @@
 
 namespace utils {
 
-Variant::Variant(const boost::property_tree::ptree &ptree)
-    : mData(ptree)
+Variant::Variant(const nlohmann::json& jsonVal)
+    : mJsonVal(jsonVal)
 {
 }
 
 Variant::Variant(const Variant &param)
 {
-    mData = param.mData;
+    mJsonVal = param.mJsonVal;
 }
 
 Variant::Variant(Variant &&param)
 {
-    mData = std::move(param.mData);
+    mJsonVal = std::move(param.mJsonVal);
 }
 
 Variant &Variant::operator=(const Variant &param)
 {
     if (this != &param)
     {
-        mData = param.mData;
+        mJsonVal = param.mJsonVal;
     }
     return *this;
 }
@@ -30,7 +30,7 @@ Variant &Variant::operator=(Variant &&param)
 {
     if (this != &param)
     {
-        mData = std::move(param.mData);
+        mJsonVal = std::move(param.mJsonVal);
     }
     return *this;
 }
@@ -38,35 +38,35 @@ Variant &Variant::operator=(Variant &&param)
 template <typename T>
 Variant &Variant::operator=(const T &value)
 {
-    setValue(value);
+    set(value);
     return *this;
 }
 
 template <>
 Variant& Variant::operator=<bool>(const bool& value)
 {
-    setValue(value);
+    set(value);
     return *this;
 }
 
 template <>
 Variant& Variant::operator=<double>(const double& value)
 {
-    setValue(value);
+    set(value);
     return *this;
 }
 
 template <>
 Variant& Variant::operator=<int>(const int& value)
 {
-    setValue(value);
+    set(value);
     return *this;
 }
 
 template <>
 Variant& Variant::operator=<std::string>(const std::string& value)
 {
-    setValue(value);
+    set(value);
     return *this;
 }
 
