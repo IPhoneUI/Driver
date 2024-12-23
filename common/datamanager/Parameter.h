@@ -60,6 +60,11 @@ public:
     template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
     operator T() const;
 
+    Type type() const
+    {
+        return mType;
+    }
+
 private:
     Type mType{Unknown};
     utils::Variant mVariant;

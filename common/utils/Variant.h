@@ -9,6 +9,14 @@ namespace utils {
 class Variant
 {
 public:
+    enum Type {
+        Unknown,
+        Integer,
+        Boolean,
+        String,
+        Double
+    };
+
     Variant() {}
 
     Variant(const boost::property_tree::ptree &ptree);
@@ -28,6 +36,32 @@ public:
     T value() const
     {
         return mData.get_value<T>();
+    }
+
+    Type type() const 
+    {
+        const std::vector<std::pair<Type, std::function<void()>>> typeChecks = 
+        {
+            {Integer, [&]() { mData.get_value<int>(); }},
+            {Boolean, [&]() { mData.get_value<bool>(); }},
+            {Double, [&]() { mData.get_value<double>(); }},
+            {String, [&]() { mData.get_value<std::string>(); }},
+        };
+
+        for (const auto& [type, check] : typeChecks) 
+        {
+            try 
+            {
+                check();
+                return type;
+            } 
+            catch (const boost::property_tree::ptree_bad_data&) 
+            {
+                // To do
+            }
+        }
+
+        throw std::runtime_error("Unsupported type");
     }
 
     template <typename T>

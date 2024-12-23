@@ -66,6 +66,7 @@ public:
         PullCompleted,
         PullError,
         WaitToPushCompleted,
+        PushCompleted,
         PushError
     };
 
@@ -84,6 +85,10 @@ public:
     void setName(const std::string& name);
 
     void pull();
+
+    void push();
+
+    void writeJson(const boost::property_tree::ptree& ptree);
 
     void setState(State value);
 
