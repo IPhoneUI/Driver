@@ -26,26 +26,26 @@ public:
         return mWifiStatus;
     }
 
-    std::list<service::WifiDeviceInfo*> getPairedDeviceList() const
-    {
-        return mWifiPairing->getPairedDeviceList();
-    }
-
     service::WifiDeviceInfo* getConnectedDevice() const
     {
         return mConnectedDevice;
     }
 
+    std::list<service::WifiDeviceInfo*> getPairedDeviceList() const;
+    std::list<service::WifiDiscoveryDeviceInfo*> getDiscoveryDeviceList() const;
+
     void startDiscovery();
     void requestChangeWifiStatus(bool status);
     void requestCheckDevicePassword(const std::string& address, const std::string& password);
     void requestConnectDevice(const std::string& address);
+    void setConnectedDevice(service::WifiDeviceInfo* device);
 
     Signal<bool> onWifiStatusUpdated;
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;
     Signal<const std::list<service::WifiDeviceInfo*>&> onPairedDeviceListUpdated;
     Signal<service::WifiDiscoveryDeviceInfo*> onAddDiscoryDeviceInfo;
     Signal<service::WifiDiscoveryDeviceInfo*> onRemoveDiscoryDeviceInfo;
+    Signal<const std::string&> onRequestAuthencatePassword;
 
 private:
     explicit WifiDriver();

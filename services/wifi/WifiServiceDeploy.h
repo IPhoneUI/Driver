@@ -23,6 +23,7 @@ public:
     void responseCheckDevicePassword(bool result);
     void responseConnectedDeviceUpdated();
     void responsePairedListUpdated();
+    void responseAuthencatePassword(const std::string& address);
 
 private:
     explicit WifiServiceDeploy();

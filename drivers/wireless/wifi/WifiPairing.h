@@ -13,7 +13,8 @@ public:
 
     void execute(milliseconds delta);
     std::list<service::WifiDeviceInfo*> getPairedDeviceList();
-    void requestConnectDevice(const std::string& addr);
+    void requestConnectDevice(service::WifiDeviceInfo* device);
+    service::WifiDeviceInfo* getPairedDeviceInfo(const std::string& address) const;
 
     void readData();
 
@@ -23,7 +24,7 @@ private:
     bool mPairingFlag {false};
     int mStep {0};
     milliseconds mTime {milliseconds(0)};
-    service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
+    service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::None};
     std::list<service::WifiDeviceInfo*> mPairedDeviceList;
     service::WifiDeviceInfo* mPairingDevice;
 };

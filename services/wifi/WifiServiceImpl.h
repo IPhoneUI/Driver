@@ -28,6 +28,7 @@ public:
     void onPairedDeviceListUpdated(const std::list<service::WifiDeviceInfo*>&);
     void onConnectedDeviceUpdated(service::WifiDeviceInfo* device);
     void onAddDiscoryDeviceInfo(service::WifiDiscoveryDeviceInfo* device);
+    void onRequestAuthencatePassword(const std::string& address);
 
 private:
     WifiServiceDeploy* mDeploy;

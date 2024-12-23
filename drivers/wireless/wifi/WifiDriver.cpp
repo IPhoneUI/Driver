@@ -59,6 +59,16 @@ void WifiDriver::readDataFromDatabase()
     }
 }
 
+std::list<service::WifiDeviceInfo *> WifiDriver::getPairedDeviceList() const
+{
+    return mWifiPairing->getPairedDeviceList();
+}
+
+std::list<service::WifiDiscoveryDeviceInfo *> WifiDriver::getDiscoveryDeviceList() const
+{
+    return mWifiDiscovery->getDiscoveryDeviceList();
+}
+
 void WifiDriver::requestChangeWifiStatus(bool status)
 {
     if (mWifiStatus == status)
@@ -75,47 +85,32 @@ void WifiDriver::startDiscovery()
 
 void WifiDriver::requestConnectDevice(const std::string& address)
 {
-    // LOG_INFO("Request connect device with address: %s", address.c_str());
-    // for (const auto& item : base::shm::WifiProvider::instance()->getPairedDeviceList())
-    // {
-    //     if (item.deviceinfo.address == address)
-    //     {
-    //         WifiPairing::instance().requestConnectDevice(address);
-    //         return;
-    //     }
-    // }
-    // for (const auto& item : base::shm::WifiProvider::instance()->getPairedDeviceList())
-    // {
-    //     if (item.deviceinfo.address == address)
-    //     {
-    //         WifiDiscovery::instance().requestConnectDevice(address);
-    //         return;
-    //     }
-    // }
+    std::string addressTemp = address;
+    addressTemp.erase(addressTemp.end() - 1);
+
+    service::WifiDeviceInfo* pairedDevice = mWifiPairing->getPairedDeviceInfo(address);
+    if (pairedDevice != nullptr) {
+        mWifiPairing->requestConnectDevice(pairedDevice);
+        return;
+    }
+
+    service::WifiDiscoveryDeviceInfo* discoveryDevice = mWifiDiscovery->getDiscoveryDeviceInfo(address);
+    if (discoveryDevice != nullptr) {
+        mWifiDiscovery->setWaitPairDevice(discoveryDevice);
+        onRequestAuthencatePassword.emit(discoveryDevice->address);
+    }
 }
 
 void WifiDriver::requestCheckDevicePassword(const std::string& address, const std::string& password)
 {
-    // std::function<bool(std::string, std::string, std::list<base::shm::WifiDeviceShmem>)> checkPassword = [](std::string address, std::string password, std::list<base::shm::WifiDeviceShmem> discoveryList) -> bool 
-    // {
-    //     for (auto it = discoveryList.begin(); it != discoveryList.end(); it++) 
-    //     {
-    //         if (std::strcmp((*it).deviceinfo.address, address.c_str()) && std::strcmp((*it).password, password.c_str())) 
-    //         {
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // };
+    service::WifiDiscoveryDeviceInfo* discoveryDevice = mWifiDiscovery->getDiscoveryDeviceInfo(address);
+    if (!address.empty() && (discoveryDevice != nullptr)) {
+        mWifiDiscovery->requestConnectDevice(discoveryDevice, password);
+    }
+}
 
-    // bool result = false;
-    // std::list<base::shm::WifiDeviceShmem> list = base::shm::WifiProvider::instance()->getPairedDeviceList();
-    // if (checkPassword(address, password, list)) 
-    // {
-    //     result = true;
-    // }
-
-    // mDeploy->responseCheckDevicePassword(result);
+void WifiDriver::setConnectedDevice(service::WifiDeviceInfo* device) {
+    mConnectedDevice = device;
 }
 
 }

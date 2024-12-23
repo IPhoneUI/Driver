@@ -46,6 +46,7 @@ void WifiServiceImpl::onMsqReceived()
         }
         case base::msq::Msq_Wifi_ReqConnectDevice: {
             std::string address = mMqReceiver.get<std::string>(messages[1]);
+            address.erase(address.end() - 1);
             mWifiDriver->requestConnectDevice(address);
         }
         }
@@ -60,7 +61,7 @@ void WifiServiceImpl::initialize()
     Connection::connect(mWifiDriver->onPairedDeviceListUpdated, std::bind(&WifiServiceImpl::onPairedDeviceListUpdated, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onConnectedDeviceUpdated, std::bind(&WifiServiceImpl::onConnectedDeviceUpdated, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onAddDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onAddDiscoryDeviceInfo, this, std::placeholders::_1));
-
+    Connection::connect(mWifiDriver->onRequestAuthencatePassword, std::bind(&WifiServiceImpl::onRequestAuthencatePassword, this, std::placeholders::_1));
     mWifiDriver->connectDriver();
 }
 
@@ -111,6 +112,11 @@ void WifiServiceImpl::onConnectedDeviceUpdated(service::WifiDeviceInfo* device)
 void WifiServiceImpl::onAddDiscoryDeviceInfo(service::WifiDiscoveryDeviceInfo* device)
 {
     mDeploy->responseDiscoveryDeviceUpdated(device);
+}
+
+void WifiServiceImpl::onRequestAuthencatePassword(const std::string &address)
+{
+    mDeploy->responseAuthencatePassword(address);
 }
 
 }

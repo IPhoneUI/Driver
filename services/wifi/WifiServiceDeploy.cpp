@@ -70,6 +70,15 @@ void WifiServiceDeploy::responseDiscoveryDeviceUpdated(service::WifiDiscoveryDev
     });
 }
 
+void WifiServiceDeploy::responseAuthencatePassword(const std::string& address) {
+    mClientManager.deploy([this, address](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_Wifi_RespAuthencatePassword);
+        mMqSender.addParam(address.c_str());
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 void WifiServiceDeploy::responseCheckDevicePassword(bool result)
 {
     mClientManager.deploy([this, result](std::string mqName) {
