@@ -88,8 +88,6 @@ public:
 
     void push();
 
-    void writeJson(const boost::property_tree::ptree& ptree);
-
     void setState(State value);
 
     Parameter& operator[](ParameterIndex index);

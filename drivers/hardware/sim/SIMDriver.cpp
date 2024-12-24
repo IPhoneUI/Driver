@@ -141,6 +141,7 @@ void SIMDriver::writeBuffer()
 
     mRepo[common::ParameterIndex::SIM_Contact] = contactList;
     mRepo[common::ParameterIndex::SIM_History] = historyList;
+    
     // mRepo.push();
 }
 
