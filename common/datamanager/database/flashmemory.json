@@ -1,37 +1,37 @@
 {
-    "recording": [
-        {
-            "name": "New Recording 1",
-            "time": "20240616080204",
-            "duration": 42000
-        },
-        {
-            "name": "New Recording 2",
-            "time": "20240528080204",
-            "duration": 100000
-        },
-        {
-            "name": "New Recording 3",
-            "time": "20240616080204",
-            "duration": 2000
-        },
-        {
-            "name": "New Recording 4",
-            "time": "20240615080204",
-            "duration": 27000
-        },
-        {
-            "name": "New Recording 5",
-            "time": "20231228080204",
-            "duration": 11000
-        }
-    ],
+    "airplane_mode": true,
     "delete_recording": [
         {
+            "duration": 1000,
             "name": "New Recording 6",
-            "time": "20240617080204",
-            "duration": 1000
+            "time": "20240617080204"
         }
     ],
-    "airplane_mode": false
+    "recording": [
+        {
+            "duration": 42000,
+            "name": "New Recording 1",
+            "time": "20240616080204"
+        },
+        {
+            "duration": 100000,
+            "name": "New Recording 2",
+            "time": "20240528080204"
+        },
+        {
+            "duration": 2000,
+            "name": "New Recording 3",
+            "time": "20240616080204"
+        },
+        {
+            "duration": 27000,
+            "name": "New Recording 4",
+            "time": "20240615080204"
+        },
+        {
+            "duration": 11000,
+            "name": "New Recording 5",
+            "time": "20231228080204"
+        }
+    ]
 }

@@ -73,7 +73,7 @@ void FlashMemoryDriver::writeBuffer()
     mRepo[common::ParameterIndex::FMem_Recording] = recordingList;
     mRepo[common::ParameterIndex::FMem_DeleteRecording] = deleteRecordingList;
 
-    // mRepo.push();
+    mRepo.push();
 }
 
 void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)

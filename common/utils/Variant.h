@@ -9,7 +9,7 @@ namespace utils {
 class Variant
 {
 public:
-    enum Type {
+    enum type_t {
         Unknown,
         Integer,
         Boolean,
@@ -44,6 +44,18 @@ public:
         return mJsonVal.get<T>();
     }
 
+    type_t type() const 
+    {
+        if (mJsonVal.is_boolean())
+            return Boolean;
+        else if (mJsonVal.is_string())
+            return String;
+        else if (mJsonVal.is_number_integer())
+            return Integer;
+        else if (mJsonVal.is_number_float())
+            return Double;
+    }
+
     template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
     operator T() const;
 
@@ -58,6 +70,7 @@ public:
 
 private:
     nlohmann::json mJsonVal;
+    type_t mType;
 };
 
 template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>

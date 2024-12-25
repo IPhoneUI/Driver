@@ -113,35 +113,36 @@ void SIMDriver::writeBuffer()
     mRepo[common::ParameterIndex::SIM_CellularStatus] = mCellularSts;
     mRepo[common::ParameterIndex::SIM_MaxCompatibility] = mMaxCompatibility;
 
-    utils::VariantList contactList;
-    for (const auto& contactItem : mContacts)
-    {
-        std::unordered_map<std::string, utils::Variant> item;
-        item["firstname"] = contactItem.firstName;
-        item["lastname"] = contactItem.lastName;
-        item["formatname"] = contactItem.formatName;
-        item["phonenumber"] = contactItem.phoneNumber;
-        item["photo"] = contactItem.photo;
-        item["isfav"] = contactItem.isFav;
+    // utils::VariantList contactList;
+    // for (const auto& contactItem : mContacts)
+    // {
+    //     std::unordered_map<std::string, utils::Variant> item;
+    //     item["firstname"] = contactItem.firstName;
+    //     item["lastname"] = contactItem.lastName;
+    //     item["formatname"] = contactItem.formatName;
+    //     item["phonenumber"] = contactItem.phoneNumber;
+    //     item["photo"] = contactItem.photo;
+    //     item["isfav"] = contactItem.isFav;
 
-        contactList.push(item);
-    }
+    //     contactList.push(item);
+    // }
 
-    utils::VariantList historyList;
-    for (const auto& historyItem : mHistories)
-    {
-        std::unordered_map<std::string, utils::Variant> item;
-        item["formatname"] = historyItem.formatName;
-        item["phonenumber"] = historyItem.phoneNumber;
-        item["time"] = historyItem.time;
-        item["phoneType"] = static_cast<int>(historyItem.callingType);
+    // utils::VariantList historyList;
+    // for (const auto& historyItem : mHistories)
+    // {
+    //     std::unordered_map<std::string, utils::Variant> item;
+    //     item["formatname"] = historyItem.formatName;
+    //     item["phonenumber"] = historyItem.phoneNumber;
+    //     item["time"] = historyItem.time;
+    //     item["phoneType"] = static_cast<int>(historyItem.callingType);
 
-        historyList.push(item);
-    }
+    //     historyList.push(item);
+    // }
 
-    mRepo[common::ParameterIndex::SIM_Contact] = contactList;
-    mRepo[common::ParameterIndex::SIM_History] = historyList;
-    // mRepo.push();
+    // mRepo[common::ParameterIndex::SIM_Contact] = contactList;
+    // mRepo[common::ParameterIndex::SIM_History] = historyList;
+    
+    mRepo.push();
 }
 
 void SIMDriver::onRepoStateChanged(common::Repository::State state)
