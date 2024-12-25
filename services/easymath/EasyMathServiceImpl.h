@@ -74,6 +74,7 @@ public:
                 mCommander(static_cast<int>(GameEvent::GameOver));
                 setState(State::None);
                 mIsStart = false;
+                timeOut = milliseconds(0);
             } else if (mState == State::Correct) {
                 mCommander(static_cast<int>(GameEvent::NextLevel));
                 setState(State::None);
@@ -85,6 +86,7 @@ public:
                 mCommander(static_cast<int>(GameEvent::GameOver));
                 setState(State::None);
                 mIsStart = false;
+                timeOut = milliseconds(0);
             }
 
             usleep(10000);
