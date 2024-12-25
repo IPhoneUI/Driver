@@ -63,6 +63,9 @@ void EasyMathServiceImpl::startGame()
         return;
     mIsGameRunning = true;
     mDeploy->responseStartGame(mIsGameRunning);
+    if (mIsGameRunning == true) {
+        mDeploy->responseTimeOut(mMonitors->getInterval());
+    }
     generateExpression();
 }
 
@@ -162,6 +165,7 @@ void EasyMathServiceImpl::submitCommand(int command)
     case GameEvent::GameOver:
         mDeploy->responseScore(mScore);
         mMonitors->stop();
+        mDeploy->responseTimeOut(0);
         resetGame();
         break;
     case GameEvent::NextLevel:

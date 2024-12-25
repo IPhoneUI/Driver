@@ -73,25 +73,25 @@ private:
     type_t mType;
 };
 
-template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type>
 inline Variant::operator T() const
 {
     return mJsonVal.get<std::string>();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type>
 inline Variant::operator T() const
 {
     return mJsonVal.get<int>();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type>
 inline Variant::operator T() const
 {
     return mJsonVal.get<bool>();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type>
 inline Variant::operator T() const
 {
     return mJsonVal.get<double>();

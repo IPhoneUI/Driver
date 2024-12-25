@@ -70,7 +70,7 @@ private:
     utils::VariantList mVariantList;
 };
 
-template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type>
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
@@ -78,7 +78,7 @@ inline Parameter::operator T() const
     throw std::bad_cast();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type>
 inline Parameter::operator T() const
 {
     if (mType == VariantListType)
@@ -86,7 +86,7 @@ inline Parameter::operator T() const
     throw std::bad_cast();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type>
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
@@ -94,7 +94,7 @@ inline Parameter::operator T() const
     throw std::bad_cast();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, std::string>::value, bool>::type>
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
@@ -102,7 +102,7 @@ inline Parameter::operator T() const
     throw std::bad_cast();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, double>::value, bool>::type>
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
@@ -110,7 +110,7 @@ inline Parameter::operator T() const
     throw std::bad_cast();
 }
 
-template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type = true>
+template <typename T, typename std::enable_if<std::is_same<T, int>::value, bool>::type>
 inline Parameter::operator T() const
 {
     if (mType == VariantType)
