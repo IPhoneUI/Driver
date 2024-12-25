@@ -1,161 +1,161 @@
 {
-    "phonenumber" : "0935008291",
-    "network" : "Mobile",
-    "phonesignal" : 2,
-    "wifipassword" : "quangbao",
-    "allowaccess" : true,
-    "cellular" : true,
-    "maxcompatibility" : true,
+    "allowaccess": false,
+    "cellular": true,
     "contact": [
         {
-            "firstname" : "",
-            "lastname" : "Jisoo",
-            "formatname" : "Jisoo",
-            "phonenumber" : "0812931522",
-            "photo" : "qrc:/images/Avatar/jisso.jpg",
-            "isfav" : true
+            "firstname": "",
+            "formatname": "Jisoo",
+            "isfav": true,
+            "lastname": "Jisoo",
+            "phonenumber": "0812931522",
+            "photo": "qrc:/images/Avatar/jisso.jpg"
         },
         {
-            "firstname" : "FPT Huy",
-            "lastname" : "",
-            "formatname" : "FPT Huy",
-            "phonenumber" : "0931251242",
-            "photo" : "",
-            "isfav" : false
+            "firstname": "FPT Huy",
+            "formatname": "FPT Huy",
+            "isfav": false,
+            "lastname": "",
+            "phonenumber": "0931251242",
+            "photo": ""
         },
         {
-            "firstname" : "",
-            "lastname" : "Jisoo",
-            "formatname" : "Jisoo",
-            "phonenumber" : "0935008291",
-            "photo" : "qrc:/images/Avatar/lisa.jpg",
-            "isfav" : true
+            "firstname": "",
+            "formatname": "Jisoo",
+            "isfav": true,
+            "lastname": "Jisoo",
+            "phonenumber": "0935008291",
+            "photo": "qrc:/images/Avatar/lisa.jpg"
         },
         {
-            "firstname" : "",
-            "lastname" : "Kim Ngan",
-            "formatname" : "Kim Ngan",
-            "phonenumber" : "0869393562",
-            "photo" : "",
-            "isfav" : true
+            "firstname": "",
+            "formatname": "Kim Ngan",
+            "isfav": true,
+            "lastname": "Kim Ngan",
+            "phonenumber": "0869393562",
+            "photo": ""
         },
         {
-            "firstname" : "",
-            "lastname" : "Bang Bang",
-            "formatname" : "Bang Bang",
-            "phonenumber" : "0892314123",
-            "photo" : "",
-            "isfav" : false
+            "firstname": "",
+            "formatname": "Bang Bang",
+            "isfav": false,
+            "lastname": "Bang Bang",
+            "phonenumber": "0892314123",
+            "photo": ""
         },
         {
-            "firstname" : "",
-            "lastname" : "Linh Tran",
-            "formatname" : "Linh Tran",
-            "phonenumber" : "0912342134",
-            "photo" : "",
-            "isfav" : false
+            "firstname": "",
+            "formatname": "Linh Tran",
+            "isfav": false,
+            "lastname": "Linh Tran",
+            "phonenumber": "0912342134",
+            "photo": ""
         },
         {
-            "firstname" : "FPT Nguyen",
-            "lastname" : "",
-            "formatname" : "FPT Nguyen",
-            "phonenumber" : "0989888354",
-            "photo" : "",
-            "isfav" : true
+            "firstname": "FPT Nguyen",
+            "formatname": "FPT Nguyen",
+            "isfav": true,
+            "lastname": "",
+            "phonenumber": "0989888354",
+            "photo": ""
         },
         {
-            "firstname" : "",
-            "lastname" : "Anh Ha",
-            "formatname" : "Anh Ha",
-            "phonenumber" : "0912356231",
-            "photo" : "",
-            "isfav" : false
+            "firstname": "",
+            "formatname": "Anh Ha",
+            "isfav": false,
+            "lastname": "Anh Ha",
+            "phonenumber": "0912356231",
+            "photo": ""
         },
         {
-            "firstname" : "",
-            "lastname" : "Jason momoa",
-            "formatname" : "Jason momoa",
-            "phonenumber" : "0912009312",
-            "photo" : "qrc:/images/Avatar/jason_momoa.jpeg",
-            "isfav" : true
+            "firstname": "",
+            "formatname": "Jason momoa",
+            "isfav": true,
+            "lastname": "Jason momoa",
+            "phonenumber": "0912009312",
+            "photo": "qrc:/images/Avatar/jason_momoa.jpeg"
         },
         {
-            "firstname" : "",
-            "lastname" : "FPT Tel",
-            "formatname" : "FPT Tel",
-            "phonenumber" : "0263412332",
-            "photo" : "",
-            "isfav" : false
+            "firstname": "",
+            "formatname": "FPT Tel",
+            "isfav": false,
+            "lastname": "FPT Tel",
+            "phonenumber": "0263412332",
+            "photo": ""
         },
         {
-            "firstname" : "LG Quan",
-            "lastname" : "",
-            "formatname" : "LG Quan",
-            "phonenumber" : "0878531235",
-            "photo" : "",
-            "isfav" : false
+            "firstname": "LG Quan",
+            "formatname": "LG Quan",
+            "isfav": false,
+            "lastname": "",
+            "phonenumber": "0878531235",
+            "photo": ""
         }
     ],
     "history": [
         {
             "formatName": "Jason momoa",
             "phoneNumber": "0912009312",
-            "time": "20231228080204",
-            "phoneType": 0
+            "phoneType": 0,
+            "time": "20231228080204"
         },
         {
             "formatName": "FPT Huy",
             "phoneNumber": "0931251242",
-            "time": "20231227080204",
-            "phoneType": 1
+            "phoneType": 1,
+            "time": "20231227080204"
         },
         {
             "formatName": "Linh Tran",
             "phoneNumber": "0912342134",
-            "time": "20231222080204",
-            "phoneType": 0
+            "phoneType": 0,
+            "time": "20231222080204"
         },
         {
             "formatName": "",
             "phoneNumber": "0934213421",
-            "time": "20231221080204",
-            "phoneType": 2
+            "phoneType": 2,
+            "time": "20231221080204"
         },
         {
             "formatName": "Anh Ha",
             "phoneNumber": "0912356231",
-            "time": "20231219080204",
-            "phoneType": 0
+            "phoneType": 0,
+            "time": "20231219080204"
         },
         {
             "formatName": "Jisoo",
             "phoneNumber": "0812931522",
-            "time": "20231215080204",
-            "phoneType": 0
+            "phoneType": 0,
+            "time": "20231215080204"
         },
         {
             "formatName": "Jisoo",
             "phoneNumber": "0812931522",
-            "time": "20231205080204",
-            "phoneType": 1
+            "phoneType": 1,
+            "time": "20231205080204"
         },
         {
             "formatName": "",
             "phoneNumber": "0932135987",
-            "time": "20231130080204",
-            "phoneType": 2
+            "phoneType": 2,
+            "time": "20231130080204"
         },
         {
             "formatName": "",
             "phoneNumber": "0878765768",
-            "time": "20231110080204",
-            "phoneType": 2
+            "phoneType": 2,
+            "time": "20231110080204"
         },
         {
             "formatName": "Jason momoa",
             "phoneNumber": "0912009312",
-            "time": "20220615080204",
-            "phoneType": 1
+            "phoneType": 1,
+            "time": "20220615080204"
         }
-    ]
+    ],
+    "maxcompatibility": true,
+    "network": "Mobile",
+    "phonenumber": "0935008291",
+    "phonesignal": 2,
+    "wifipassword": "quangbao"
 }
