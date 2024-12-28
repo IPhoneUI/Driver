@@ -22,8 +22,8 @@ private:
     void handleConnectDevice(milliseconds delta);
 
     WifiDriver* mWifiDriver;
-    std::list<service::WifiDiscoveryDeviceInfo*> mDiscoryDeviceList;
-    service::WifiDiscoveryDeviceInfo* mDevice;
+    std::list<service::WifiDeviceInfo*> mDiscoryDeviceList;
+    service::WifiDeviceInfo* mDevice;
     bool mDiscoveryFlag {false};
     bool mConnectDeviceFlag {false};
     std::string mDiscoryDeviceAddr {""};

@@ -17,16 +17,13 @@ void WifiPairing::readData()
     for (int i = 6; i < 14; ++i) 
     {   
         auto item = *std::next(dataList.begin(), i);
-        service::WifiDiscoveryDeviceInfo deviceInfo(
+        service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
+            item["password"], 
+            item["autoconnect"], 
             item["name"], 
             item["address"], 
             item["privateaddress"], 
             static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
-        );
-        service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
-            item["password"], 
-            item["autoconnect"], 
-            deviceInfo
         );
         mPairedDeviceList.push_back(device);
         ++count;

@@ -19,7 +19,7 @@ public:
 
     void responseServiceReady(const std::string& clientName) override;
     void responseChangeWifiStatus(bool status);
-    void responseDiscoveryDeviceUpdated(service::WifiDiscoveryDeviceInfo* device);
+    void responseDiscoveryDeviceUpdated(service::WifiDeviceInfo* device);
     void responseCheckDevicePassword(bool result);
     void responseConnectedDeviceUpdated();
     void responsePairedListUpdated();

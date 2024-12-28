@@ -60,12 +60,12 @@ void WifiDriver::writeBuffer()
     // std::unordered_map<std::string, utils::Variant> item;
     // item["password"] = mConnectedDevice->password;
     // item["autoconnect"] = mConnectedDevice->autoconnectstatus;
-    // item["name"] = mConnectedDevice->deviceinfo.name;
-    // item["address"] = mConnectedDevice->deviceinfo.address;
-    // item["privateaddress"] = mConnectedDevice->deviceinfo.privateAddr;
-    // item["wifisignal"] = static_cast<int>(mConnectedDevice->deviceinfo.speedmode);
-
+    // item["name"] = mConnectedDevice->name;
+    // item["address"] = mConnectedDevice->address;
+    // item["privateaddress"] = mConnectedDevice->privateAddr;
+    // item["wifisignal"] = static_cast<int>(mConnectedDevice->speedmode);
     // wifiList.push(item);
+
     mRepo.push();
 }
 
@@ -81,10 +81,10 @@ void WifiDriver::onRepoStateChanged(common::Repository::State state)
             std::unordered_map<std::string, utils::Variant> item = (*dataList.begin());
             mConnectedDevice->password = item["password"];
             mConnectedDevice->autoconnectstatus = item["autoconnect"];
-            mConnectedDevice->deviceinfo.name = item["name"];
-            mConnectedDevice->deviceinfo.address = item["address"];
-            mConnectedDevice->deviceinfo.privateAddr = item["privateaddress"];
-            mConnectedDevice->deviceinfo.speedmode = static_cast<service::WifiSpeedMode>(int(item["wifisignal"]));
+            mConnectedDevice->name = item["name"];
+            mConnectedDevice->address = item["address"];
+            mConnectedDevice->privateAddr = item["privateaddress"];
+            mConnectedDevice->speedmode = static_cast<service::WifiSpeedMode>(int(item["wifisignal"]));
         }
 
         mWifiStatus = mRepo[common::ParameterIndex::Wifi_Status];

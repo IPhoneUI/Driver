@@ -47,8 +47,8 @@ public:
     Signal<bool> onWifiStatusUpdated;
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;
     Signal<const std::list<service::WifiDeviceInfo*>&> onPairedDeviceListUpdated;
-    Signal<service::WifiDiscoveryDeviceInfo*> onAddDiscoryDeviceInfo;
-    Signal<service::WifiDiscoveryDeviceInfo*> onRemoveDiscoryDeviceInfo;
+    Signal<service::WifiDeviceInfo*> onAddDiscoryDeviceInfo;
+    Signal<service::WifiDeviceInfo*> onRemoveDiscoryDeviceInfo;
 
 private: 
     void onRepoStateChanged(common::Repository::State state);

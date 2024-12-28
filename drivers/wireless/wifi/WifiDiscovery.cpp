@@ -7,7 +7,7 @@ namespace driver {
 
 WifiDiscovery::WifiDiscovery(WifiDriver* driver)
     : mWifiDriver(driver)
-    , mDevice(new service::WifiDiscoveryDeviceInfo())
+    , mDevice(new service::WifiDeviceInfo())
 {
 }
 
@@ -24,13 +24,15 @@ void WifiDiscovery::readData()
     for (int i = 1; i < 6; ++i) 
     {   
         auto item = *std::next(dataList.begin(), i);
-        service::WifiDiscoveryDeviceInfo* deviceInfo = new service::WifiDiscoveryDeviceInfo(
+        service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
+            item["password"], 
+            item["autoconnect"], 
             item["name"], 
             item["address"], 
             item["privateaddress"], 
             static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
         );
-        mDiscoryDeviceList.push_back(deviceInfo);
+        mDiscoryDeviceList.push_back(device);
         ++count;
     }
 }

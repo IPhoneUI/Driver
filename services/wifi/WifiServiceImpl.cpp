@@ -108,7 +108,7 @@ void WifiServiceImpl::onConnectedDeviceUpdated(service::WifiDeviceInfo* device)
     }
 }
 
-void WifiServiceImpl::onAddDiscoryDeviceInfo(service::WifiDiscoveryDeviceInfo* device)
+void WifiServiceImpl::onAddDiscoryDeviceInfo(service::WifiDeviceInfo* device)
 {
     mDeploy->responseDiscoveryDeviceUpdated(device);
 }

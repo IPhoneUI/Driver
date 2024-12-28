@@ -57,7 +57,7 @@ void WifiServiceDeploy::responseChangeWifiStatus(bool status)
     });
 }
 
-void WifiServiceDeploy::responseDiscoveryDeviceUpdated(service::WifiDiscoveryDeviceInfo* device)
+void WifiServiceDeploy::responseDiscoveryDeviceUpdated(service::WifiDeviceInfo* device)
 {
     mClientManager.deploy([this, device](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);

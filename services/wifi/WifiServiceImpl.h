@@ -27,7 +27,7 @@ public:
     void onWifiStatusUpdated(bool);
     void onPairedDeviceListUpdated(const std::list<service::WifiDeviceInfo*>&);
     void onConnectedDeviceUpdated(service::WifiDeviceInfo* device);
-    void onAddDiscoryDeviceInfo(service::WifiDiscoveryDeviceInfo* device);
+    void onAddDiscoryDeviceInfo(service::WifiDeviceInfo* device);
 
 private:
     WifiServiceDeploy* mDeploy;
