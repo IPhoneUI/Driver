@@ -32,7 +32,17 @@ Parameter::Parameter(const nlohmann::json& jsonVal)
                 mVariantList.push(itemMap);
             }
         }
-    } 
+    }
+    else if (jsonVal.is_object())
+    {
+        mType = VariantObjType;
+        std::unordered_map<std::string, utils::Variant> itemMap;
+        for (const auto& [key, val] : jsonVal.items()) 
+        {
+            itemMap[key] = utils::Variant(val);
+        }
+        mVariantObj = itemMap;
+    }
     else if (jsonVal.is_string() || jsonVal.is_number_integer() 
             || jsonVal.is_boolean() || jsonVal.is_number_float()) 
     {
@@ -44,6 +54,7 @@ Parameter::Parameter(const nlohmann::json& jsonVal)
 Parameter::Parameter(const Parameter &other)
 {
     mVariantList = other.mVariantList;
+    mVariantObj = other.mVariantObj;
     mVariant = other.mVariant;
     mType = other.mType;
 }
@@ -52,6 +63,7 @@ Parameter::Parameter(Parameter &&other)
 {
     mVariantList = std::move(other.mVariantList);
     mVariant = std::move(other.mVariant);
+    mVariantObj = std::move(other.mVariantObj);
     mType = std::move(other.mType);
 }
 
@@ -59,6 +71,7 @@ Parameter &Parameter::operator=(const Parameter &other)
 {
     mVariantList = other.mVariantList;
     mVariant = other.mVariant;
+    mVariantObj = other.mVariantObj;
     mType = other.mType;
 
     return *this;
@@ -68,6 +81,7 @@ Parameter &Parameter::operator=(Parameter &&other)
 {
     mVariantList = std::move(other.mVariantList);
     mVariant = std::move(other.mVariant);
+    mVariantObj = std::move(other.mVariantObj);
     mType = std::move(other.mType);
 
     return *this;
@@ -79,6 +93,14 @@ Parameter &Parameter::operator=(const utils::VariantList &variantList)
 
     return *this;
 }
+
+Parameter &Parameter::operator=(const utils::VariantObj &variantObj)
+{
+    mVariantObj = variantObj;
+    
+    return *this;
+}
+
 
 template <typename T>
 Parameter &Parameter::operator=(const T& value)

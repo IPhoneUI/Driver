@@ -1,14 +1,13 @@
 {
-    "data": [
-        {
-            "address": "9C:28:B3:E2:B4:6A",
-            "autoconnect": true,
-            "name": "Anh Ha",
-            "type": 1,
-            "password": "anhha123",
-            "privateaddress": false,
-            "wifisignal": 2
-        },
+    "connected": {
+        "address": "9C:28:B3:E2:B4:6A",
+        "autoconnect": true,
+        "name": "Anh Ha",
+        "password": "anhha123",
+        "privateaddress": false,
+        "wifisignal": 2
+    },
+    "discovery": [
         {
             "address": "9C:28:B3:E2:B7:B4",
             "autoconnect": true,
@@ -53,7 +52,9 @@
             "password": "BTH",
             "privateaddress": false,
             "wifisignal": 2
-        },
+        }
+    ],
+    "paired": [
         {
             "address": "7T:91:C9:T1:ZE:99",
             "autoconnect": true,

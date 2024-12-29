@@ -23,26 +23,20 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::readData()
 {
-    // utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
-    // int count = 0;
-
-
-
-    // for (int i = 1; i < 6; ++i) 
-    // {   
-    //     auto item = *std::next(dataList.begin(), i);
-    //     service::WifiDeviceInfo* deviceInfo = new service::WifiDeviceInfo(
-    //         item["name"], 
-    //         item["address"], 
-    //         static_cast<service::WifiDeviceType>(int(item["type"])),
-    //         item["privateaddress"],
-    //         static_cast<service::WifiSpeedMode>(int(item["wifisignal"])),
-    //         item["password"],
-    //         item["autoconnect"]
-    //     );
-    //     mDiscoryDeviceList.push_back(deviceInfo);
-    //     ++count;
-    // }
+    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Discovery];
+    for (int i = 1; i < dataList.size(); ++i) 
+    {   
+        auto item = *std::next(dataList.begin(), i);
+        service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
+            item["password"], 
+            item["autoconnect"], 
+            item["name"], 
+            item["address"], 
+            item["privateaddress"], 
+            static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
+        );
+        mDiscoryDeviceList.push_back(device);
+    }
 }
 
 void WifiDiscovery::handleConnectDevice(milliseconds delta)

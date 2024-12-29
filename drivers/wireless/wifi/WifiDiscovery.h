@@ -28,10 +28,7 @@ private:
 
     WifiDriver* mWifiDriver;
     std::list<service::WifiDeviceInfo*> mDiscoryDeviceList;
-
     service::WifiDeviceInfo* mDevice;
-    service::WifiDeviceInfo* mDeviceWaitPair;
-
     bool mDiscoveryFlag {false};
     bool mConnectDeviceFlag {false};
     std::string mDiscoryDeviceAddr {""};

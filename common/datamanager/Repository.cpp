@@ -138,6 +138,31 @@ void Repository::push()
             }
             
         }
+        else if (configParam->value.type() == Parameter::VariantObjType)
+        {
+            utils::VariantObj value = configParam->value;
+            std::unordered_map<std::string, utils::Variant> data = value;
+            json obj;
+            for (const auto& [subKey, subValue] : data)
+            {
+                switch (subValue.type()) {
+                case utils::Variant::String:
+                    obj[subKey] = subValue.get<std::string>(); 
+                    break;
+                case utils::Variant::Integer:
+                    obj[subKey] = subValue.get<int>(); 
+                    break;
+                case utils::Variant::Boolean:
+                    obj[subKey] = subValue.get<bool>(); 
+                    break;
+                case utils::Variant::Double:
+                    obj[subKey] = subValue.get<double>(); 
+                    break;
+                }
+            }
+            j[configParam->name] = obj;
+            
+        }
         else if (configParam->value.type() == Parameter::VariantListType)
         {
             json array = json::array();

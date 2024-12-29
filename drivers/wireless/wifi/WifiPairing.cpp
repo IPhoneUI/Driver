@@ -12,25 +12,20 @@ WifiPairing::WifiPairing(WifiDriver* driver)
 
 void WifiPairing::readData()
 {    
-    // utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
-    // int count = 0;
-    // for (int i = 6; i < 14; ++i) 
-    // {   
-    //     auto item = *std::next(dataList.begin(), i);
-    //     service::WifiDeviceInfo deviceInfo(
-    //         item["name"], 
-    //         item["address"], 
-    //         item["privateaddress"], 
-    //         static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
-    //     );
-    //     service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
-    //         item["password"], 
-    //         item["autoconnect"], 
-    //         deviceInfo
-    //     );
-    //     mPairedDeviceList.push_back(device);
-    //     ++count;
-    // }
+    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Paired];
+    for (int i = 0; i < dataList.size(); ++i) 
+    {   
+        auto item = *std::next(dataList.begin(), i);
+        service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
+            item["password"], 
+            item["autoconnect"], 
+            item["name"], 
+            item["address"], 
+            item["privateaddress"], 
+            static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
+        );
+        mPairedDeviceList.push_back(device);
+    }
 }
 
 void WifiPairing::execute(milliseconds delta)
