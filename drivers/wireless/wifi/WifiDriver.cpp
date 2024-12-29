@@ -1,5 +1,6 @@
 #include "WifiDriver.h"
 #include <utils/Logger.h>
+#include <functional>
 
 namespace driver {
 
@@ -8,16 +9,17 @@ static WifiDriver* gInstance = 0;
 WifiDriver::WifiDriver()
     : mConnectedDevice(new service::WifiDeviceInfo())
 {
-    mRepo.setName("wifi");
+    mRepository.setName("wifi");
+
     mWifiPairing = new WifiPairing(this);
     mWifiDiscovery = new WifiDiscovery(this);
 
-    mRepo.addParam("data", common::ParameterIndex::Wifi_Data);
-    mRepo.addParam("wifistatus", common::ParameterIndex::Wifi_Status);
+    mRepository.addParam("data", common::ParameterIndex::Wifi_Data);
+    mRepository.addParam("wifistatus", common::ParameterIndex::Wifi_Status);
 
-    Connection::connect(mRepo.onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
+    Connection::connect(mRepository.onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
 
-    mRepo.pull();val:
+    mRepository.pull();
 
     common::DriverExecution::instance().addDriver("WifiDriver", this);
 }
@@ -54,7 +56,7 @@ void WifiDriver::connectDriver()
 
 void WifiDriver::writeBuffer()
 {
-    mRepo[common::ParameterIndex::Wifi_Status] = mWifiStatus;
+    mRepository[common::ParameterIndex::Wifi_Status] = mWifiStatus;
 
     // utils::VariantList wifiList;
     // std::unordered_map<std::string, utils::Variant> item;
@@ -66,39 +68,60 @@ void WifiDriver::writeBuffer()
     // item["wifisignal"] = static_cast<int>(mConnectedDevice->deviceinfo.speedmode);
 
     // wifiList.push(item);
-    mRepo.push();
+    mRepository.push();
+}
+
+void WifiDriver::readData() {
+
+    LOG_INFO("THAIVD --- READ DATA");
+    utils::VariantList dataList = mRepository[common::ParameterIndex::Wifi_Data];
+    for (int it = 0; it < dataList.size(); it++) {
+
+        std::unordered_map<std::string, utils::Variant> item = *(std::next(dataList.begin(), it));
+        service::WifiDeviceType typeDevice = static_cast<service::WifiDeviceType>(int(item["type"]));
+
+        service::WifiDeviceInfo* wifiItem = new service::WifiDeviceInfo(
+            item["name"], 
+            item["address"], 
+            static_cast<service::WifiDeviceType>(int(item["type"])),
+            item["privateaddress"],
+            static_cast<service::WifiSpeedMode>(int(item["wifisignal"])),
+            item["password"],
+            item["autoconnect"]
+        );
+
+        if (wifiItem == nullptr) {
+            continue;
+        }
+
+        std::string name = item["name"];
+        std::string address = item["address"];
+        int type = int(item["type"]);
+        
+        LOG_INFO("THAIVD -- INFO DEVICE => name: %s addr: %s type: %d", name.c_str(), address.c_str(), type);
+        if (typeDevice == service::WifiDeviceType::Connected) {
+            mConnectedDevice = wifiItem;
+            mWifiPairing->mPairedDeviceList.emplace_back(mConnectedDevice);
+        } else if (typeDevice == service::WifiDeviceType::Paired) {
+            mWifiPairing->mPairedDeviceList.emplace_back(wifiItem);
+        } else {
+            mWifiDiscovery->mDiscoryDeviceList.emplace_back(wifiItem);
+        }
+    }
 }
 
 void WifiDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)
     {
-        mWifiPairing->readData();
-        mWifiDiscovery->readData();
-    
-        utils::VariantList dataList = mRepo[common::ParameterIndex::Wifi_Data];
-        {
-            std::unordered_map<std::string, utils::Variant> item = (*dataList.begin());
-            mConnectedDevice->password = item["password"];
-            mConnectedDevice->autoconnectstatus = item["autoconnect"];
-            mConnectedDevice->deviceinfo.name = item["name"];
-            mConnectedDevice->deviceinfo.address = item["address"];
-            mConnectedDevice->deviceinfo.privateAddr = item["privateaddress"];
-            mConnectedDevice->deviceinfo.speedmode = static_cast<service::WifiSpeedMode>(int(item["wifisignal"]));
-        }
-
-        mWifiStatus = mRepo[common::ParameterIndex::Wifi_Status];
+        readData();
+        mWifiStatus = mRepository[common::ParameterIndex::Wifi_Status];
     }
 }
 
-std::list<service::WifiDeviceInfo *> WifiDriver::getPairedDeviceList() const
+std::list<service::WifiDeviceInfo*> WifiDriver::getPairedDeviceList() const
 {
-    return mWifiPairing->getPairedDeviceList();
-}
-
-std::list<service::WifiDiscoveryDeviceInfo *> WifiDriver::getDiscoveryDeviceList() const
-{
-    return mWifiDiscovery->getDiscoveryDeviceList();
+    return mWifiPairing->mPairedDeviceList;
 }
 
 void WifiDriver::requestChangeWifiStatus(bool status)
@@ -117,28 +140,28 @@ void WifiDriver::startDiscovery()
 
 void WifiDriver::requestConnectDevice(const std::string& address)
 {
-    std::string addressTemp = address;
-    addressTemp.erase(addressTemp.end() - 1);
+    // std::string addressTemp = address;
+    // addressTemp.erase(addressTemp.end() - 1);
 
-    service::WifiDeviceInfo* pairedDevice = mWifiPairing->getPairedDeviceInfo(address);
-    if (pairedDevice != nullptr) {
-        mWifiPairing->requestConnectDevice(pairedDevice);
-        return;
-    }
+    // service::WifiDeviceInfo* pairedDevice = mWifiPairing->getPairedDeviceInfo(address);
+    // if (pairedDevice != nullptr) {
+    //     mWifiPairing->requestConnectDevice(pairedDevice);
+    //     return;
+    // }
 
-    service::WifiDiscoveryDeviceInfo* discoveryDevice = mWifiDiscovery->getDiscoveryDeviceInfo(address);
-    if (discoveryDevice != nullptr) {
-        mWifiDiscovery->setWaitPairDevice(discoveryDevice);
-        onRequestAuthencatePassword.emit(discoveryDevice->address);
-    }
+    // service::WifiDeviceInfo* discoveryDevice = mWifiDiscovery->getDiscoveryDeviceInfo(address);
+    // if (discoveryDevice != nullptr) {
+    //     mWifiDiscovery->setWaitPairDevice(discoveryDevice);
+    //     onRequestAuthencatePassword.emit(discoveryDevice->address);
+    // }
 }
 
 void WifiDriver::requestCheckDevicePassword(const std::string& address, const std::string& password)
 {
-    service::WifiDiscoveryDeviceInfo* discoveryDevice = mWifiDiscovery->getDiscoveryDeviceInfo(address);
-    if (!address.empty() && (discoveryDevice != nullptr)) {
-        mWifiDiscovery->requestConnectDevice(discoveryDevice, password);
-    }
+    // service::WifiDeviceInfo* discoveryDevice = mWifiDiscovery->getDiscoveryDeviceInfo(address);
+    // if (!address.empty() && (discoveryDevice != nullptr)) {
+    //     mWifiDiscovery->requestConnectDevice(discoveryDevice, password);
+    // }
 }
 
 void WifiDriver::setConnectedDevice(service::WifiDeviceInfo* device) {

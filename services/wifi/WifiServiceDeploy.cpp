@@ -57,16 +57,16 @@ void WifiServiceDeploy::responseChangeWifiStatus(bool status)
     });
 }
 
-void WifiServiceDeploy::responseDiscoveryDeviceUpdated(service::WifiDiscoveryDeviceInfo* device)
+void WifiServiceDeploy::responseDiscoveryDeviceUpdated(service::WifiDeviceInfo* device)
 {
     mClientManager.deploy([this, device](std::string mqName) {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_Wifi_RespDiscoveryDeviceUpdated);
-        mMqSender.addParam(device->name.c_str());
-        mMqSender.addParam(device->address.c_str());
-        mMqSender.addParam(device->privateAddr);
-        mMqSender.addParam(static_cast<int>(device->speedmode));
-        mMqSender.sendMsq(mqName);
+        // std::lock_guard<std::mutex> lock(mMutex);
+        // mMqSender.startMsq(base::msq::Msq_Wifi_RespDiscoveryDeviceUpdated);
+        // mMqSender.addParam(device->name.c_str());
+        // mMqSender.addParam(device->address.c_str());
+        // mMqSender.addParam(device->privateAddr);
+        // mMqSender.addParam(static_cast<int>(device->speedmode));
+        // mMqSender.sendMsq(mqName);
     });
 }
 

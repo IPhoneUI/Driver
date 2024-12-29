@@ -8,14 +8,11 @@ namespace driver {
 
 class WifiDriver;
 class WifiPairing {
+    friend class WifiDriver;
 public: 
     WifiPairing(WifiDriver* driver);
 
     void execute(milliseconds delta);
-    std::list<service::WifiDeviceInfo*> getPairedDeviceList();
-    void requestConnectDevice(service::WifiDeviceInfo* device);
-    service::WifiDeviceInfo* getPairedDeviceInfo(const std::string& address) const;
-
     void readData();
 
 private:

@@ -4,6 +4,7 @@
             "address": "9C:28:B3:E2:B4:6A",
             "autoconnect": true,
             "name": "Anh Ha",
+            "type": 1,
             "password": "anhha123",
             "privateaddress": false,
             "wifisignal": 2
@@ -12,6 +13,7 @@
             "address": "9C:28:B3:E2:B7:B4",
             "autoconnect": true,
             "name": "Quang Hung",
+            "type": 0,
             "password": "123456789",
             "privateaddress": false,
             "wifisignal": 2
@@ -20,6 +22,7 @@
             "address": "9C:E9:B3:E1:B4:6A",
             "autoconnect": true,
             "name": "FPT Software",
+            "type": 1,
             "password": "FPT123456",
             "privateaddress": false,
             "wifisignal": 1
@@ -28,6 +31,7 @@
             "address": "10:2A:B3:E2:B4:6C",
             "autoconnect": true,
             "name": "FPT Guest",
+            "type": 1,
             "password": "FPT123456",
             "privateaddress": false,
             "wifisignal": 1
@@ -36,6 +40,7 @@
             "address": "9C:28:U2:C2:B2:69",
             "autoconnect": true,
             "name": "Cf San vuon",
+            "type": 1,
             "password": "87654321",
             "privateaddress": false,
             "wifisignal": 2
@@ -44,6 +49,7 @@
             "address": "1A:2B:B4:E8:11:9C",
             "autoconnect": true,
             "name": "Pyramid Guest",
+            "type": 1,
             "password": "BTH",
             "privateaddress": false,
             "wifisignal": 2
@@ -52,6 +58,7 @@
             "address": "7T:91:C9:T1:ZE:99",
             "autoconnect": true,
             "name": "Kim ngan ne",
+            "type": 2,
             "password": "Zeus123",
             "privateaddress": false,
             "wifisignal": 2
@@ -60,6 +67,7 @@
             "address": "72:E1:T2:G2:M1:E9",
             "autoconnect": true,
             "name": "Wifi cua Bao",
+            "type": 1,
             "password": "Kimngan2411@",
             "privateaddress": false,
             "wifisignal": 1
@@ -68,6 +76,7 @@
             "address": "T1:2C:N9:P7:Z1:29",
             "autoconnect": true,
             "name": "Nhoemchieuthu7",
+            "type": 2,
             "password": "123456789",
             "privateaddress": false,
             "wifisignal": 0
@@ -76,6 +85,7 @@
             "address": "E3:C2:A8:N7:K1:Q6",
             "autoconnect": true,
             "name": "SH 304",
+            "type": 2,
             "password": "chindenmuoi",
             "privateaddress": false,
             "wifisignal": 0
@@ -84,6 +94,7 @@
             "address": "Z1:Y6:B6:M1:N3:I8",
             "autoconnect": true,
             "name": "Nha tro 98",
+            "type": 2,
             "password": "khongcomatkhau",
             "privateaddress": false,
             "wifisignal": 1
@@ -92,6 +103,7 @@
             "address": "B5:V4:K9:C4:Z7:U3",
             "autoconnect": true,
             "name": "Family House",
+            "type": 1,
             "password": "bietchetlien",
             "privateaddress": false,
             "wifisignal": 2
@@ -100,6 +112,7 @@
             "address": "C3:2F:B9:X5:D3:14",
             "autoconnect": true,
             "name": "Wifi Free",
+            "type": 2,
             "password": "bamtambonlan",
             "privateaddress": false,
             "wifisignal": 1
@@ -108,6 +121,7 @@
             "address": "E3:2F:B9:X5:D3:14",
             "autoconnect": true,
             "name": "Thac Bao",
+            "type": 2,
             "password": "Thayongnoi",
             "privateaddress": false,
             "wifisignal": 1
@@ -116,6 +130,7 @@
             "address": "V3:2F:B9:X5:D3:14",
             "autoconnect": true,
             "name": "Hai Son",
+            "type": 2,
             "password": "bamtambonlan",
             "privateaddress": false,
             "wifisignal": 0

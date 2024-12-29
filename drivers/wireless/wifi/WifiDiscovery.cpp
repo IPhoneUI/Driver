@@ -7,7 +7,11 @@ namespace driver {
 
 WifiDiscovery::WifiDiscovery(WifiDriver* driver)
     : mWifiDriver(driver)
-    , mDevice(new service::WifiDiscoveryDeviceInfo())
+    , mDevice(new service::WifiDeviceInfo())
+{
+}
+
+WifiDiscovery::~WifiDiscovery() 
 {
 }
 
@@ -19,73 +23,79 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::readData()
 {
-    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
-    int count = 0;
-    for (int i = 1; i < 6; ++i) 
-    {   
-        auto item = *std::next(dataList.begin(), i);
-        service::WifiDiscoveryDeviceInfo* deviceInfo = new service::WifiDiscoveryDeviceInfo(
-            item["name"], 
-            item["address"], 
-            item["privateaddress"], 
-            static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
-        );
-        mDiscoryDeviceList.push_back(deviceInfo);
-        ++count;
-    }
+    // utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
+    // int count = 0;
+
+
+
+    // for (int i = 1; i < 6; ++i) 
+    // {   
+    //     auto item = *std::next(dataList.begin(), i);
+    //     service::WifiDeviceInfo* deviceInfo = new service::WifiDeviceInfo(
+    //         item["name"], 
+    //         item["address"], 
+    //         static_cast<service::WifiDeviceType>(int(item["type"])),
+    //         item["privateaddress"],
+    //         static_cast<service::WifiSpeedMode>(int(item["wifisignal"])),
+    //         item["password"],
+    //         item["autoconnect"]
+    //     );
+    //     mDiscoryDeviceList.push_back(deviceInfo);
+    //     ++count;
+    // }
 }
 
 void WifiDiscovery::handleConnectDevice(milliseconds delta)
 {
     if (mConnectDeviceFlag)
     {
-        mTime += delta;
-        if (mStep == 0)
-        {
-            mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
-            mTime = milliseconds(0);
-            mStep++;
-        }
-        if (mStep == 1 && mTime > milliseconds(2000))
-        {
-            /** CASE: Authen Fail 
-             *  mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
-                //mEvent.push(WifiEvent::AuthenStatus);
-                mTime = milliseconds(0);
-                mStep = 0;
-                mConnectDeviceFlag = false;
-             **/
+        // mTime += delta;
+        // if (mStep == 0)
+        // {
+        //     mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
+        //     mTime = milliseconds(0);
+        //     mStep++;
+        // }
+        // if (mStep == 1 && mTime > milliseconds(2000))
+        // {
+        //     /** CASE: Authen Fail 
+        //      *  mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
+        //         //mEvent.push(WifiEvent::AuthenStatus);
+        //         mTime = milliseconds(0);
+        //         mStep = 0;
+        //         mConnectDeviceFlag = false;
+        //      **/
 
-            mAuthenStatus = service::WifiAuthenDeviceStatus::CheckedSSID;
-            mTime = milliseconds(0);
-            mStep++;
-        }
-        if (mStep == 2 && mTime > milliseconds(500))
-        {
-            // Check password
+        //     mAuthenStatus = service::WifiAuthenDeviceStatus::CheckedSSID;
+        //     mTime = milliseconds(0);
+        //     mStep++;
+        // }
+        // if (mStep == 2 && mTime > milliseconds(500))
+        // {
+        //     // Check password
 
-            mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
-            mTime = milliseconds(0);
-            mStep++;
-        }
-        if (mStep == 3 && mTime > milliseconds(2000))
-        {
-            mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
-            mTime = milliseconds(0);
-            mStep++;
-        }
-        if (mStep == 4 && mTime > milliseconds(1000))
-        {
-            mTime = milliseconds(0);
-            mStep++;
-        }
-        if (mStep == 5 && mTime > milliseconds(100))
-        {
-            LOG_INFO("THAIVD -- Finished");
-            mTime = milliseconds(0);
-            mStep = 0;
-            mConnectDeviceFlag = false;
-        }
+        //     mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
+        //     mTime = milliseconds(0);
+        //     mStep++;
+        // }
+        // if (mStep == 3 && mTime > milliseconds(2000))
+        // {
+        //     mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
+        //     mTime = milliseconds(0);
+        //     mStep++;
+        // }
+        // if (mStep == 4 && mTime > milliseconds(1000))
+        // {
+        //     mTime = milliseconds(0);
+        //     mStep++;
+        // }
+        // if (mStep == 5 && mTime > milliseconds(100))
+        // {
+        //     LOG_INFO("THAIVD -- Finished");
+        //     mTime = milliseconds(0);
+        //     mStep = 0;
+        //     mConnectDeviceFlag = false;
+        // }
         
     }
 }
@@ -105,9 +115,9 @@ void WifiDiscovery::handleDiscovering(milliseconds delta)
         }
         else if (mDiscoveringTime > milliseconds(1000))
         {
-            auto it = mDiscoryDeviceList.begin();
+            service::WifiDeviceInfo* it = *(mDiscoryDeviceList.begin());
             std::advance(it, mStep);
-            mDevice = *it;
+            mDevice = it;
             mDevice->name;
             mWifiDriver->onAddDiscoryDeviceInfo.emit(mDevice);
             mDiscoveringTime = milliseconds(0);
@@ -126,7 +136,7 @@ void WifiDiscovery::stopDiscovery()
     mDiscoveryFlag = false;
 }
 
-void WifiDiscovery::requestConnectDevice(service::WifiDiscoveryDeviceInfo* device, const std::string& password)
+void WifiDiscovery::requestConnectDevice(service::WifiDeviceInfo* device, const std::string& password)
 {
     if (mConnectDeviceFlag) {
         mStep = 0;
@@ -138,21 +148,11 @@ void WifiDiscovery::requestConnectDevice(service::WifiDiscoveryDeviceInfo* devic
     mConnectDeviceFlag = true;
 }
 
-void WifiDiscovery::setWaitPairDevice(service::WifiDiscoveryDeviceInfo *device)
+void WifiDiscovery::setWaitPairDevice(service::WifiDeviceInfo *device)
 {
     if (device == nullptr)
         return;
     mDeviceWaitPair = device;
-}
-
-service::WifiDiscoveryDeviceInfo *WifiDiscovery::getDiscoveryDeviceInfo(const std::string &address)
-{
-    for (auto it : mDiscoryDeviceList) {
-        if (it->address == address) {
-            return it;
-        }
-    }
-    return nullptr;
 }
 
 }
