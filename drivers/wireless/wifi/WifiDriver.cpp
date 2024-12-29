@@ -56,15 +56,15 @@ void WifiDriver::writeBuffer()
 {
     mRepo[common::ParameterIndex::Wifi_Status] = mWifiStatus;
 
-    // utils::VariantList wifiList;
-    // std::unordered_map<std::string, utils::Variant> item;
-    // item["password"] = mConnectedDevice->password;
-    // item["autoconnect"] = mConnectedDevice->autoconnectstatus;
-    // item["name"] = mConnectedDevice->name;
-    // item["address"] = mConnectedDevice->address;
-    // item["privateaddress"] = mConnectedDevice->privateAddr;
-    // item["wifisignal"] = static_cast<int>(mConnectedDevice->speedmode);
-    // wifiList.push(item);
+    utils::VariantList wifiList;
+    std::unordered_map<std::string, utils::Variant> item;
+    item["password"] = mConnectedDevice->password;
+    item["autoconnect"] = mConnectedDevice->autoconnectstatus;
+    item["name"] = mConnectedDevice->name;
+    item["address"] = mConnectedDevice->address;
+    item["privateaddress"] = mConnectedDevice->privateAddr;
+    item["wifisignal"] = static_cast<int>(mConnectedDevice->speedmode);
+    wifiList.push(item);
 
     mRepo.push();
 }
