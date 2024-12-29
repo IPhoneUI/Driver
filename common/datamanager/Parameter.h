@@ -6,6 +6,7 @@
 #include <utils/filesystem.h>
 #include <utils/Variant.h>
 #include <utils/VariantList.h>
+#include <utils/VariantObj.h>
 
 namespace common {
 
@@ -16,6 +17,7 @@ public:
     {
         Unknown,
         VariantType,
+        VariantObjType,
         VariantListType
     };
 
@@ -40,11 +42,15 @@ public:
 
     Parameter &operator=(const utils::VariantList &variantList);
 
+    Parameter &operator=(const utils::VariantObj &variantObj);
 
     template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type = true>
     operator T() const;
 
     template <typename T, typename std::enable_if<std::is_same<T, utils::VariantList>::value, bool>::type = true>
+    operator T() const;
+
+    template <typename T, typename std::enable_if<std::is_same<T, utils::VariantObj>::value, bool>::type = true>
     operator T() const;
 
     template <typename T, typename std::enable_if<std::is_same<T, bool>::value, bool>::type = true>
@@ -68,6 +74,7 @@ private:
     Type mType{Unknown};
     utils::Variant mVariant;
     utils::VariantList mVariantList;
+    utils::VariantObj mVariantObj;
 };
 
 template <typename T, typename std::enable_if<std::is_same<T, utils::Variant>::value, bool>::type>
@@ -83,6 +90,14 @@ inline Parameter::operator T() const
 {
     if (mType == VariantListType)
         return mVariantList;
+    throw std::bad_cast();
+}
+
+template <typename T, typename std::enable_if<std::is_same<T, utils::VariantObj>::value, bool>::type>
+inline Parameter::operator T() const
+{
+    if (mType == VariantObjType)
+        return mVariantObj;
     throw std::bad_cast();
 }
 

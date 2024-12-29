@@ -19,9 +19,8 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::readData()
 {
-    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Data];
-    int count = 0;
-    for (int i = 1; i < 6; ++i) 
+    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Discovery];
+    for (int i = 1; i < dataList.size(); ++i) 
     {   
         auto item = *std::next(dataList.begin(), i);
         service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
@@ -33,7 +32,6 @@ void WifiDiscovery::readData()
             static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
         );
         mDiscoryDeviceList.push_back(device);
-        ++count;
     }
 }
 

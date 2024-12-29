@@ -12,12 +12,14 @@ WifiDriver::WifiDriver()
     mWifiPairing = new WifiPairing(this);
     mWifiDiscovery = new WifiDiscovery(this);
 
-    mRepo.addParam("data", common::ParameterIndex::Wifi_Data);
+    mRepo.addParam("connected", common::ParameterIndex::Wifi_Connected);
+    mRepo.addParam("discovery", common::ParameterIndex::Wifi_Discovery);
+    mRepo.addParam("paired", common::ParameterIndex::Wifi_Paired);
     mRepo.addParam("wifistatus", common::ParameterIndex::Wifi_Status);
 
     Connection::connect(mRepo.onRepoStateChanged, std::bind(&WifiDriver::onRepoStateChanged, this, std::placeholders::_1));
 
-    mRepo.pull();val:
+    mRepo.pull();
 
     common::DriverExecution::instance().addDriver("WifiDriver", this);
 }
@@ -56,16 +58,6 @@ void WifiDriver::writeBuffer()
 {
     mRepo[common::ParameterIndex::Wifi_Status] = mWifiStatus;
 
-    utils::VariantList wifiList;
-    std::unordered_map<std::string, utils::Variant> item;
-    item["password"] = mConnectedDevice->password;
-    item["autoconnect"] = mConnectedDevice->autoconnectstatus;
-    item["name"] = mConnectedDevice->name;
-    item["address"] = mConnectedDevice->address;
-    item["privateaddress"] = mConnectedDevice->privateAddr;
-    item["wifisignal"] = static_cast<int>(mConnectedDevice->speedmode);
-    wifiList.push(item);
-
     mRepo.push();
 }
 
@@ -76,9 +68,9 @@ void WifiDriver::onRepoStateChanged(common::Repository::State state)
         mWifiPairing->readData();
         mWifiDiscovery->readData();
     
-        utils::VariantList dataList = mRepo[common::ParameterIndex::Wifi_Data];
+        utils::VariantObj dataList = mRepo[common::ParameterIndex::Wifi_Connected];
         {
-            std::unordered_map<std::string, utils::Variant> item = (*dataList.begin());
+            std::unordered_map<std::string, utils::Variant> item = dataList;
             mConnectedDevice->password = item["password"];
             mConnectedDevice->autoconnectstatus = item["autoconnect"];
             mConnectedDevice->name = item["name"];
