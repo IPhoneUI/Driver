@@ -13,9 +13,9 @@ WifiPairing::WifiPairing(WifiDriver* driver)
 void WifiPairing::readData()
 {    
     utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Paired];
-    for (int i = 0; i < dataList.size(); ++i) 
+    for (const auto &deviceItem : dataList) 
     {   
-        auto item = *std::next(dataList.begin(), i);
+        std::unordered_map<std::string, utils::Variant> item = deviceItem;
         service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
             item["password"], 
             item["autoconnect"], 
@@ -24,8 +24,28 @@ void WifiPairing::readData()
             item["privateaddress"], 
             static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
         );
-        mPairedDeviceList.push_back(device);
+        mPairedDevices.push_back(device);
     }
+}
+
+void WifiPairing::writeBuffer()
+{
+    utils::VariantList pairedList;
+    for (const auto& device : mPairedDevices)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        service::WifiDeviceInfo* data = device;
+        item["password"] = data->password;
+        item["autoconnect"] = data->autoconnectstatus;
+        item["name"] = data->name;
+        item["address"] = data->address;
+        item["privateaddress"] = data->privateAddr;
+        item["wifisignal"] = static_cast<int>(data->speedmode);
+
+        pairedList.push(item);
+    }
+
+    mWifiDriver->mRepo[common::ParameterIndex::Wifi_Paired] = pairedList;
 }
 
 void WifiPairing::execute(milliseconds delta)
@@ -91,7 +111,7 @@ void WifiPairing::execute(milliseconds delta)
 
 std::list<service::WifiDeviceInfo*> WifiPairing::getPairedDeviceList()
 {
-    return mPairedDeviceList;
+    return mPairedDevices;
 }
 
 void WifiPairing::requestConnectDevice(const std::string& addr)

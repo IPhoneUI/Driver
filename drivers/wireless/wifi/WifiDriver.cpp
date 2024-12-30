@@ -57,6 +57,19 @@ void WifiDriver::connectDriver()
 void WifiDriver::writeBuffer()
 {
     mRepo[common::ParameterIndex::Wifi_Status] = mWifiStatus;
+    
+    std::unordered_map<std::string, utils::Variant> item;
+    item["password"] = mConnectedDevice->password ;
+    item["autoconnect"] = mConnectedDevice->autoconnectstatus;
+    item["name"] = mConnectedDevice->name;
+    item["address"] = mConnectedDevice->address;
+    item["privateaddress"] = mConnectedDevice->privateAddr;
+    item["wifisignal"] = static_cast<int>(mConnectedDevice->speedmode);
+    utils::VariantObj obj = item;
+    mRepo[common::ParameterIndex::Wifi_Connected] = obj;
+
+    mWifiPairing->writeBuffer();
+    mWifiDiscovery->writeBuffer();
 
     mRepo.push();
 }

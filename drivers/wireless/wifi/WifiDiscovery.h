@@ -12,17 +12,19 @@ public:
     WifiDiscovery(WifiDriver *driver);
 
     void execute(milliseconds delta);
-    void readData();
     void startDiscovery();
     void stopDiscovery();
     void requestConnectDevice(const std::string&);
+
+    void readData();
+    void writeBuffer();
 
 private:
     void handleDiscovering(milliseconds delta);
     void handleConnectDevice(milliseconds delta);
 
     WifiDriver* mWifiDriver;
-    std::list<service::WifiDeviceInfo*> mDiscoryDeviceList;
+    std::list<service::WifiDeviceInfo*> mDiscoveryDevices;
     service::WifiDeviceInfo* mDevice;
     bool mDiscoveryFlag {false};
     bool mConnectDeviceFlag {false};

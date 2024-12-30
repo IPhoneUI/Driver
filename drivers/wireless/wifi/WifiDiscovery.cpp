@@ -20,9 +20,9 @@ void WifiDiscovery::execute(milliseconds delta)
 void WifiDiscovery::readData()
 {
     utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Discovery];
-    for (int i = 1; i < dataList.size(); ++i) 
+    for (const auto &deviceItem : dataList) 
     {   
-        auto item = *std::next(dataList.begin(), i);
+        std::unordered_map<std::string, utils::Variant> item = deviceItem;
         service::WifiDeviceInfo* device = new service::WifiDeviceInfo(
             item["password"], 
             item["autoconnect"], 
@@ -31,8 +31,28 @@ void WifiDiscovery::readData()
             item["privateaddress"], 
             static_cast<service::WifiSpeedMode>(int(item["wifisignal"]))
         );
-        mDiscoryDeviceList.push_back(device);
+        mDiscoveryDevices.push_back(device);
     }
+}
+
+void WifiDiscovery::writeBuffer()
+{
+    utils::VariantList discoveryList;
+    for (const auto& device : mDiscoveryDevices)
+    {
+        std::unordered_map<std::string, utils::Variant> item;
+        service::WifiDeviceInfo* data = device;
+        item["password"] = data->password;
+        item["autoconnect"] = data->autoconnectstatus;
+        item["name"] = data->name;
+        item["address"] = data->address;
+        item["privateaddress"] = data->privateAddr;
+        item["wifisignal"] = static_cast<int>(data->speedmode);
+
+        discoveryList.push(item);
+    }
+
+    mWifiDriver->mRepo[common::ParameterIndex::Wifi_Discovery] = discoveryList;
 }
 
 void WifiDiscovery::handleConnectDevice(milliseconds delta)
@@ -105,7 +125,7 @@ void WifiDiscovery::handleDiscovering(milliseconds delta)
     if (mDiscoveryFlag)
     {
         mDiscoveringTime += delta;
-        if (mStep == mDiscoryDeviceList.size())
+        if (mStep == mDiscoveryDevices.size())
         {
             mDiscoveringTime = milliseconds(0);
             mDiscoveryFlag = false;
@@ -113,7 +133,7 @@ void WifiDiscovery::handleDiscovering(milliseconds delta)
         }
         else if (mDiscoveringTime > milliseconds(1000))
         {
-            auto it = mDiscoryDeviceList.begin();
+            auto it = mDiscoveryDevices.begin();
             std::advance(it, mStep);
             mDevice = *it;
             mDevice->name;

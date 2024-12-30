@@ -16,6 +16,7 @@ public:
     void requestConnectDevice(const std::string& addr);
 
     void readData();
+    void writeBuffer();
 
 private:
     WifiDriver* mWifiDriver;
@@ -24,7 +25,7 @@ private:
     int mStep {0};
     milliseconds mTime {milliseconds(0)};
     service::WifiAuthenDeviceStatus mAuthenStatus {service::WifiAuthenDeviceStatus::Fail};
-    std::list<service::WifiDeviceInfo*> mPairedDeviceList;
+    std::list<service::WifiDeviceInfo*> mPairedDevices;
     service::WifiDeviceInfo* mPairingDevice;
 };
 
