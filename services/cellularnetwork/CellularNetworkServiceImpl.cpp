@@ -67,7 +67,7 @@ void CellularNetworkServiceImpl::requestSync()
         bool allowAccess = mSIMDriver->getAllowAccess();
         mDeploy->responseChangeAllowAccess(allowAccess);
 
-        bool cellularSts = mSIMDriver->getAllowAccess();
+        bool cellularSts = mSIMDriver->getCellularStatus();
         mDeploy->responseChangeCellularStatus(cellularSts);
 
         bool maxCompa = mSIMDriver->getMaxCompatibitily();

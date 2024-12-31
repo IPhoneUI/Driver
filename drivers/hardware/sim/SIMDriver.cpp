@@ -197,6 +197,10 @@ void SIMDriver::changeCellularStatus(bool status)
         return;
     
     mCellularSts = status;
+    if (!mCellularSts)
+    {
+        changeAllowAccess(false);
+    }
     onCellularStatusUpdated.emit(mCellularSts);
 }
 
