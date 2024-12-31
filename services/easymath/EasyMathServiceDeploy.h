@@ -21,8 +21,9 @@ public:
     void responseServiceReady(const std::string& clientName);
     void responseStartGame();
     void responseExpressionChanged(const service::ExpressionInfo& info);
-    void responseGameOver(int score);
-    void responseTimeIntervalUpdated(size_t time);
+    void responseGameOver();
+    void responseScoreChanged(size_t time);
+    void responseHighestScoreUpdated(int highestScore);
 
 private:
     explicit EasyMathServiceDeploy();

@@ -49,9 +49,8 @@ void EasyMathServiceImpl::initialize()
     Connection::connect(mEasyMathServer->onStartGame, std::bind(&EasyMathServiceImpl::onStartGame, this));
     Connection::connect(mEasyMathServer->onExpressionChanged, std::bind(&EasyMathServiceImpl::onExpressionChanged, this, std::placeholders::_1));
     Connection::connect(mEasyMathServer->onHighestScoreUpdated, std::bind(&EasyMathServiceImpl::onHighestScoreChanged, this));
-    Connection::connect(mEasyMathServer->onRangeNumberUpdated, std::bind(&EasyMathServiceImpl::onRangeNumberChanged, this));
-    Connection::connect(mEasyMathServer->onGameOver, std::bind(&EasyMathServiceImpl::onGameOver, this, std::placeholders::_1));
-    Connection::connect(mEasyMathServer->onTimeIntervalChanged, std::bind(&EasyMathServiceImpl::onTimeIntervalChanged, this, std::placeholders::_1));
+    Connection::connect(mEasyMathServer->onGameOver, std::bind(&EasyMathServiceImpl::onGameOver, this));
+    Connection::connect(mEasyMathServer->onScoreChanged, std::bind(&EasyMathServiceImpl::onScoreChanged, this, std::placeholders::_1));
 }
 
 void EasyMathServiceImpl::finialize()
@@ -71,22 +70,18 @@ void EasyMathServiceImpl::onExpressionChanged(const service::ExpressionInfo& inf
 
 void EasyMathServiceImpl::onHighestScoreChanged()
 {
-    // mScore = mEasyMathServer->getHighestScore();
+    int highestScore = mEasyMathServer->highestScore();
+    mDeploy->responseHighestScoreUpdated(highestScore);
 }
 
-void EasyMathServiceImpl::onRangeNumberChanged()
+void EasyMathServiceImpl::onScoreChanged(int score)
 {
-    // mRangeNum = mEasyMathServer->getRangeNumber();
+    mDeploy->responseScoreChanged(score);
 }
 
-void EasyMathServiceImpl::onTimeIntervalChanged(size_t time)
+void EasyMathServiceImpl::onGameOver()
 {
-    mDeploy->responseTimeIntervalUpdated(time);
-}
-
-void EasyMathServiceImpl::onGameOver(int score)
-{
-    mDeploy->responseGameOver(score);
+    mDeploy->responseGameOver();
 }
 
 }

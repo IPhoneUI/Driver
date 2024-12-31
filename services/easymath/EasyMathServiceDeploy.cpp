@@ -51,22 +51,31 @@ void EasyMathServiceDeploy::responseExpressionChanged(const ExpressionInfo &info
     });
 }
 
-void EasyMathServiceDeploy::responseTimeIntervalUpdated(size_t interval)
+void EasyMathServiceDeploy::responseScoreChanged(size_t score)
 {
-    mClientManager.deploy([this, interval](std::string mqName) {
+    mClientManager.deploy([this, score](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_EasyMath_TimeIntervalUpdated);
-        mMqSender.addParam(static_cast<int>(interval));
+        mMqSender.startMsq(base::msq::Msq_EasyMath_ScoreUpdated);
+        mMqSender.addParam(static_cast<int>(score));
         mMqSender.sendMsq(mqName);
     });
 }
 
-void EasyMathServiceDeploy::responseGameOver(int score)
+void EasyMathServiceDeploy::responseGameOver()
 {
-    mClientManager.deploy([this, score](std::string mqName) {
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_EasyMath_RespGameOver);
-        mMqSender.addParam(score);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void EasyMathServiceDeploy::responseHighestScoreUpdated(int highestScore)
+{
+    mClientManager.deploy([this, highestScore](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_EasyMath_HighestScoreUpdated);
+        mMqSender.addParam(highestScore);
         mMqSender.sendMsq(mqName);
     });
 }

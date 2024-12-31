@@ -24,10 +24,9 @@ public:
     void registerClient(const std::string& clientName);
 
     void onHighestScoreChanged();
-    void onRangeNumberChanged();
     void onStartGame();
-    void onGameOver(int score);
-    void onTimeIntervalChanged(size_t time);
+    void onGameOver();
+    void onScoreChanged(int score);
     void onExpressionChanged(const service::ExpressionInfo& info);
 
 private:

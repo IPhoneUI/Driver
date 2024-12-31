@@ -20,12 +20,6 @@ public:
     void writeBuffer() override;
     void execute(milliseconds delta) override;
 
-    void setRangeNumber(const int& range);
-    int getRangeNumber() const;
-
-    void setHighestScore(const int& score);
-    int getHighestScore() const;
-
     void startGame();
     void generateExpression();
     int getRandomNumber(const int& min, const int& max);
@@ -35,15 +29,22 @@ public:
     void nextLevel();
     void submitCommand(int command);
 
+    int highestScore() const
+    {
+        return mHighestCore;
+    }
+
+    void setScore(int value);
+
     Signal<> onHighestScoreUpdated;
-    Signal<> onRangeNumberUpdated;
     Signal<> onStartGame;
-    Signal<int> onGameOver;
-    Signal<size_t> onTimeIntervalChanged;
+    Signal<> onGameOver;
+    Signal<int> onScoreChanged;
     Signal<const service::ExpressionInfo&> onExpressionChanged;
 
 private:
     explicit EasyMathServer();
+    void onRepoStateChanged(common::Repository::State state);
 
     int mHighestCore {0};
     int mRangeNumber {0};
@@ -60,6 +61,8 @@ private:
     int mLevel {0};
     int mScore {0};
     int mRangeNum {10};
+
+    common::Repository mRepo;
 };
 
 }

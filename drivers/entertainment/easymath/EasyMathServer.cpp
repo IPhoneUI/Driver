@@ -8,6 +8,12 @@ static EasyMathServer* gInstance = 0;
 EasyMathServer::EasyMathServer()
     : mMonitors(new MonitorProgress(8))
 {
+    mRepo.setName("easymath");
+    mRepo.addParam("highest_score", common::ParameterIndex::EMath_HighestScore);
+
+    Connection::connect(mRepo.onRepoStateChanged, std::bind(&EasyMathServer::onRepoStateChanged, this, std::placeholders::_1));
+    mRepo.pull();
+
     mMonitors->setCommander(std::bind(&EasyMathServer::submitCommand, this, std::placeholders::_1));
     common::DriverExecution::instance().addDriver("EasyMathServer", this);
 }
@@ -38,6 +44,17 @@ void EasyMathServer::connectDriver()
 
 void EasyMathServer::writeBuffer()
 {
+    mRepo[common::ParameterIndex::EMath_HighestScore] = mHighestCore;
+
+    mRepo.push();
+}
+
+void EasyMathServer::onRepoStateChanged(common::Repository::State state)
+{
+    if (state == common::Repository::PullCompleted)
+    {
+        mHighestCore = mRepo[common::ParameterIndex::EMath_HighestScore];
+    }
 }
 
 void EasyMathServer::execute(milliseconds delta)
@@ -45,38 +62,12 @@ void EasyMathServer::execute(milliseconds delta)
     mMonitors->execute(delta);
 }
 
-void EasyMathServer::setRangeNumber(const int &range)
-{
-    if (mRangeNumber != range) {
-        mRangeNumber = range;
-    }
-    onRangeNumberUpdated.emit();
-}
-
-int EasyMathServer::getRangeNumber() const
-{
-    return mRangeNumber;
-}
-
-void EasyMathServer::setHighestScore(const int &score)
-{
-    if (mHighestCore != score) {
-        mHighestCore = score;
-    }
-    onHighestScoreUpdated.emit();
-}
-
-int EasyMathServer::getHighestScore() const
-{
-    return mHighestCore;
-}
-
 void EasyMathServer::startGame()
 {
     if (mIsGameRunning == true)
         return;
 
-    onTimeIntervalChanged.emit(8000);
+    setScore(0);
     mIsGameRunning = true;
     mLevel = 1;
     onStartGame.emit();
@@ -151,15 +142,23 @@ void EasyMathServer::resetGame()
     mRandomResult = 0;
     mLevel = 0;
     mRangeNum = 10;
-    mScore = 0;
 }
 
 void EasyMathServer::nextLevel()
 {
     mLevel++;
     mRangeNum += 5;
-    mScore += 3;
+    setScore(mScore + 3);
     generateExpression();
+}
+
+void EasyMathServer::setScore(int value)
+{
+    if (mScore == value)
+        return;
+    
+    mScore = value;
+    onScoreChanged.emit(value);
 }
 
 void EasyMathServer::submitCommand(int command)
@@ -168,7 +167,12 @@ void EasyMathServer::submitCommand(int command)
     switch (event)
     {
     case MonitorProgress::GameEvent::GameOver:
-        onGameOver.emit(mScore);
+        onGameOver.emit();
+        if (mScore > mHighestCore)
+        {
+            mHighestCore = mScore;
+        }
+        onHighestScoreUpdated.emit();
         mMonitors->stop();
         resetGame();
         break;
