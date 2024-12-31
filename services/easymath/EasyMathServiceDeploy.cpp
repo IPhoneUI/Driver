@@ -29,12 +29,11 @@ void EasyMathServiceDeploy::responseServiceReady(const std::string &clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void EasyMathServiceDeploy::responseStartGame(const bool &status)
+void EasyMathServiceDeploy::responseStartGame()
 {
-    mClientManager.deploy([this, status](std::string mqName) {
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_EasyMath_RespStartGame);
-        mMqSender.addParam(status);
         mMqSender.sendMsq(mqName);
     });
 }
@@ -52,22 +51,22 @@ void EasyMathServiceDeploy::responseExpressionChanged(const ExpressionInfo &info
     });
 }
 
-void EasyMathServiceDeploy::responseScore(const int& score)
+void EasyMathServiceDeploy::responseTimeIntervalUpdated(size_t interval)
+{
+    mClientManager.deploy([this, interval](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_EasyMath_TimeIntervalUpdated);
+        mMqSender.addParam(static_cast<int>(interval));
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void EasyMathServiceDeploy::responseGameOver(int score)
 {
     mClientManager.deploy([this, score](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_EasyMath_RespGameOver);
         mMqSender.addParam(score);
-        mMqSender.sendMsq(mqName);
-    });
-}
-
-void EasyMathServiceDeploy::responseTimeOut(const int &interval)
-{
-    mClientManager.deploy([this, interval](std::string mqName) {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_EasyMath_TimeOut);
-        mMqSender.addParam(interval);
         mMqSender.sendMsq(mqName);
     });
 }
