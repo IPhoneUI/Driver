@@ -23,6 +23,7 @@ public:
     void responseCheckDevicePassword(bool result);
     void responseConnectedDeviceUpdated();
     void responsePairedListUpdated();
+    void responseRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device);
 
 private:
     explicit WifiServiceDeploy();

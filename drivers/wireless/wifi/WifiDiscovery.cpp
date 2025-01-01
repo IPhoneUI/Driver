@@ -98,7 +98,7 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         {
             LOG_INFO("THAIVD --- handleConnectDevice 3 authen: %d", static_cast<int>(mAuthenStatus));
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::VerifyPassword) {
-                int result = mPairingDevice->password.compare(0, mPassword.size() - 1, mPassword);
+                int result = mPassword.compare(0, mPassword.size() - 1, mPairingDevice->password);
                 LOG_INFO("THAIVD --- handleConnectDevice 4 authen: %d - password: %s -- oldpassword: %s", static_cast<int>(mAuthenStatus), mPassword.c_str(), mPairingDevice->password.c_str());
                 LOG_INFO("THAIVD --- handleConnectDevice 4 size: %d - oldsize: %d", mPairingDevice->password.size(), mPassword.size());
                 LOG_INFO("THAIVD --- handleConnectDevice result: %d", result);
@@ -125,6 +125,7 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         if (mStep == 5 && mTime > milliseconds(2000)) {
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::AuthenSuccess) {
                 LOG_INFO("THAIVD --- handleConnectDevice 6 authen: %d", static_cast<int>(mAuthenStatus));
+                removeDiscoveryDevice(mPairingDevice->address);
                 mWifiDriver->mConnectedDevice = mPairingDevice;
                 mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
 
@@ -205,7 +206,9 @@ void WifiDiscovery::removeDiscoveryDevice(const std::string& addr)
 {
     for (std::list<service::WifiDeviceInfo*>::iterator it = mDiscoveryDevices.begin(); it != mDiscoveryDevices.end(); it++) {
         if ((*it)->address == addr) {
+            mWifiDriver->onRemoveDiscoryDeviceInfo.emit((*it));
             mDiscoveryDevices.erase(it);
+            break;
         }
     }
 }

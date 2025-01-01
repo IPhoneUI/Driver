@@ -34,6 +34,10 @@ public:
         return mWifiPairing->getPairedDeviceList();
     }
 
+    std::list<service::WifiDeviceInfo*> getDiscoveryDeviceList() const {
+        return mWifiDiscovery->getWifiDiscoveryList();
+    }
+
     service::WifiDeviceInfo* getConnectedDevice() const
     {
         return mConnectedDevice;

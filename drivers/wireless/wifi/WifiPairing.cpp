@@ -83,8 +83,10 @@ void WifiPairing::execute(milliseconds delta)
         }
         if (mStep == 3 && mTime > milliseconds(100))
         {
+            appendNewPairedDevice(mWifiDriver->mConnectedDevice);
             mWifiDriver->mConnectedDevice = mPairingDevice;
             mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
+
             mTime = milliseconds(0);
             mStep = 0;
             mPairingFlag = false;
@@ -97,8 +99,9 @@ void WifiPairing::execute(milliseconds delta)
 void WifiPairing::removePairedDevice(const std::string &addr)
 {
     for (std::list<service::WifiDeviceInfo*>::iterator it = mPairedDevices.begin(); it != mPairedDevices.end(); it++) {
-        if ((*it)->address == addr) {
+        if ((*it) != nullptr && (*it)->address == addr) {
             mPairedDevices.erase(it);
+            break;
         }
     }
     mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
@@ -129,6 +132,7 @@ void WifiPairing::appendNewPairedDevice(service::WifiDeviceInfo* newDevice) {
     if (newDevice != nullptr) {
         mPairedDevices.emplace_back(newDevice);
     }
+    mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
 }
 
 }

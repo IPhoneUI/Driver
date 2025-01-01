@@ -60,6 +60,8 @@ void WifiServiceImpl::initialize()
     Connection::connect(mWifiDriver->onPairedDeviceListUpdated, std::bind(&WifiServiceImpl::onPairedDeviceListUpdated, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onConnectedDeviceUpdated, std::bind(&WifiServiceImpl::onConnectedDeviceUpdated, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onAddDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onAddDiscoryDeviceInfo, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onRemoveDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onRemoveDiscoryDeviceInfo, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onCheckPasswordStateUpdated, std::bind(&WifiServiceImpl::onCheckPasswordStateUpdated, this, std::placeholders::_1));
 
     mWifiDriver->connectDriver();
 }
@@ -111,6 +113,19 @@ void WifiServiceImpl::onConnectedDeviceUpdated(service::WifiDeviceInfo* device)
 void WifiServiceImpl::onAddDiscoryDeviceInfo(service::WifiDeviceInfo* device)
 {
     mDeploy->responseDiscoveryDeviceUpdated(device);
+}
+
+void WifiServiceImpl::onCheckPasswordStateUpdated(bool status)
+{
+    mDeploy->responseCheckDevicePassword(status);
+}
+
+void WifiServiceImpl::onRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device)
+{
+    bool result = mProvider->setDiscoveryDeviceList(mWifiDriver->getDiscoveryDeviceList());
+    if (result) {
+        mDeploy->responseRemoveDiscoryDeviceInfo(device);
+    }
 }
 
 }

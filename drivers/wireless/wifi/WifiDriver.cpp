@@ -120,18 +120,22 @@ void WifiDriver::requestConnectDevice(const std::string& address)
     std::list<service::WifiDeviceInfo*> pairedList = mWifiPairing->getPairedDeviceList();
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
-        if ((*it)->address == connectingAddr) {
-            mWifiPairing->requestConnectDevice(*it);
-            return;
+        if ((*it) != nullptr) {
+            if ((*it)->address == connectingAddr) {
+                mWifiPairing->requestConnectDevice(*it);
+                return;
+            }
         }
     }
 
     std::list<service::WifiDeviceInfo*> discoveryList = mWifiDiscovery->getWifiDiscoveryList();
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = discoveryList.begin(); it != discoveryList.end(); it++) {
-        if ((*it)->address == connectingAddr) {
-            mWifiDiscovery->requestConnectDevice(*it);
-            return;
+        if ((*it) != nullptr) {
+            if ((*it)->address == connectingAddr) {
+                mWifiDiscovery->requestConnectDevice(*it);
+                return;
+            }
         }
     }
 }

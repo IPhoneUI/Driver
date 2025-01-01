@@ -26,8 +26,10 @@ public:
     void onWifiDriverReady();
     void onWifiStatusUpdated(bool);
     void onPairedDeviceListUpdated(const std::list<service::WifiDeviceInfo*>&);
+    void onRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device);
     void onConnectedDeviceUpdated(service::WifiDeviceInfo* device);
     void onAddDiscoryDeviceInfo(service::WifiDeviceInfo* device);
+    void onCheckPasswordStateUpdated(bool);
 
 private:
     WifiServiceDeploy* mDeploy;
