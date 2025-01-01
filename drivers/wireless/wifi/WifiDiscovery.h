@@ -15,6 +15,11 @@ public:
     void startDiscovery();
     void stopDiscovery();
     void requestConnectDevice(const std::string&);
+    void requestCheckPassword(const std::string&, const std::string&);
+
+    std::list<service::WifiDeviceInfo*> getWifiDiscoveryList() const {
+        return mDiscoveryDevices;
+    }
 
     void readData();
     void writeBuffer();
@@ -26,9 +31,11 @@ private:
     WifiDriver* mWifiDriver;
     std::list<service::WifiDeviceInfo*> mDiscoveryDevices;
     service::WifiDeviceInfo* mDevice;
+    service::WifiDeviceInfo* mPairingDevice;
     bool mDiscoveryFlag {false};
     bool mConnectDeviceFlag {false};
     std::string mDiscoryDeviceAddr {""};
+    std::string mPassword {""};
     int mStep {0};
     milliseconds mTime {milliseconds(0)};
     milliseconds mDiscoveringTime {milliseconds(0)};

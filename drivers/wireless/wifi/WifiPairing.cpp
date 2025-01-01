@@ -12,7 +12,7 @@ WifiPairing::WifiPairing(WifiDriver* driver)
 
 void WifiPairing::readData()
 {    
-    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Paired];
+    utils::VariantList dataList = mWifiDriver->mRepository[common::ParameterIndex::Wifi_Paired];
     for (const auto &deviceItem : dataList) 
     {   
         std::unordered_map<std::string, utils::Variant> item = deviceItem;
@@ -45,7 +45,7 @@ void WifiPairing::writeBuffer()
         pairedList.push(item);
     }
 
-    mWifiDriver->mRepo[common::ParameterIndex::Wifi_Paired] = pairedList;
+    mWifiDriver->mRepository[common::ParameterIndex::Wifi_Paired] = pairedList;
 }
 
 void WifiPairing::execute(milliseconds delta)
@@ -55,57 +55,38 @@ void WifiPairing::execute(milliseconds delta)
         mTime += delta;
         if (mStep == 0)
         {
+            mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
             mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
-            // mEvent.push(WifiEvent::AuthenStatus);
             mTime = milliseconds(0);
             mStep++;
         }
         if (mStep == 1 && mTime > milliseconds(2000))
         {
-            /** CASE: Authen Fail 
-             *  mAuthenStatus = WifiAuthenDeviceStatus::Fail;
-                mEvent.push(WifiEvent::AuthenStatus);
-                mTime = milliseconds(0);
-                mStep = 0;
-                mPairingFlag = false;
-             **/ 
-            
-
             mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
-            // auto pairList = base::shm::WifiProvider::instance()->getPairedDeviceList();
-            // for (const auto& device : pairList)
-            // {
-            //     if (std::strcmp(device.password, mPairingAddr.c_str()))
-            //     {
-            //         // Todo
-            //     }
-            // }
-            // mEvent.push(WifiEvent::AuthenStatus);
             mTime = milliseconds(0);
             mStep++;
         }
         if (mStep == 2 && mTime > milliseconds(1000))
         {
-            // if (peripherals::WifiDriver::instance().removePairedDevice(mPairingAddr))
-            // {
-            //     mEvent.push(WifiEvent::PairedDeviceChange);
-            // }
             mTime = milliseconds(0);
             mStep++;
         }
         if (mStep == 3 && mTime > milliseconds(100))
         {
-            // if (peripherals::WifiDriver::instance().addPairedDevice(peripherals::WifiDriver::instance().getConnectedDevice()))
-            // {
-            //     mEvent.push(WifiEvent::PairedDeviceChange);
-            // }
-            // peripherals::WifiDriver::instance().setConnectedDevice(mPairingDevice);
-            // mEvent.push(WifiEvent::UpdateConnectedDevice);
+            mWifiDriver->mConnectedDevice = mPairingDevice;
+            mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
+            mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
             mTime = milliseconds(0);
             mStep = 0;
             mPairingFlag = false;
         }
         
+    }
+}
+
+void WifiPairing::setPairingDevice(service::WifiDeviceInfo* device) {
+    if (device != nullptr) {
+        mPairingDevice = device;
     }
 }
 
@@ -123,6 +104,12 @@ void WifiPairing::requestConnectDevice(const std::string& addr)
 
     mPairingFlag = true;
     mPairingAddr = addr;
+}
+
+void WifiPairing::appendNewPairedDevice(service::WifiDeviceInfo* newDevice) {
+    if (newDevice != nullptr) {
+        mPairedDevices.emplace_back(newDevice);
+    }
 }
 
 }

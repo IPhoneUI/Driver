@@ -73,11 +73,11 @@ void WifiServiceImpl::requestSync()
     bool wifiStatus = mWifiDriver->getWifiStatus();
     mDeploy->responseChangeWifiStatus(wifiStatus);
 
-    auto pairedList = mWifiDriver->getPairedDeviceList();
-    onPairedDeviceListUpdated(pairedList);
-
     auto connectedDevice = mWifiDriver->getConnectedDevice();
     onConnectedDeviceUpdated(connectedDevice);
+
+    auto pairedList = mWifiDriver->getPairedDeviceList();
+    onPairedDeviceListUpdated(pairedList);
 }
 
 void WifiServiceImpl::onWifiDriverReady()

@@ -19,7 +19,7 @@ void WifiDiscovery::execute(milliseconds delta)
 
 void WifiDiscovery::readData()
 {
-    utils::VariantList dataList = mWifiDriver->mRepo[common::ParameterIndex::Wifi_Discovery];
+    utils::VariantList dataList = mWifiDriver->mRepository[common::ParameterIndex::Wifi_Discovery];
     for (const auto &deviceItem : dataList) 
     {   
         std::unordered_map<std::string, utils::Variant> item = deviceItem;
@@ -52,7 +52,7 @@ void WifiDiscovery::writeBuffer()
         discoveryList.push(item);
     }
 
-    mWifiDriver->mRepo[common::ParameterIndex::Wifi_Discovery] = discoveryList;
+    mWifiDriver->mRepository[common::ParameterIndex::Wifi_Discovery] = discoveryList;
 }
 
 void WifiDiscovery::handleConnectDevice(milliseconds delta)
@@ -62,54 +62,78 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         mTime += delta;
         if (mStep == 0)
         {
+            LOG_INFO("THAIVD --- handleConnectDevice 1");
             mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
-            //mEvent.push(WifiEvent::AuthenStatus);
             mTime = milliseconds(0);
             mStep++;
         }
-        if (mStep == 1 && mTime > milliseconds(2000))
+        if (mStep == 1 && mTime > milliseconds(200))
         {
-            /** CASE: Authen Fail 
-             *  mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
-                //mEvent.push(WifiEvent::AuthenStatus);
-                mTime = milliseconds(0);
-                mStep = 0;
-                mConnectDeviceFlag = false;
-             **/
-
             mAuthenStatus = service::WifiAuthenDeviceStatus::CheckedSSID;
-            //mEvent.push(WifiEvent::AuthenStatus);
             mTime = milliseconds(0);
             mStep++;
         }
-        if (mStep == 2 && mTime > milliseconds(500))
+        if (mStep == 2 && mTime > milliseconds(300))
         {
             mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
-            //mEvent.push(WifiEvent::AuthenStatus);
             mTime = milliseconds(0);
             mStep++;
         }
-        if (mStep == 3 && mTime > milliseconds(2000))
+        if (mStep == 3 && mTime > milliseconds(500)) 
         {
-            mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
-            //mEvent.push(WifiEvent::AuthenStatus);
+            for (std::list<service::WifiDeviceInfo*>::iterator it = mDiscoveryDevices.begin(); it != mDiscoveryDevices.end(); it++) {
+                if (mDiscoryDeviceAddr == (*it)->address) {
+                    mPairingDevice = (*it);
+                    mAuthenStatus = service::WifiAuthenDeviceStatus::VerifyPassword;
+                    mConnectDeviceFlag = false;
+                    break;
+                } else {
+                    mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
+                }
+            }
+            LOG_INFO("THAIVD --- handleConnectDevice 2 authen: %d", static_cast<int>(mAuthenStatus));
             mTime = milliseconds(0);
             mStep++;
         }
-        if (mStep == 4 && mTime > milliseconds(1000))
+        if (mStep == 4 && mTime > milliseconds(500))
         {
-            // if (peripherals::WifiDriver::instance().addPairedDevice(peripherals::WifiDriver::instance().getConnectedDevice()))
-            // {
-            //     mEvent.push(WifiEvent::PairedDeviceChange);
-            // }
-            mTime = milliseconds(0);
-            mStep++;
+            LOG_INFO("THAIVD --- handleConnectDevice 3 authen: %d", static_cast<int>(mAuthenStatus));
+            if (mAuthenStatus == service::WifiAuthenDeviceStatus::VerifyPassword) {
+                mPassword.erase(mPassword.end() - 1);
+                LOG_INFO("THAIVD --- handleConnectDevice 4 authen: %d - password: %s -- oldpassword: %s", static_cast<int>(mAuthenStatus), mPassword.c_str(), mPairingDevice->password.c_str());
+                LOG_INFO("THAIVD --- handleConnectDevice 4 size: %d - oldsize: %d", mPairingDevice->password.size(), mPassword.size());
+                if (mPairingDevice->password == mPassword) {
+                    LOG_INFO("THAIVD --- handleConnectDevice 5 authen: %d", static_cast<int>(mAuthenStatus));
+                    mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
+                    // Update paired list
+                    for (std::list<service::WifiDeviceInfo*>::iterator it = mDiscoveryDevices.begin(); it != mDiscoveryDevices.end(); it++) {
+                        if (mPairingDevice->address == (*it)->address) {
+                            // mDiscoveryDevices.erase(it);
+                            break;
+                        } 
+                    }
+                }
+
+                if (mAuthenStatus != service::WifiAuthenDeviceStatus::AuthenSuccess) {
+                    mConnectDeviceFlag = false;
+                } else {
+                    mStep++;
+                }
+                mTime = milliseconds(0);
+            }
         }
-        if (mStep == 5 && mTime > milliseconds(100))
-        {
-            // auto newConnectedDevice = peripherals::WifiDriver::instance().queryWifiDevice(mDiscoryDeviceAddr);
-            // peripherals::WifiDriver::instance().setConnectedDevice(newConnectedDevice);
-            //mEvent.push(WifiEvent::UpdateConnectedDevice);
+        if (mStep == 5 && mTime > milliseconds(2000)) {
+            if (mAuthenStatus == service::WifiAuthenDeviceStatus::AuthenSuccess) {
+                LOG_INFO("THAIVD --- handleConnectDevice 6 authen: %d", static_cast<int>(mAuthenStatus));
+                mWifiDriver->mConnectedDevice = mPairingDevice;
+                mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
+
+                service::WifiDeviceInfo* newPaired = new service::WifiDeviceInfo(mPairingDevice->password, mPairingDevice->autoconnectstatus, mPairingDevice->name, mPairingDevice->address, mPairingDevice->privateAddr, mPairingDevice->speedmode);
+                mWifiDriver->requestUpdatePairedDevices(newPaired);
+                mWifiDriver->onCheckPasswordStateUpdated.emit(true);
+            } else {
+                mWifiDriver->onCheckPasswordStateUpdated.emit(false);
+            }
             mTime = milliseconds(0);
             mStep = 0;
             mConnectDeviceFlag = false;
@@ -160,9 +184,16 @@ void WifiDiscovery::requestConnectDevice(const std::string& addr)
         mStep = 0;
         mTime = milliseconds(0);
     }
-
+    
     mDiscoryDeviceAddr = addr;
     mConnectDeviceFlag = true;
+}
+
+void WifiDiscovery::requestCheckPassword(const std::string& address, const std::string& password) {
+    if (mDiscoryDeviceAddr == address) {
+        mPassword = password;
+        mConnectDeviceFlag = true;
+    }
 }
 
 }

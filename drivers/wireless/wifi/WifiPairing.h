@@ -14,9 +14,12 @@ public:
     void execute(milliseconds delta);
     std::list<service::WifiDeviceInfo*> getPairedDeviceList();
     void requestConnectDevice(const std::string& addr);
+    void setPairingDevice(service::WifiDeviceInfo* device);
 
     void readData();
     void writeBuffer();
+
+    void appendNewPairedDevice(service::WifiDeviceInfo* newDevice);
 
 private:
     WifiDriver* mWifiDriver;
