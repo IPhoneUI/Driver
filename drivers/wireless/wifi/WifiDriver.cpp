@@ -121,8 +121,7 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
         if ((*it)->address == connectingAddr) {
-            mWifiPairing->setPairingDevice(*it);
-            mWifiPairing->requestConnectDevice(connectingAddr);
+            mWifiPairing->requestConnectDevice(*it);
             return;
         }
     }
@@ -131,7 +130,7 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = discoveryList.begin(); it != discoveryList.end(); it++) {
         if ((*it)->address == connectingAddr) {
-            mWifiDiscovery->requestConnectDevice(connectingAddr);
+            mWifiDiscovery->requestConnectDevice(*it);
             return;
         }
     }
@@ -142,14 +141,6 @@ void WifiDriver::requestCheckDevicePassword(const std::string& address, const st
     if (address != "" && password != "") {
         mWifiDiscovery->requestCheckPassword(address, password);
     }
-}
-
-void WifiDriver::requestUpdatePairedDevices(service::WifiDeviceInfo* newDevice) {
-    if (newDevice->address == "") {
-        return;
-    }
-    mWifiPairing->appendNewPairedDevice(newDevice);
-
 }
 
 }

@@ -14,8 +14,9 @@ public:
     void execute(milliseconds delta);
     void startDiscovery();
     void stopDiscovery();
-    void requestConnectDevice(const std::string&);
+    void requestConnectDevice(service::WifiDeviceInfo* device);
     void requestCheckPassword(const std::string&, const std::string&);
+    void removeDiscoveryDevice(const std::string&);
 
     std::list<service::WifiDeviceInfo*> getWifiDiscoveryList() const {
         return mDiscoveryDevices;

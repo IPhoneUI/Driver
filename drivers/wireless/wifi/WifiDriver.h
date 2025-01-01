@@ -43,7 +43,6 @@ public:
     void requestChangeWifiStatus(bool status);
     void requestCheckDevicePassword(const std::string& address, const std::string& password);
     void requestConnectDevice(const std::string& address);
-    void requestUpdatePairedDevices(service::WifiDeviceInfo* newDevice);
 
     Signal<bool> onWifiStatusUpdated;
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;
@@ -51,6 +50,7 @@ public:
     Signal<service::WifiDeviceInfo*> onAddDiscoryDeviceInfo;
     Signal<service::WifiDeviceInfo*> onRemoveDiscoryDeviceInfo;
     Signal<bool> onCheckPasswordStateUpdated;
+    Signal<const service::WifiAuthenDeviceStatus&> onWifiAuthenDeviceStatusUpdated;
 
 private: 
     void onRepoStateChanged(common::Repository::State state);

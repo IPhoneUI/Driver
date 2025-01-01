@@ -62,7 +62,6 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         mTime += delta;
         if (mStep == 0)
         {
-            LOG_INFO("THAIVD --- handleConnectDevice 1");
             mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
             mTime = milliseconds(0);
             mStep++;
@@ -99,10 +98,11 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         {
             LOG_INFO("THAIVD --- handleConnectDevice 3 authen: %d", static_cast<int>(mAuthenStatus));
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::VerifyPassword) {
-                mPassword.erase(mPassword.end() - 1);
+                int result = mPairingDevice->password.compare(0, mPassword.size() - 1, mPassword);
                 LOG_INFO("THAIVD --- handleConnectDevice 4 authen: %d - password: %s -- oldpassword: %s", static_cast<int>(mAuthenStatus), mPassword.c_str(), mPairingDevice->password.c_str());
                 LOG_INFO("THAIVD --- handleConnectDevice 4 size: %d - oldsize: %d", mPairingDevice->password.size(), mPassword.size());
-                if (mPairingDevice->password == mPassword) {
+                LOG_INFO("THAIVD --- handleConnectDevice result: %d", result);
+                if (result == 0) {
                     LOG_INFO("THAIVD --- handleConnectDevice 5 authen: %d", static_cast<int>(mAuthenStatus));
                     mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
                     // Update paired list
@@ -129,7 +129,7 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
                 mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
 
                 service::WifiDeviceInfo* newPaired = new service::WifiDeviceInfo(mPairingDevice->password, mPairingDevice->autoconnectstatus, mPairingDevice->name, mPairingDevice->address, mPairingDevice->privateAddr, mPairingDevice->speedmode);
-                mWifiDriver->requestUpdatePairedDevices(newPaired);
+                mWifiDriver->mWifiPairing->appendNewPairedDevice(newPaired);
                 mWifiDriver->onCheckPasswordStateUpdated.emit(true);
             } else {
                 mWifiDriver->onCheckPasswordStateUpdated.emit(false);
@@ -138,7 +138,7 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
             mStep = 0;
             mConnectDeviceFlag = false;
         }
-        
+        mWifiDriver->onWifiAuthenDeviceStatusUpdated.emit(mAuthenStatus);
     }
 }
 
@@ -178,14 +178,19 @@ void WifiDiscovery::stopDiscovery()
     mDiscoveryFlag = false;
 }
 
-void WifiDiscovery::requestConnectDevice(const std::string& addr)
+void WifiDiscovery::requestConnectDevice(service::WifiDeviceInfo* device)
 {
+    if (device == nullptr) {
+        return;
+    }
+
     if (mConnectDeviceFlag) {
         mStep = 0;
         mTime = milliseconds(0);
     }
     
-    mDiscoryDeviceAddr = addr;
+    mPairingDevice = device;
+    mDiscoryDeviceAddr = device->address;
     mConnectDeviceFlag = true;
 }
 
@@ -193,6 +198,15 @@ void WifiDiscovery::requestCheckPassword(const std::string& address, const std::
     if (mDiscoryDeviceAddr == address) {
         mPassword = password;
         mConnectDeviceFlag = true;
+    }
+}
+
+void WifiDiscovery::removeDiscoveryDevice(const std::string& addr)
+{
+    for (std::list<service::WifiDeviceInfo*>::iterator it = mDiscoveryDevices.begin(); it != mDiscoveryDevices.end(); it++) {
+        if ((*it)->address == addr) {
+            mDiscoveryDevices.erase(it);
+        }
     }
 }
 

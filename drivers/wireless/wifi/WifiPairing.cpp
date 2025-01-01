@@ -55,7 +55,9 @@ void WifiPairing::execute(milliseconds delta)
         mTime += delta;
         if (mStep == 0)
         {
-            mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
+            // Move device to connecting process, so need to remove this device in the paired device list
+            removePairedDevice(mPairingAddr);
+
             mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
             mTime = milliseconds(0);
             mStep++;
@@ -68,26 +70,38 @@ void WifiPairing::execute(milliseconds delta)
         }
         if (mStep == 2 && mTime > milliseconds(1000))
         {
-            mTime = milliseconds(0);
-            mStep++;
+            if (mAuthenStatus == service::WifiAuthenDeviceStatus::Fail) {
+                mPairedDevices.emplace_back(mPairingDevice);
+                mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
+                mTime = milliseconds(0);
+                mStep = 0;
+                mPairingFlag = false;
+            } else {
+                mTime = milliseconds(0);
+                mStep++;
+            }
         }
         if (mStep == 3 && mTime > milliseconds(100))
         {
             mWifiDriver->mConnectedDevice = mPairingDevice;
             mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
-            mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
             mTime = milliseconds(0);
             mStep = 0;
             mPairingFlag = false;
         }
         
+        mWifiDriver->onWifiAuthenDeviceStatusUpdated.emit(mAuthenStatus);
     }
 }
 
-void WifiPairing::setPairingDevice(service::WifiDeviceInfo* device) {
-    if (device != nullptr) {
-        mPairingDevice = device;
+void WifiPairing::removePairedDevice(const std::string &addr)
+{
+    for (std::list<service::WifiDeviceInfo*>::iterator it = mPairedDevices.begin(); it != mPairedDevices.end(); it++) {
+        if ((*it)->address == addr) {
+            mPairedDevices.erase(it);
+        }
     }
+    mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
 }
 
 std::list<service::WifiDeviceInfo*> WifiPairing::getPairedDeviceList()
@@ -95,15 +109,20 @@ std::list<service::WifiDeviceInfo*> WifiPairing::getPairedDeviceList()
     return mPairedDevices;
 }
 
-void WifiPairing::requestConnectDevice(const std::string& addr)
+void WifiPairing::requestConnectDevice(service::WifiDeviceInfo* device)
 {
+    if (device == nullptr) {
+        return;
+    }
+
     if (mPairingFlag) {
         mStep = 0;
         mTime = milliseconds(0);
     }
 
     mPairingFlag = true;
-    mPairingAddr = addr;
+    mPairingDevice = device;
+    mPairingAddr = device->address;
 }
 
 void WifiPairing::appendNewPairedDevice(service::WifiDeviceInfo* newDevice) {

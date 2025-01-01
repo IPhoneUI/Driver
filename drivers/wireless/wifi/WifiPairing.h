@@ -13,8 +13,8 @@ public:
 
     void execute(milliseconds delta);
     std::list<service::WifiDeviceInfo*> getPairedDeviceList();
-    void requestConnectDevice(const std::string& addr);
-    void setPairingDevice(service::WifiDeviceInfo* device);
+    void requestConnectDevice(service::WifiDeviceInfo* device);
+    void removePairedDevice(const std::string& addr);
 
     void readData();
     void writeBuffer();
