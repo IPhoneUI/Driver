@@ -5,11 +5,9 @@ namespace service {
 
 EasyMathServiceImpl::EasyMathServiceImpl()
     : BaseServiceImpl(EasyMathServiceDeploy::instance())
-    , mMonitors(new MonitorProgress(8))
 {
     mDeploy = EasyMathServiceDeploy::instance();
     mEasyMathServer = driver::EasyMathServer::getInstance();
-    mMonitors->setCommander(std::bind(&EasyMathServiceImpl::submitCommand, this, std::placeholders::_1));
 }
 
 void EasyMathServiceImpl::registerClient(const std::string &clientName)
@@ -31,12 +29,12 @@ void EasyMathServiceImpl::onMsqReceived()
             break;
         }
         case base::msq::Msq_EasyMath_ReqStartGame: {
-            startGame();
+            mEasyMathServer->startGame();
             break;
         }
         case base::msq::Msq_EasyMath_ReqCheckResult: {
             bool result = mMqReceiver.get<bool>(messages[1]);
-            requestCheckingResult(result);
+            mEasyMathServer->requestCheckingResult(result);
             break;
         }
         default:
@@ -48,8 +46,11 @@ void EasyMathServiceImpl::onMsqReceived()
 void EasyMathServiceImpl::initialize()
 {
     LOG_INFO("EasyMathServiceImpl initialize");
+    Connection::connect(mEasyMathServer->onStartGame, std::bind(&EasyMathServiceImpl::onStartGame, this));
+    Connection::connect(mEasyMathServer->onExpressionChanged, std::bind(&EasyMathServiceImpl::onExpressionChanged, this, std::placeholders::_1));
     Connection::connect(mEasyMathServer->onHighestScoreUpdated, std::bind(&EasyMathServiceImpl::onHighestScoreChanged, this));
-    Connection::connect(mEasyMathServer->onRangeNumberUpdated, std::bind(&EasyMathServiceImpl::onRangeNumberChanged, this));
+    Connection::connect(mEasyMathServer->onGameOver, std::bind(&EasyMathServiceImpl::onGameOver, this));
+    Connection::connect(mEasyMathServer->onScoreChanged, std::bind(&EasyMathServiceImpl::onScoreChanged, this, std::placeholders::_1));
 }
 
 void EasyMathServiceImpl::finialize()
@@ -57,125 +58,30 @@ void EasyMathServiceImpl::finialize()
     LOG_INFO("EasyMathServiceImpl finialize");
 }
 
-void EasyMathServiceImpl::startGame()
+void EasyMathServiceImpl::onStartGame()
 {
-    if (mIsGameRunning == true)
-        return;
-    mIsGameRunning = true;
-    mDeploy->responseStartGame(mIsGameRunning);
-    if (mIsGameRunning == true) {
-        mDeploy->responseTimeOut(mMonitors->getInterval());
-    }
-    generateExpression();
+    mDeploy->responseStartGame();
 }
 
-void EasyMathServiceImpl::generateExpression()
+void EasyMathServiceImpl::onExpressionChanged(const service::ExpressionInfo& info)
 {
-    std::vector<service::ExpressionType> operators = {service::ExpressionType::Addition, service::ExpressionType::Subtraction, service::ExpressionType::Multiplication};
-    size_t m_nRandomOperator = floor(((float) rand() / (RAND_MAX)) * operators.size());
-    service::ExpressionType expr = operators[m_nRandomOperator];
-
-    int firstNumber = getRandomNumber(1 * mLevel, 5 * mLevel);
-    int secondNumber = getRandomNumber(1 * mLevel, 5 * mLevel);
-    int result = 0;
-
-    switch (expr) {
-    case service::ExpressionType::Addition:
-        result = firstNumber + secondNumber;
-        break;
-    case service::ExpressionType::Subtraction:
-        result = firstNumber - secondNumber;
-        break;
-    case service::ExpressionType::Multiplication:
-        result = firstNumber * secondNumber;
-        break;
-    default:
-        break;
-    }
-
-    mResult = result;
-
-    mExprInfo.firstNumber = firstNumber;
-    mExprInfo.secondNumber = secondNumber;
-    mExprInfo.dummyResult = getResult();
-    mExprInfo.exprType = expr;
-
-    mDeploy->responseExpressionChanged(mExprInfo);
-    mMonitors->start();
-}
-
-int EasyMathServiceImpl::getRandomNumber(const int &min, const int &max)
-{
-    return floor(((float) rand() / (RAND_MAX)) * (mRangeNum - 0) + 0);
-}
-
-void EasyMathServiceImpl::requestCheckingResult(const bool &result)
-{
-    if (mRandomResult == result) {
-        mMonitors->setState(MonitorProgress::State::Correct);
-    } else {
-        mMonitors->setState(MonitorProgress::State::Incorrect);
-    }
-}
-
-int EasyMathServiceImpl::getResult()
-{
-    mRandomResult = ((float) rand() / (RAND_MAX)) >= 0.5;
-    if (mRandomResult == false) {
-        mResult = getRandomNumber(mResult - 10, mResult + 10);
-    }
-    return mResult;
-}
-
-void EasyMathServiceImpl::resetGame()
-{
-    mIsGameRunning = false;
-    mResult = 0;
-    mFirstArgument = 0;
-    mSecondArgument = 0;
-    mRandomResult = 0;
-    mLevel = 0;
-    mRangeNum = 10;
-    mScore = 0;
-}
-
-void EasyMathServiceImpl::nextLevel()
-{
-    mLevel++;
-    mRangeNum += 5;
-    mScore += 3;
-    generateExpression();
+    mDeploy->responseExpressionChanged(info);
 }
 
 void EasyMathServiceImpl::onHighestScoreChanged()
 {
-    mScore = mEasyMathServer->getHighestScore();
+    int highestScore = mEasyMathServer->highestScore();
+    mDeploy->responseHighestScoreUpdated(highestScore);
 }
 
-void EasyMathServiceImpl::onRangeNumberChanged()
+void EasyMathServiceImpl::onScoreChanged(int score)
 {
-    mRangeNum = mEasyMathServer->getRangeNumber();
+    mDeploy->responseScoreChanged(score);
 }
 
-void EasyMathServiceImpl::submitCommand(int command)
+void EasyMathServiceImpl::onGameOver()
 {
-    GameEvent event = static_cast<GameEvent>(command);
-    switch (event)
-    {
-    case GameEvent::GameOver:
-        mDeploy->responseScore(mScore);
-        mMonitors->stop();
-        mDeploy->responseTimeOut(0);
-        resetGame();
-        break;
-    case GameEvent::NextLevel:
-        mDeploy->responseTimeOut(mMonitors->getInterval());
-        mMonitors->stop();
-        nextLevel();
-        break;
-    default:
-        break;
-    }
+    mDeploy->responseGameOver();
 }
 
 }

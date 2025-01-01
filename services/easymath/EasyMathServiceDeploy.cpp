@@ -29,12 +29,11 @@ void EasyMathServiceDeploy::responseServiceReady(const std::string &clientName)
     mMqSender.sendMsq(clientName);
 }
 
-void EasyMathServiceDeploy::responseStartGame(const bool &status)
+void EasyMathServiceDeploy::responseStartGame()
 {
-    mClientManager.deploy([this, status](std::string mqName) {
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
         mMqSender.startMsq(base::msq::Msq_EasyMath_RespStartGame);
-        mMqSender.addParam(status);
         mMqSender.sendMsq(mqName);
     });
 }
@@ -52,22 +51,31 @@ void EasyMathServiceDeploy::responseExpressionChanged(const ExpressionInfo &info
     });
 }
 
-void EasyMathServiceDeploy::responseScore(const int& score)
+void EasyMathServiceDeploy::responseScoreChanged(size_t score)
 {
     mClientManager.deploy([this, score](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_EasyMath_RespGameOver);
-        mMqSender.addParam(score);
+        mMqSender.startMsq(base::msq::Msq_EasyMath_ScoreUpdated);
+        mMqSender.addParam(static_cast<int>(score));
         mMqSender.sendMsq(mqName);
     });
 }
 
-void EasyMathServiceDeploy::responseTimeOut(const int &interval)
+void EasyMathServiceDeploy::responseGameOver()
 {
-    mClientManager.deploy([this, interval](std::string mqName) {
+    mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_EasyMath_TimeOut);
-        mMqSender.addParam(interval);
+        mMqSender.startMsq(base::msq::Msq_EasyMath_RespGameOver);
+        mMqSender.sendMsq(mqName);
+    });
+}
+
+void EasyMathServiceDeploy::responseHighestScoreUpdated(int highestScore)
+{
+    mClientManager.deploy([this, highestScore](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_EasyMath_HighestScoreUpdated);
+        mMqSender.addParam(highestScore);
         mMqSender.sendMsq(mqName);
     });
 }

@@ -30,6 +30,7 @@ enum Type {
     Wifi_Status,
     Speaker_Muted,
     Speaker_Volume,
+    EMath_HighestScore,
     ParameterMax
 };
 }

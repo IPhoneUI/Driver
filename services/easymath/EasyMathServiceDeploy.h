@@ -19,10 +19,11 @@ public:
     static EasyMathServiceDeploy* instance();
 
     void responseServiceReady(const std::string& clientName);
-    void responseStartGame(const bool& status);
+    void responseStartGame();
     void responseExpressionChanged(const service::ExpressionInfo& info);
-    void responseScore(const int& score);
-    void responseTimeOut(const int& interval);
+    void responseGameOver();
+    void responseScoreChanged(size_t time);
+    void responseHighestScoreUpdated(int highestScore);
 
 private:
     explicit EasyMathServiceDeploy();
