@@ -47,6 +47,7 @@ public:
     void requestChangeWifiStatus(bool status);
     void requestCheckDevicePassword(const std::string& address, const std::string& password);
     void requestConnectDevice(const std::string& address);
+    void requestForgetDevice(const std::string& address);
 
     Signal<bool> onWifiStatusUpdated;
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;

@@ -48,6 +48,11 @@ void WifiServiceImpl::onMsqReceived()
             std::string address = mMqReceiver.get<std::string>(messages[1]);
             mWifiDriver->requestConnectDevice(address);
         }
+        case base::msq::Msq_Wifi_ReqForgetDevice: {
+            std::string address = mMqReceiver.get<std::string>(messages[1]);
+            mWifiDriver->requestForgetDevice(address);
+            break;
+        }
         }
     }
 }

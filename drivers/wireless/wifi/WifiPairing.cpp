@@ -83,7 +83,9 @@ void WifiPairing::execute(milliseconds delta)
         }
         if (mStep == 3 && mTime > milliseconds(100))
         {
-            appendNewPairedDevice(mWifiDriver->mConnectedDevice);
+            if (!mWifiDriver->mConnectedDevice->address.empty()) {
+                appendNewPairedDevice(mWifiDriver->mConnectedDevice);
+            }
             mWifiDriver->mConnectedDevice = mPairingDevice;
             mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
 

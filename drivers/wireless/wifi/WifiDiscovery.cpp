@@ -90,28 +90,15 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
                     mAuthenStatus = service::WifiAuthenDeviceStatus::Fail;
                 }
             }
-            LOG_INFO("THAIVD --- handleConnectDevice 2 authen: %d", static_cast<int>(mAuthenStatus));
             mTime = milliseconds(0);
             mStep++;
         }
         if (mStep == 4 && mTime > milliseconds(500))
         {
-            LOG_INFO("THAIVD --- handleConnectDevice 3 authen: %d", static_cast<int>(mAuthenStatus));
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::VerifyPassword) {
                 int result = mPassword.compare(0, mPassword.size() - 1, mPairingDevice->password);
-                LOG_INFO("THAIVD --- handleConnectDevice 4 authen: %d - password: %s -- oldpassword: %s", static_cast<int>(mAuthenStatus), mPassword.c_str(), mPairingDevice->password.c_str());
-                LOG_INFO("THAIVD --- handleConnectDevice 4 size: %d - oldsize: %d", mPairingDevice->password.size(), mPassword.size());
-                LOG_INFO("THAIVD --- handleConnectDevice result: %d", result);
                 if (result == 0) {
-                    LOG_INFO("THAIVD --- handleConnectDevice 5 authen: %d", static_cast<int>(mAuthenStatus));
                     mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
-                    // Update paired list
-                    for (std::list<service::WifiDeviceInfo*>::iterator it = mDiscoveryDevices.begin(); it != mDiscoveryDevices.end(); it++) {
-                        if (mPairingDevice->address == (*it)->address) {
-                            // mDiscoveryDevices.erase(it);
-                            break;
-                        } 
-                    }
                 }
 
                 if (mAuthenStatus != service::WifiAuthenDeviceStatus::AuthenSuccess) {
@@ -124,9 +111,10 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         }
         if (mStep == 5 && mTime > milliseconds(2000)) {
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::AuthenSuccess) {
-                LOG_INFO("THAIVD --- handleConnectDevice 6 authen: %d", static_cast<int>(mAuthenStatus));
                 removeDiscoveryDevice(mPairingDevice->address);
-                mWifiDriver->mConnectedDevice = mPairingDevice;
+                if (!mWifiDriver->mConnectedDevice->address.empty()) {
+                    mWifiDriver->mConnectedDevice = mPairingDevice;
+                }
                 mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
 
                 service::WifiDeviceInfo* newPaired = new service::WifiDeviceInfo(mPairingDevice->password, mPairingDevice->autoconnectstatus, mPairingDevice->name, mPairingDevice->address, mPairingDevice->privateAddr, mPairingDevice->speedmode);

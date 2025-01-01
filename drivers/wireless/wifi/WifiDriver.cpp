@@ -114,14 +114,12 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 {
     LOG_INFO("Request connect device with address: %s", address.c_str());
 
-    std::string connectingAddr = address;
-    connectingAddr.erase(connectingAddr.end() - 1);
-
     std::list<service::WifiDeviceInfo*> pairedList = mWifiPairing->getPairedDeviceList();
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
         if ((*it) != nullptr) {
-            if ((*it)->address == connectingAddr) {
+            int result = address.compare(0, address.size() - 1, (*it)->address);
+            if (result == 0) {
                 mWifiPairing->requestConnectDevice(*it);
                 return;
             }
@@ -132,9 +130,33 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = discoveryList.begin(); it != discoveryList.end(); it++) {
         if ((*it) != nullptr) {
-            if ((*it)->address == connectingAddr) {
+            int result = address.compare(0, address.size() - 1, (*it)->address);
+            if (result == 0) {
                 mWifiDiscovery->requestConnectDevice(*it);
                 return;
+            }
+        }
+    }
+}
+
+void WifiDriver::requestForgetDevice(const std::string &address)
+{
+    if (address.compare(0, address.size() - 1, mConnectedDevice->address) == 0) {
+        service::WifiDeviceInfo* emptyDevice = new service::WifiDeviceInfo("", false, "",
+                                                                           "", false, static_cast<service::WifiSpeedMode>(0));
+        mConnectedDevice = emptyDevice;
+        onConnectedDeviceUpdated.emit(mConnectedDevice);
+
+    } else {
+        std::list<service::WifiDeviceInfo*> pairedList = mWifiPairing->getPairedDeviceList();
+
+        for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
+            if ((*it) != nullptr) {
+                int result = address.compare(0, address.size() - 1, (*it)->address);
+                if (result == 0) {
+                    mWifiPairing->removePairedDevice((*it)->address);
+                    return;
+                }
             }
         }
     }
