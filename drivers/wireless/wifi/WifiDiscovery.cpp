@@ -62,9 +62,16 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         mTime += delta;
         if (mStep == 0)
         {
-            mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
-            mTime = milliseconds(0);
-            mStep++;
+            if (mAuthenStatus == service::WifiAuthenDeviceStatus::Terminate) {
+                mWifiDriver->onConnectedDeviceUpdated.emit(mWifiDriver->mConnectedDevice);
+                mTime = milliseconds(0);
+                mStep = 0;
+                mConnectDeviceFlag = false;
+            } else {
+                mAuthenStatus = service::WifiAuthenDeviceStatus::CheckingSSID;
+                mTime = milliseconds(0);
+                mStep++;
+            }
         }
         if (mStep == 1 && mTime > milliseconds(200))
         {
@@ -96,8 +103,7 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         if (mStep == 4 && mTime > milliseconds(500))
         {
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::VerifyPassword) {
-                int result = mPassword.compare(0, mPassword.size() - 1, mPairingDevice->password);
-                if (result == 0) {
+                if (true == mWifiDriver->compareTexture(mPassword, mPairingDevice->password)) {
                     mAuthenStatus = service::WifiAuthenDeviceStatus::AuthenSuccess;
                 }
 
@@ -112,9 +118,13 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         if (mStep == 5 && mTime > milliseconds(2000)) {
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::AuthenSuccess) {
                 removeDiscoveryDevice(mPairingDevice->address);
+
+                // Case there is not connected device
                 if (!mWifiDriver->mConnectedDevice->address.empty()) {
+                    mDiscoveryDevices.emplace_back(mWifiDriver->mConnectedDevice);
                     mWifiDriver->mConnectedDevice = mPairingDevice;
                 }
+
                 mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
 
                 service::WifiDeviceInfo* newPaired = new service::WifiDeviceInfo(mPairingDevice->password, mPairingDevice->autoconnectstatus, mPairingDevice->name, mPairingDevice->address, mPairingDevice->privateAddr, mPairingDevice->speedmode);
@@ -127,7 +137,8 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
             mStep = 0;
             mConnectDeviceFlag = false;
         }
-        mWifiDriver->onWifiAuthenDeviceStatusUpdated.emit(mAuthenStatus);
+
+        mWifiDriver->onWifiAuthenDeviceStatusUpdated.emit(mPairingDevice->address, mAuthenStatus);
     }
 }
 
@@ -199,6 +210,14 @@ void WifiDiscovery::removeDiscoveryDevice(const std::string& addr)
             break;
         }
     }
+}
+
+void WifiDiscovery::cancelConnecting()
+{
+    mAuthenStatus = service::WifiAuthenDeviceStatus::Terminate;
+    mStep = 0;
+    mTime = milliseconds(0);
+    mConnectDeviceFlag = true;
 }
 
 }

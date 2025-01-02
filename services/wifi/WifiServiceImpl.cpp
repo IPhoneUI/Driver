@@ -53,6 +53,10 @@ void WifiServiceImpl::onMsqReceived()
             mWifiDriver->requestForgetDevice(address);
             break;
         }
+        case base::msq::Msq_Wifi_ReqCancelConnecting: {
+            mWifiDriver->requestCancelConnecting();
+            break;
+        }
         }
     }
 }
@@ -67,6 +71,7 @@ void WifiServiceImpl::initialize()
     Connection::connect(mWifiDriver->onAddDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onAddDiscoryDeviceInfo, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onRemoveDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onRemoveDiscoryDeviceInfo, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onCheckPasswordStateUpdated, std::bind(&WifiServiceImpl::onCheckPasswordStateUpdated, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onWifiAuthenDeviceStatusUpdated, std::bind(&WifiServiceImpl::onWifiAuthenDeviceStatusUpdated, this, std::placeholders::_1, std::placeholders::_2));
 
     mWifiDriver->connectDriver();
 }
@@ -131,6 +136,11 @@ void WifiServiceImpl::onRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device)
     if (result) {
         mDeploy->responseRemoveDiscoryDeviceInfo(device);
     }
+}
+
+void WifiServiceImpl::onWifiAuthenDeviceStatusUpdated(const std::string& addr, const service::WifiAuthenDeviceStatus& state)
+{
+    mDeploy->responseAuthenDeviceStatus(addr,state);
 }
 
 }

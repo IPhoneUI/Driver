@@ -24,6 +24,7 @@ public:
     void responseConnectedDeviceUpdated();
     void responsePairedListUpdated();
     void responseRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device);
+    void responseAuthenDeviceStatus(const std::string& addr, const service::WifiAuthenDeviceStatus& state);
 
 private:
     explicit WifiServiceDeploy();

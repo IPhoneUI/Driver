@@ -30,6 +30,7 @@ public:
     void onConnectedDeviceUpdated(service::WifiDeviceInfo* device);
     void onAddDiscoryDeviceInfo(service::WifiDeviceInfo* device);
     void onCheckPasswordStateUpdated(bool);
+    void onWifiAuthenDeviceStatusUpdated(const std::string& addr, const service::WifiAuthenDeviceStatus& state);
 
 private:
     WifiServiceDeploy* mDeploy;

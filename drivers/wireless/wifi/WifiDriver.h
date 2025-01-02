@@ -24,6 +24,12 @@ public:
     void connectDriver() override;
     void writeBuffer() override;
 
+    enum ConnectingDeviceType {
+        Paired,
+        Discovery,
+        None
+    };
+
     bool getWifiStatus() const
     {
         return mWifiStatus;
@@ -48,6 +54,8 @@ public:
     void requestCheckDevicePassword(const std::string& address, const std::string& password);
     void requestConnectDevice(const std::string& address);
     void requestForgetDevice(const std::string& address);
+    bool compareTexture(const std::string& firstDevice, const std::string& secondDevice);
+    void requestCancelConnecting();
 
     Signal<bool> onWifiStatusUpdated;
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;
@@ -55,7 +63,7 @@ public:
     Signal<service::WifiDeviceInfo*> onAddDiscoryDeviceInfo;
     Signal<service::WifiDeviceInfo*> onRemoveDiscoryDeviceInfo;
     Signal<bool> onCheckPasswordStateUpdated;
-    Signal<const service::WifiAuthenDeviceStatus&> onWifiAuthenDeviceStatusUpdated;
+    Signal<const std::string&, const service::WifiAuthenDeviceStatus&> onWifiAuthenDeviceStatusUpdated;
 
 private: 
     void onRepoStateChanged(common::Repository::State state);
@@ -68,6 +76,7 @@ private:
     service::WifiDeviceInfo* mConnectedDevice;
     WifiPairing* mWifiPairing;
     WifiDiscovery* mWifiDiscovery;
+    ConnectingDeviceType mConnectingDeviceType {ConnectingDeviceType::None};
 };
 
 }
