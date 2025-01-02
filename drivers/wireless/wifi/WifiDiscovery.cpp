@@ -117,19 +117,19 @@ void WifiDiscovery::handleConnectDevice(milliseconds delta)
         }
         if (mStep == 5 && mTime > milliseconds(2000)) {
             if (mAuthenStatus == service::WifiAuthenDeviceStatus::AuthenSuccess) {
+
                 removeDiscoveryDevice(mPairingDevice->address);
+                // service::WifiDeviceInfo* newPaired = new service::WifiDeviceInfo(mPairingDevice->password, mPairingDevice->autoconnectstatus, mPairingDevice->name, mPairingDevice->address, mPairingDevice->privateAddr, mPairingDevice->speedmode);
+                // mWifiDriver->mWifiPairing->appendNewPairedDevice(newPaired);
 
                 // Case there is not connected device
                 if (!mWifiDriver->mConnectedDevice->address.empty()) {
-                    mDiscoveryDevices.emplace_back(mWifiDriver->mConnectedDevice);
+                    mWifiDriver->mWifiPairing->appendNewPairedDevice(mWifiDriver->mConnectedDevice);
                     mWifiDriver->mConnectedDevice = mPairingDevice;
                 }
-
                 mWifiDriver->onConnectedDeviceUpdated.emit(mPairingDevice);
-
-                service::WifiDeviceInfo* newPaired = new service::WifiDeviceInfo(mPairingDevice->password, mPairingDevice->autoconnectstatus, mPairingDevice->name, mPairingDevice->address, mPairingDevice->privateAddr, mPairingDevice->speedmode);
-                mWifiDriver->mWifiPairing->appendNewPairedDevice(newPaired);
                 mWifiDriver->onCheckPasswordStateUpdated.emit(true);
+
             } else {
                 mWifiDriver->onCheckPasswordStateUpdated.emit(false);
             }
@@ -218,6 +218,13 @@ void WifiDiscovery::cancelConnecting()
     mStep = 0;
     mTime = milliseconds(0);
     mConnectDeviceFlag = true;
+}
+
+void WifiDiscovery::addDiscoveryDevice(service::WifiDeviceInfo *device)
+{
+    if (device == nullptr)
+        return;
+    mDiscoveryDevices.emplace_back(device);
 }
 
 }

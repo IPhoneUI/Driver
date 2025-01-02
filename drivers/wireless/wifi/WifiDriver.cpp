@@ -142,6 +142,7 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 void WifiDriver::requestForgetDevice(const std::string &address)
 {
     if (true == compareTexture(address, mConnectedDevice->address)) {
+        mWifiDiscovery->addDiscoveryDevice(mConnectedDevice);
         service::WifiDeviceInfo* emptyDevice = new service::WifiDeviceInfo("", false, "",
                                                                            "", false, static_cast<service::WifiSpeedMode>(0));
         mConnectedDevice = emptyDevice;
@@ -153,6 +154,7 @@ void WifiDriver::requestForgetDevice(const std::string &address)
         for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
             if ((*it) != nullptr) {
                 if (true == compareTexture(address, (*it)->address)) {
+                    mWifiDiscovery->addDiscoveryDevice(*it);
                     mWifiPairing->removePairedDevice((*it)->address);
                     return;
                 }
