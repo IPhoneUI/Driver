@@ -121,17 +121,26 @@ void SimulateServer::start()
     // Here, we set the maximum size for the backlog queue to 5.
     listen(mSockfd,15);
 
-    mThread = std::thread( std::bind(&SimulateServer::loop, this) );
+    mThread = std::thread( std::bind(&SimulateServer::acceptClient, this) );
     mThread.detach();
 
     mIsStarted = true;
 }
 
-void SimulateServer::loop()
+void SimulateServer::acceptClient()
 {
     mThreadRunning = true;
 
+    /* the poll() system call to monitor this specific socket for events */
     mFds[0].fd = mSockfd;
+
+    /* events: Specifies the types of events you want poll() to monitor for this socket. 
+     * Indicates that there is data to read on the socket.
+     * For example, when a client sends data to the socket.
+     * When pass the mFds array to poll(), the system will:
+     * Monitor the socket mSockfd for the specified events.
+     * If either POLLIN or POLLPRI occurs on the socket, poll() will return, and you can check which event(s) occurred using the revents field.
+     */
     mFds[0].events = POLLIN | POLLPRI;
 
     while(mThreadRunning) 
@@ -139,8 +148,24 @@ void SimulateServer::loop()
         static struct sockaddr_in clientAddr;
         static socklen_t clientStructLen = sizeof(clientAddr);
         int newsockfd;
-        if (poll(mFds, 1, 10)) 
+
+        /* Syntax: poll(mFds, 1, 10)
+         * - mFds: Array of struct pollfd that monitors file descriptors for events.
+           - 1: Number of file descriptors to monitor (in this case, just mSockfd).
+           - 10: Timeout in milliseconds (10 ms). This means poll() will wait for 10 ms (block 10ms thread) to see if an event occurs.
+         * If poll() returns a non-zero value, it means one or more events occurred on the monitored file descriptor
+         * If poll() returns 0, it indicates a timeout (no events occurred in 10 ms).
+         * If poll() returns -1, it indicates an error.
+         */
+
+        int rv = poll(mFds, 1, 10);
+        if (rv > 0) 
         {
+            /* Accepts the new connection on the server socket mSockfd.
+             * Creates a new socket newsockfd for the specific client.
+             * Fills clientAddr with the client's address information.
+             * Returns newsockfd, a file descriptor for the new connection, or -1 on error.
+             */
             newsockfd = accept(mSockfd, (struct sockaddr *) &clientAddr, &clientStructLen);
 
             if (newsockfd < 0)
@@ -148,28 +173,82 @@ void SimulateServer::loop()
                 continue;
             }
 
-            LOG_INFO("New connection accepted.");
+            LOG_INFO("Got connection from %s port %d",
+                        inet_ntoa(clientAddr.sin_addr), 
+                        ntohs(clientAddr.sin_port));
+            
+            Client* client = new Client(newsockfd, *this);
+
+            mMuxClient.lock();
+            mClients[newsockfd] = client;
+            mMuxClient.unlock();
+            client->start();
         }
-        else 
-        {
-            char buffer[1024];
-            bzero(buffer, sizeof(buffer));
-            ssize_t bytesRead = read(newsockfd, buffer, sizeof(buffer) - 1);
-            if (bytesRead > 0) 
-            {
-                buffer[bytesRead] = '\0';
-                LOG_INFO("Received message: %s", buffer);
-            }
-        }
-        
     }
 
     if(mSockfd > -1)
     {
         close(mSockfd);
     }
-
 }
 
+void SimulateServer::Client::start()
+{
+    if(mIsStarted)
+        return;
+
+    mThread = std::thread( std::bind(&SimulateServer::Client::readData, this) );
+    mThread.detach();
+
+    mIsStarted = true;
+}
+
+void SimulateServer::Client::stop()
+{
+    mThreadRunning = false;
+}
+
+void SimulateServer::Client::readData()
+{
+    mThreadRunning = true;
+    mFds[0].fd = mSockfd;
+    mFds[0].events = POLLIN | POLLPRI;
+    static char buff[5000];
+    while(mThreadRunning)
+    {
+        int rv = poll(mFds, 1, 10);
+
+        if (rv > 0) 
+        {
+            /* Types of events that actually occurred.
+             * POLLIN indicates that there is data coming from the mSockfd socket (data is ready to read).
+             * poll() ensures that the socket has data ready to read (POLLIN) before calling read.
+             * So in this case, read will not block thread, because it is only called when poll() confirms that there is data.
+             */
+            if (mFds[0].revents & POLLIN)
+            {
+                /* Read data from socket mSockfd into buffer buff.
+                 * Return number of bytes read (n). 
+                 */
+                int n = read(mSockfd,buff,5000);
+                //
+                if (n > 0 && n < 5000)
+                {
+                    std::string str;
+                    str.resize(n);
+                    memcpy(str.data(), buff, n);
+
+                    LOG_INFO("Data is: %s", str.c_str());
+
+                    // Do handle message
+                }
+            }
+        }
+    }
+    if(mSockfd != -1)
+    {
+        close(mSockfd);
+    }
+}
 
 }
