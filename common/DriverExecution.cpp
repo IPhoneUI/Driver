@@ -1,6 +1,7 @@
 #include "DriverExecution.h"
 #include <utils/Logger.h>
 #include "BaseDriver.h"
+#include <simulate/SimulateServer.h>
 
 namespace common {
 
@@ -10,6 +11,7 @@ DriverExecution::DriverExecution()
     : mThread(std::bind(&DriverExecution::execute, this))
 {
     mThread.detach();
+    simulate::SimulateServer::instance().start();
 }
 
 
