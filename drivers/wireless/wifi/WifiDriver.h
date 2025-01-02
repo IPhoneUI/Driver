@@ -14,8 +14,8 @@ namespace driver {
 
 class WifiDriver : public common::BaseDriver 
 {
-    friend class WifiDiscovery;
     friend class WifiPairing;
+    friend class WifiDiscovery;
 public:
     static WifiDriver* getInstance();
     static void initialize();
@@ -34,6 +34,10 @@ public:
         return mWifiPairing->getPairedDeviceList();
     }
 
+    std::list<service::WifiDeviceInfo*> getDiscoveryDeviceList() const {
+        return mWifiDiscovery->getWifiDiscoveryList();
+    }
+
     service::WifiDeviceInfo* getConnectedDevice() const
     {
         return mConnectedDevice;
@@ -43,20 +47,22 @@ public:
     void requestChangeWifiStatus(bool status);
     void requestCheckDevicePassword(const std::string& address, const std::string& password);
     void requestConnectDevice(const std::string& address);
+    void requestForgetDevice(const std::string& address);
 
     Signal<bool> onWifiStatusUpdated;
     Signal<service::WifiDeviceInfo*> onConnectedDeviceUpdated;
     Signal<const std::list<service::WifiDeviceInfo*>&> onPairedDeviceListUpdated;
     Signal<service::WifiDeviceInfo*> onAddDiscoryDeviceInfo;
     Signal<service::WifiDeviceInfo*> onRemoveDiscoryDeviceInfo;
+    Signal<bool> onCheckPasswordStateUpdated;
+    Signal<const service::WifiAuthenDeviceStatus&> onWifiAuthenDeviceStatusUpdated;
 
 private: 
     void onRepoStateChanged(common::Repository::State state);
 
 private:
     explicit WifiDriver();
-    common::Repository mRepo;
-
+    common::Repository mRepository;
     std::shared_mutex mMutex;
     bool mWifiStatus;
     service::WifiDeviceInfo* mConnectedDevice;

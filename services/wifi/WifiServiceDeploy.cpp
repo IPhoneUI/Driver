@@ -38,6 +38,16 @@ void WifiServiceDeploy::responsePairedListUpdated()
     });
 }
 
+void WifiServiceDeploy::responseRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device)
+{
+    mClientManager.deploy([this, device](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_Wifi_RespRemoveDiscoryDeviceInfoUpdated);
+        mMqSender.addParam(device->address.c_str());
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 void WifiServiceDeploy::responseConnectedDeviceUpdated()
 {
     mClientManager.deploy([this](std::string mqName) {

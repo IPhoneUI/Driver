@@ -48,6 +48,11 @@ void WifiServiceImpl::onMsqReceived()
             std::string address = mMqReceiver.get<std::string>(messages[1]);
             mWifiDriver->requestConnectDevice(address);
         }
+        case base::msq::Msq_Wifi_ReqForgetDevice: {
+            std::string address = mMqReceiver.get<std::string>(messages[1]);
+            mWifiDriver->requestForgetDevice(address);
+            break;
+        }
         }
     }
 }
@@ -60,6 +65,8 @@ void WifiServiceImpl::initialize()
     Connection::connect(mWifiDriver->onPairedDeviceListUpdated, std::bind(&WifiServiceImpl::onPairedDeviceListUpdated, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onConnectedDeviceUpdated, std::bind(&WifiServiceImpl::onConnectedDeviceUpdated, this, std::placeholders::_1));
     Connection::connect(mWifiDriver->onAddDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onAddDiscoryDeviceInfo, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onRemoveDiscoryDeviceInfo, std::bind(&WifiServiceImpl::onRemoveDiscoryDeviceInfo, this, std::placeholders::_1));
+    Connection::connect(mWifiDriver->onCheckPasswordStateUpdated, std::bind(&WifiServiceImpl::onCheckPasswordStateUpdated, this, std::placeholders::_1));
 
     mWifiDriver->connectDriver();
 }
@@ -73,11 +80,11 @@ void WifiServiceImpl::requestSync()
     bool wifiStatus = mWifiDriver->getWifiStatus();
     mDeploy->responseChangeWifiStatus(wifiStatus);
 
-    auto pairedList = mWifiDriver->getPairedDeviceList();
-    onPairedDeviceListUpdated(pairedList);
-
     auto connectedDevice = mWifiDriver->getConnectedDevice();
     onConnectedDeviceUpdated(connectedDevice);
+
+    auto pairedList = mWifiDriver->getPairedDeviceList();
+    onPairedDeviceListUpdated(pairedList);
 }
 
 void WifiServiceImpl::onWifiDriverReady()
@@ -111,6 +118,19 @@ void WifiServiceImpl::onConnectedDeviceUpdated(service::WifiDeviceInfo* device)
 void WifiServiceImpl::onAddDiscoryDeviceInfo(service::WifiDeviceInfo* device)
 {
     mDeploy->responseDiscoveryDeviceUpdated(device);
+}
+
+void WifiServiceImpl::onCheckPasswordStateUpdated(bool status)
+{
+    mDeploy->responseCheckDevicePassword(status);
+}
+
+void WifiServiceImpl::onRemoveDiscoryDeviceInfo(service::WifiDeviceInfo* device)
+{
+    bool result = mProvider->setDiscoveryDeviceList(mWifiDriver->getDiscoveryDeviceList());
+    if (result) {
+        mDeploy->responseRemoveDiscoryDeviceInfo(device);
+    }
 }
 
 }
