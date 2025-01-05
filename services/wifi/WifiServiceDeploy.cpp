@@ -48,6 +48,17 @@ void WifiServiceDeploy::responseRemoveDiscoryDeviceInfo(service::WifiDeviceInfo*
     });
 }
 
+void WifiServiceDeploy::responseAuthenDeviceStatus(const std::string& addr, const WifiAuthenDeviceStatus &state)
+{
+    mClientManager.deploy([this, addr, state](std::string mqName) {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mMqSender.startMsq(base::msq::Msq_Wifi_RespAuthenDeviceStatusUpdated);
+        mMqSender.addParam(addr.c_str());
+        mMqSender.addParam(static_cast<int>(state));
+        mMqSender.sendMsq(mqName);
+    });
+}
+
 void WifiServiceDeploy::responseConnectedDeviceUpdated()
 {
     mClientManager.deploy([this](std::string mqName) {

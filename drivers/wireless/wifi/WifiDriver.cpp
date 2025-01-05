@@ -123,9 +123,9 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
         if ((*it) != nullptr) {
-            int result = address.compare(0, address.size() - 1, (*it)->address);
-            if (result == 0) {
+            if (true == compareTexture(address, (*it)->address)) {
                 mWifiPairing->requestConnectDevice(*it);
+                mConnectingDeviceType = ConnectingDeviceType::Paired;
                 return;
             }
         }
@@ -135,8 +135,8 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
     for (std::list<service::WifiDeviceInfo*>::iterator it = discoveryList.begin(); it != discoveryList.end(); it++) {
         if ((*it) != nullptr) {
-            int result = address.compare(0, address.size() - 1, (*it)->address);
-            if (result == 0) {
+            if (true == compareTexture(address, (*it)->address)) {
+                mConnectingDeviceType = ConnectingDeviceType::Discovery;
                 mWifiDiscovery->requestConnectDevice(*it);
                 return;
             }
@@ -146,7 +146,8 @@ void WifiDriver::requestConnectDevice(const std::string& address)
 
 void WifiDriver::requestForgetDevice(const std::string &address)
 {
-    if (address.compare(0, address.size() - 1, mConnectedDevice->address) == 0) {
+    if (true == compareTexture(address, mConnectedDevice->address)) {
+        mWifiDiscovery->addDiscoveryDevice(mConnectedDevice);
         service::WifiDeviceInfo* emptyDevice = new service::WifiDeviceInfo("", false, "",
                                                                            "", false, static_cast<service::WifiSpeedMode>(0));
         mConnectedDevice = emptyDevice;
@@ -157,14 +158,46 @@ void WifiDriver::requestForgetDevice(const std::string &address)
 
         for (std::list<service::WifiDeviceInfo*>::iterator it = pairedList.begin(); it != pairedList.end(); it++) {
             if ((*it) != nullptr) {
-                int result = address.compare(0, address.size() - 1, (*it)->address);
-                if (result == 0) {
+                if (true == compareTexture(address, (*it)->address)) {
+                    mWifiDiscovery->addDiscoveryDevice(*it);
                     mWifiPairing->removePairedDevice((*it)->address);
                     return;
                 }
             }
         }
     }
+}
+
+bool WifiDriver::compareTexture(const std::string &firstDevice, const std::string &secondDevice)
+{
+    std::string device1 = firstDevice;
+    std::string device2 = secondDevice;
+
+    if (device1 == "" || device2 == "")
+        return false;
+
+    if (device1.find('\0') != std::string::npos) {
+        device1.erase(device1.end() - 1);
+    }
+
+    if (device2.find('\0') != std::string::npos) {
+        device2.erase(device1.end() - 1);
+    }
+
+    if (device1 == device2) {
+        return true;
+    }
+    return false;
+}
+
+void WifiDriver::requestCancelConnecting()
+{
+    if (mConnectingDeviceType == ConnectingDeviceType::Paired) {
+        mWifiPairing->cancelConnecting();
+    } else if (mConnectingDeviceType == ConnectingDeviceType::Discovery) {
+        mWifiDiscovery->cancelConnecting();
+    }
+    mConnectingDeviceType == ConnectingDeviceType::None;
 }
 
 void WifiDriver::requestCheckDevicePassword(const std::string& address, const std::string& password)

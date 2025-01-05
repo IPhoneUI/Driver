@@ -55,12 +55,19 @@ void WifiPairing::execute(milliseconds delta)
         mTime += delta;
         if (mStep == 0)
         {
-            // Move device to connecting process, so need to remove this device in the paired device list
-            removePairedDevice(mPairingAddr);
+            if (mAuthenStatus == service::WifiAuthenDeviceStatus::Terminate) {
 
-            mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
-            mTime = milliseconds(0);
-            mStep++;
+                mTime = milliseconds(0);
+                mStep = 0;
+                mPairingFlag = false;
+            } else {
+                // Move device to connecting process, so need to remove this device in the paired device list
+                removePairedDevice(mPairingAddr);
+
+                mAuthenStatus = service::WifiAuthenDeviceStatus::Authencating;
+                mTime = milliseconds(0);
+                mStep++;
+            }
         }
         if (mStep == 1 && mTime > milliseconds(2000))
         {
@@ -94,7 +101,7 @@ void WifiPairing::execute(milliseconds delta)
             mPairingFlag = false;
         }
         
-        mWifiDriver->onWifiAuthenDeviceStatusUpdated.emit(mAuthenStatus);
+        mWifiDriver->onWifiAuthenDeviceStatusUpdated.emit(mPairingAddr, mAuthenStatus);
     }
 }
 
@@ -107,6 +114,14 @@ void WifiPairing::removePairedDevice(const std::string &addr)
         }
     }
     mWifiDriver->onPairedDeviceListUpdated.emit(mPairedDevices);
+}
+
+void WifiPairing::cancelConnecting()
+{
+    mAuthenStatus == service::WifiAuthenDeviceStatus::Terminate;
+    mStep = 0;
+    mTime = milliseconds(0);
+    mPairingFlag = true;
 }
 
 std::list<service::WifiDeviceInfo*> WifiPairing::getPairedDeviceList()

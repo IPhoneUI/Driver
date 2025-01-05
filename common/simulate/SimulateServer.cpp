@@ -1,5 +1,6 @@
 #include "SimulateServer.h"
 #include <utils/Logger.h>
+#include <functional>
 #include <BaseDriver.h>
 
 namespace common {

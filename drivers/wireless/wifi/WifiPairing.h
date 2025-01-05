@@ -15,6 +15,7 @@ public:
     std::list<service::WifiDeviceInfo*> getPairedDeviceList();
     void requestConnectDevice(service::WifiDeviceInfo* device);
     void removePairedDevice(const std::string& addr);
+    void cancelConnecting();
 
     void readData();
     void writeBuffer();

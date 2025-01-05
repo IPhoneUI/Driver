@@ -17,6 +17,8 @@ public:
     void requestConnectDevice(service::WifiDeviceInfo* device);
     void requestCheckPassword(const std::string&, const std::string&);
     void removeDiscoveryDevice(const std::string&);
+    void cancelConnecting();
+    void addDiscoveryDevice(service::WifiDeviceInfo* device);
 
     std::list<service::WifiDeviceInfo*> getWifiDiscoveryList() const {
         return mDiscoveryDevices;
