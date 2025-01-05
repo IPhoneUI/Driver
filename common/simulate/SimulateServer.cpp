@@ -1,7 +1,8 @@
 #include "SimulateServer.h"
 #include <utils/Logger.h>
+#include <BaseDriver.h>
 
-namespace simulate {
+namespace common {
 
 SimulateServer::SimulateServer()
 {
@@ -184,12 +185,39 @@ void SimulateServer::acceptClient()
             mMuxClient.unlock();
             client->start();
         }
+        else 
+        {
+            if (mMsqQueue.size() > 0)
+            {
+                Message front = mMsqQueue.front();
+                mMsqQueue.pop();
+
+                for (auto it = mDrivers.begin(); it != mDrivers.end(); ++it)
+                {
+                    (*it).second->onSimulateReceived(front.topic, front.option, front.content);
+                }
+            }
+        }
     }
 
     if(mSockfd > -1)
     {
         close(mSockfd);
     }
+}
+
+void SimulateServer::registerDriver(const std::string& name, BaseDriver* driver)
+{
+    for (auto it = mDrivers.begin(); it != mDrivers.end(); ++it)
+    {
+        if ((*it).first == name)
+        {
+            LOG_WARN("%s is found! reject to register this driver", name.c_str());
+            return;
+        }
+    }
+
+    mDrivers.emplace(name, driver);
 }
 
 void SimulateServer::Client::start()
@@ -238,9 +266,14 @@ void SimulateServer::Client::readData()
                     str.resize(n);
                     memcpy(str.data(), buff, n);
 
-                    LOG_INFO("Data is: %s", str.c_str());
+                    std::vector<std::string> data = utils::StringUtils::split(str, "#");
 
-                    // Do handle message
+                    Message message;
+                    message.topic = data[0];
+                    message.option = data[1];
+                    message.content = data[2];
+
+                    mServer.mMsqQueue.push(message);
                 }
             }
         }

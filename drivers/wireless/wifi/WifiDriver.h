@@ -23,6 +23,7 @@ public:
     void execute(milliseconds delta) override;
     void connectDriver() override;
     void writeBuffer() override;
+    void onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content) override;
 
     bool getWifiStatus() const
     {

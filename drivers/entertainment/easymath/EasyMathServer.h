@@ -19,6 +19,7 @@ public:
     void connectDriver() override;
     void writeBuffer() override;
     void execute(milliseconds delta) override;
+    void onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content) override;
 
     void startGame();
     void generateExpression();

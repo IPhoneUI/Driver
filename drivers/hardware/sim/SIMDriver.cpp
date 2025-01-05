@@ -145,6 +145,10 @@ void SIMDriver::writeBuffer()
     mRepo.push();
 }
 
+void SIMDriver::onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content)
+{
+}
+
 void SIMDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)

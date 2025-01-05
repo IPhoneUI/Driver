@@ -16,10 +16,22 @@
 #include <shared_mutex>
 #include <mutex>
 #include <map>
+#include <unordered_map>
+#include <queue>
+#include <utils/StringUtils.h>
 
-namespace simulate {
+namespace common {
 
+struct Message {
+    std::string topic;
+    std::string option;
+    std::string content;
+};
+
+class BaseDriver;
+class Client;
 class SimulateServer {
+    friend class Client;
 public:
     ~SimulateServer();
     static SimulateServer& instance();
@@ -47,6 +59,7 @@ public:
 
     void start();
     void acceptClient();
+    void registerDriver(const std::string& name, BaseDriver* driver);
     
 private:
     SimulateServer();
@@ -70,6 +83,8 @@ private:
     std::thread mThread;
     bool mThreadRunning = false;
     std::map<int, Client*> mClients;
+    std::queue<Message> mMsqQueue;
+    std::unordered_map<std::string, BaseDriver*> mDrivers;
     std::shared_mutex mMuxClient;
 };
 

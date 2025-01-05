@@ -23,6 +23,7 @@ public:
     void execute(milliseconds delta) override;
     void writeBuffer() override;
     void connectDriver() override;
+    void onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content) override;
 
     void changeCellularStatus(bool status);
     void changeAllowAccess(bool status);

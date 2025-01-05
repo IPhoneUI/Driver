@@ -49,6 +49,10 @@ void EasyMathServer::writeBuffer()
     mRepo.push();
 }
 
+void EasyMathServer::onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content)
+{
+}
+
 void EasyMathServer::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)
