@@ -14,11 +14,13 @@
 #include <speaker/SpeakerDriver.h>
 #include <sim/SIMDriver.h>
 #include <DriverExecution.h>
+#include <simulate/SimulateServer.h>
 
 namespace driver {
 
 DriverConfiguration::DriverConfiguration()
 {
+    common::SimulateServer::instance().start();
     initDriver();
     addService();
 }

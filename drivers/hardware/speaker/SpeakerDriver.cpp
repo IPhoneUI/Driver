@@ -50,6 +50,39 @@ void SpeakerDriver::writeBuffer()
     mRepo.push();
 }
 
+void SpeakerDriver::onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content)
+{
+    if (topic == "HardKey")
+    {
+        if (option == "Volume")
+        {
+            if (content == "Increase")
+            {
+                mVolume += 1;
+                onVolumeUpdated.emit(mVolume);
+            }
+            else if (content == "Decrease")
+            {
+                mVolume -= 1;
+                onVolumeUpdated.emit(mVolume);
+            }
+        }
+        else if (option == "Mute")
+        {
+            if (content == "ON" && !mIsMuted)
+            {
+                mIsMuted = true;
+                onMuteUpdated.emit(mIsMuted);
+            }
+            else if (content == "OFF" && mIsMuted)
+            {
+                mIsMuted = false;
+                onMuteUpdated.emit(mIsMuted);
+            }
+        }
+    }
+}
+
 void SpeakerDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)

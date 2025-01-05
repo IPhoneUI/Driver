@@ -74,6 +74,11 @@ void WifiDriver::writeBuffer()
     mRepository.push();
 }
 
+void WifiDriver::onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content)
+{
+
+}
+
 void WifiDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)

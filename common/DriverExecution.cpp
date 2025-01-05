@@ -11,7 +11,6 @@ DriverExecution::DriverExecution()
     : mThread(std::bind(&DriverExecution::execute, this))
 {
     mThread.detach();
-    simulate::SimulateServer::instance().start();
 }
 
 
@@ -44,6 +43,7 @@ void DriverExecution::addDriver(const std::string& clientName, BaseDriver *obj)
     }
     
     mDrivers.emplace(clientName, obj);
+    SimulateServer::instance().registerDriver(clientName, obj);
 }
 
 void DriverExecution::finialize()

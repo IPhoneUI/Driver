@@ -5,6 +5,7 @@
 #include <Connection.h>
 #include <datamanager/Repository.h>
 #include <DriverExecution.h>
+#include <simulate/SimulateServer.h>
 
 namespace common {
 
@@ -16,6 +17,7 @@ public:
     virtual void connectDriver() = 0;
     virtual void execute(milliseconds delta);
     virtual void writeBuffer() = 0;
+    virtual void onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content) = 0;
 
     Signal<> onDriverReady;
 

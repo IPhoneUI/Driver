@@ -76,6 +76,10 @@ void FlashMemoryDriver::writeBuffer()
     mRepo.push();
 }
 
+void FlashMemoryDriver::onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content)
+{
+}
+
 void FlashMemoryDriver::onRepoStateChanged(common::Repository::State state)
 {
     if (state == common::Repository::PullCompleted)
