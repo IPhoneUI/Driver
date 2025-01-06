@@ -15,6 +15,8 @@ set(INCLUDE_DIRS
     /usr/include/nlohmann
 )
 
+add_definitions(-DDRIVERDIR=\"${BUILDDIR}/Driver\")
+
 find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem)
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 

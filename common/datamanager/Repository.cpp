@@ -8,13 +8,18 @@ namespace common {
 void Repository::setName(const std::string& name)
 {
     mName = name;
-    mPath = filesystem::parent_path(__FILE__) + "/database/" + mName + ".json";
+
+    std::string driverDir = DRIVERDIR;
+    mDirPath = driverDir + "/database";
+    filesystem::create_dir(mDirPath);
+    mTargetPath = mDirPath + "/" + mName + ".json";
+    mDefaultPath = filesystem::parent_path(__FILE__) + "/database/" + mName + "_default.json";;
 }
 
 Parameter& Repository::operator[](ParameterIndex index)
 {
     static Parameter invalidParam; 
-    if (mName.empty() || mPath.empty())
+    if (mName.empty() || mTargetPath.empty())
     {
         LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
         return invalidParam;
@@ -37,7 +42,7 @@ Parameter& Repository::operator[](ParameterIndex index)
 
 void Repository::addParam(const std::string& keyName, ParameterIndex index)
 {
-    if (mName.empty() || mPath.empty())
+    if (mName.empty() || mTargetPath.empty())
     {
         LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
         return;
@@ -71,16 +76,23 @@ ConfigParameter* Repository::findParam(const std::string& name)
 
 void Repository::pull()
 {
-    if (mName.empty() || mPath.empty())
+    if (mName.empty() || mTargetPath.empty())
     {
         LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
         setState(PullError);
         return;
     }
 
+    std::string path = mTargetPath;
+    if (!filesystem::exists(mTargetPath))
+    {
+        path = mDefaultPath;
+        filesystem::create_file(mTargetPath);
+    }
+
     std::unique_lock<std::shared_mutex> lock(mMutex);
     setState(WaitToPullCompleted);
-    std::ifstream input_file(mPath);
+    std::ifstream input_file(path);
     if (!input_file.is_open()) 
     {
         setState(PullError);
@@ -106,13 +118,13 @@ void Repository::pull()
 
 void Repository::push()
 {
-    if (mName.empty() || mPath.empty())
+    if (mName.empty() || mTargetPath.empty())
     {
         LOG_WARN("repo name or path is empty [%s]", SERVICE_NAME);
         setState(PushError);
         return;
     }
-    LOG_INFO("repo: %s", mName.c_str());
+    LOG_INFO("Push data to the target: %s", mTargetPath.c_str());
     std::unique_lock<std::shared_mutex> lock(mMutex);
 
     json j;
@@ -193,7 +205,7 @@ void Repository::push()
         }
     }
 
-    std::ofstream output_file(mPath);
+    std::ofstream output_file(mTargetPath);
     if (!output_file.is_open())
     {
         setState(PushError);

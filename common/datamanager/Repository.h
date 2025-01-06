@@ -103,7 +103,9 @@ private:
     ConfigParameter* findParam(const std::string& name);
 
     std::string mName;
-    std::string mPath;
+    std::string mDirPath;
+    std::string mTargetPath;
+    std::string mDefaultPath;
     State mState {IdleState};
 
     mutable std::shared_mutex mMutex;

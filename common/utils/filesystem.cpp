@@ -8,7 +8,7 @@ namespace common::filesystem
         const bool res = boost::filesystem::exists(path, ec);
         if (ec)
         {
-            LOG_ERR("exists value: %d, message: %s, path: %s", ec.value(), ec.message().c_str(), path.c_str());
+            LOG_WARN("path: %s is not a file", path.c_str());
             return false;
         }
         return res;
@@ -20,7 +20,7 @@ namespace common::filesystem
         const bool res = boost::filesystem::is_directory(path, ec);
         if (ec)
         {
-            LOG_ERR("is_directory value: %d, message: %s, path: %s", ec.value(), ec.message().c_str(), path.c_str());
+            LOG_WARN("path: %s is not directory", path.c_str());
             return false;
         }
         return res;
@@ -170,7 +170,7 @@ namespace common::filesystem
 
     bool create_dir(const std::string &path)
     {
-        if (exists(path))
+        if (is_directory(path))
         {
             return true;
         }
