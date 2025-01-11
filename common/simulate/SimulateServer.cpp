@@ -267,7 +267,7 @@ void SimulateServer::Client::readData()
                     str.resize(n);
                     memcpy(str.data(), buff, n);
 
-                    std::vector<std::string> data = utils::StringUtils::split(str, "#");
+                    std::vector<std::string> data = base::utils::StringUtils::split(str, "#");
 
                     Message message;
                     message.topic = data[0];

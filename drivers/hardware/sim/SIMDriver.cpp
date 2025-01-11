@@ -1,5 +1,8 @@
 #include "SIMDriver.h"
 #include <utils/Logger.h>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 namespace driver {
 
@@ -92,6 +95,21 @@ void SIMDriver::execute(milliseconds delta)
 
     if (mCallInfo != nullptr && mCallInfo->status == service::CallStatus::Idle)
     {
+        std::time_t now = std::time(nullptr);
+        std::tm* localTime = std::localtime(&now);
+
+        std::ostringstream oss;
+        oss << std::put_time(localTime, "%Y%m%d%H%M%S");
+        std::string dateTime = oss.str();
+
+        mHistories.emplace_back(
+            static_cast<uint32_t>(mHistories.size()),
+            mCallInfo->name,
+            mCallInfo->number,
+            dateTime,
+            mCallInfo->callType
+        );
+        onPhoneHistoryListUpdated.emit();
         delete mCallInfo;
         mCallInfo = nullptr;
     }
@@ -234,6 +252,7 @@ void SIMDriver::callNumber(const std::string& number)
     mCallInfo = new service::CallInformation();
     mCallInfo->status = service::CallStatus::Outgoing;
     mCallInfo->number = number;
+    mCallInfo->callType = service::PhoneCallingType::Outgoing;
 
     for (auto it = mContacts.begin(); it != mContacts.end(); ++it)
     {

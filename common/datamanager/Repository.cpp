@@ -1,5 +1,6 @@
 #include "Repository.h"
 #include <utils/Logger.h>
+#include <utils/StringUtils.h>
 
 namespace common {
 
@@ -135,9 +136,11 @@ void Repository::push()
         {
             utils::Variant value = configParam->value;
             switch (value.type()) {
-            case utils::Variant::String:
-                j[configParam->name] = value.get<std::string>(); 
+            case utils::Variant::String: {
+                std::string str = value.get<std::string>();
+                j[configParam->name] = base::utils::StringUtils::removeCharacter(str, '\0'); 
                 break;
+            }
             case utils::Variant::Integer:
                 j[configParam->name] = value.get<int>(); 
                 break;
@@ -158,9 +161,11 @@ void Repository::push()
             for (const auto& [subKey, subValue] : data)
             {
                 switch (subValue.type()) {
-                case utils::Variant::String:
-                    obj[subKey] = subValue.get<std::string>(); 
+                case utils::Variant::String: {
+                    std::string value = subValue.get<std::string>();
+                    obj[subKey] = base::utils::StringUtils::removeCharacter(value, '\0'); 
                     break;
+                }
                 case utils::Variant::Integer:
                     obj[subKey] = subValue.get<int>(); 
                     break;
@@ -185,9 +190,11 @@ void Repository::push()
                 for (const auto& [subKey, subValue] : item)
                 {
                     switch (subValue.type()) {
-                    case utils::Variant::String:
-                        obj[subKey] = subValue.get<std::string>(); 
+                    case utils::Variant::String: {
+                        std::string value = subValue.get<std::string>();
+                        obj[subKey] = base::utils::StringUtils::removeCharacter(value, '\0'); 
                         break;
+                    }
                     case utils::Variant::Integer:
                         obj[subKey] = subValue.get<int>(); 
                         break;
