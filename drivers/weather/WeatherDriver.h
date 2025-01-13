@@ -5,6 +5,7 @@
 #include <thread>
 #include <functional>
 #include <common/BaseDriver.h>
+#include "WeatherMonitor.h"
 
 namespace driver {
 
@@ -19,6 +20,16 @@ public:
     void connectDriver() override;
     void writeBuffer() override;
     void onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content) override;
+
+    void getWeatherFigures();
+    void readData();
+
+    void onRepoStateChanged(common::Repository::State state);
+
+
+protected:
+    WeatherMonitor* mMonitor {nullptr};
+    common::Repository mRepository;
 
 private:
     WeatherDriver();

@@ -17,6 +17,11 @@ WeatherServiceDeploy::~WeatherServiceDeploy()
 
 }
 
+void WeatherServiceDeploy::responseServiceReady(const std::string &clientName)
+{
+
+}
+
 WeatherServiceDeploy::WeatherServiceDeploy()
 {
 

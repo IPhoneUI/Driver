@@ -7,6 +7,7 @@
 #include <utility>
 #include <common/BaseServiceImpl.h>
 #include "WeatherServiceDeploy.h"
+#include <WeatherDriver.h>
 
 namespace service {
 class WeatherServiceImpl : public common::BaseServiceImpl
@@ -21,7 +22,8 @@ public:
     void registerClient(const std::string& clientName);
 
 private:
-    WeatherServiceDeploy* mDeploy;
+    WeatherServiceDeploy* mDeploy {nullptr};
+    driver::WeatherDriver* mDriver {nullptr};
 };
 }
 

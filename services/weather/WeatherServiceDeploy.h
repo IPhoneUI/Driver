@@ -11,11 +11,13 @@
 #include <weather/WeatherDef.h>
 
 namespace service {
-class WeatherServiceDeploy
+class WeatherServiceDeploy : public common::BaseDeploy
 {
 public:
     static WeatherServiceDeploy* instance();
     ~WeatherServiceDeploy();
+
+    void responseServiceReady(const std::string& clientName) override;
 
 
 private:
