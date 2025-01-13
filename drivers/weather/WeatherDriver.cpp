@@ -6,13 +6,13 @@ static WeatherDriver* gInstance = nullptr;
 
 WeatherDriver::WeatherDriver()
 {
-    // mRepository.setName("locations");
+    mRepository.setName("locations");
 
-    // mRepository.addParam("weatherlocations", common::ParameterIndex::Weather_Location);
+    mRepository.addParam("destinations", common::ParameterIndex::Weather_Locations);
 
     Connection::connect(mRepository.onRepoStateChanged, std::bind(&WeatherDriver::onRepoStateChanged, this, std::placeholders::_1));
 
-    // mRepository.pull();
+    mRepository.pull();
 
     common::DriverExecution::instance().addDriver("WeatherDriver", this);
 }
@@ -37,7 +37,19 @@ void WeatherDriver::connectDriver()
 
 void WeatherDriver::writeBuffer()
 {
+    utils::VariantList locations;
+    for (int i = 0; i < 2; i++) {
+        std::unordered_map<std::string, utils::Variant> item;
+        item["location"] = std::string("nghean");
+        item["latitude"] = 19.274220;
+        item["longitude"] = 104.840622;
+        item["default"] = 1;
+        utils::VariantObj obj = item;
+        locations.push(obj);
+    }
+    mRepository[common::ParameterIndex::Weather_Locations] = locations;
 
+    mRepository.push();
 }
 
 void WeatherDriver::onSimulateReceived(const std::string &topic, const std::string &option, const std::string &content)
@@ -52,10 +64,10 @@ void WeatherDriver::getWeatherFigures()
 
 void WeatherDriver::readData()
 {
-    // utils::VariantList dataList = mRepository[common::ParameterIndex::Weather_Location];
-    // for (const auto &item : dataList) {
-    //     LOG_INFO("THAIVD ---- DATA:");
-    // }
+    utils::VariantList dataList = mRepository[common::ParameterIndex::Weather_Locations];
+    for (const auto &itemObj : dataList) {
+        std::unordered_map<std::string, utils::Variant> item = itemObj;
+    }
 }
 
 void WeatherDriver::onRepoStateChanged(common::Repository::State state)

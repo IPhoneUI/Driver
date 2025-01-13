@@ -31,6 +31,7 @@ enum Type {
     Speaker_Muted,
     Speaker_Volume,
     EMath_HighestScore,
+    Weather_Locations,
     ParameterMax
 };
 }
