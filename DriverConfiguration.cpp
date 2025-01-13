@@ -15,6 +15,8 @@
 #include <sim/SIMDriver.h>
 #include <DriverExecution.h>
 #include <simulate/SimulateServer.h>
+#include <weather/WeatherServiceImpl.h>
+#include <WeatherDriver.h>
 
 namespace driver {
 
@@ -51,6 +53,7 @@ void DriverConfiguration::addService()
     common::ServiceFactory::instance().addService<service::PSTNServiceImpl>();
     common::ServiceFactory::instance().addService<service::SystemSettingServiceImpl>();
     common::ServiceFactory::instance().addService<service::WifiServiceImpl>();
+    common::ServiceFactory::instance().addService<service::WeatherServiceImpl>();
 }
 
 void DriverConfiguration::initDriver()
@@ -60,6 +63,7 @@ void DriverConfiguration::initDriver()
     SpeakerDriver::initialize();
     SIMDriver::initialize();
     WifiDriver::initialize();
+    WeatherDriver::initialize();
 }
 
 }

@@ -12,6 +12,7 @@ set(INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/hardware
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/wireless
     ${CMAKE_CURRENT_SOURCE_DIR}/drivers/entertainment
+    ${CMAKE_CURRENT_SOURCE_DIR}/drivers/weather
     /usr/include/nlohmann
 )
 
