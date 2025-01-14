@@ -49,17 +49,17 @@ void WeatherDriver::connectDriver()
 void WeatherDriver::writeBuffer()
 {
     utils::VariantList locations;
-    for (int i = 0; i < 2; i++) {
+    for (auto it : mMonitor->mLocations) {
         std::unordered_map<std::string, utils::Variant> item;
-        item["location"] = std::string("nghean");
-        item["latitude"] = 19.274220;
-        item["longitude"] = 104.840622;
-        item["default"] = 1;
+        LocationInfo info = it->getDestination();
+        item["location"] = static_cast<std::string>(info.nameLocation);
+        item["latitude"] = info.latitude;
+        item["longitude"] = info.longitude;
+        item["default"] = info.defaultDes;
         utils::VariantObj obj = item;
         locations.push(obj);
     }
     mRepository[common::ParameterIndex::Weather_Locations] = locations;
-
     mRepository.push();
 }
 
@@ -77,7 +77,6 @@ void WeatherDriver::readData()
 {
     utils::VariantList dataList = mRepository[common::ParameterIndex::Weather_Locations];
     for (const auto &it : dataList) {
-        LOG_INFO("THAIVD --- READ DATA");
         std::unordered_map<std::string, utils::Variant> item = it;
         std::string name = item["location"];
         double lat = item["latitude"];
