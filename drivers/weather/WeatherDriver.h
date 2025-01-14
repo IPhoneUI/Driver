@@ -4,8 +4,8 @@
 #include <string>
 #include <thread>
 #include <functional>
+#include "WeatherServer.h"
 #include <common/BaseDriver.h>
-#include "WeatherMonitor.h"
 
 namespace driver {
 
@@ -26,10 +26,13 @@ public:
 
     void onRepoStateChanged(common::Repository::State state);
 
+    Signal<const std::vector<driver::WeatherInfo>&> onWeatherChanged;
 
 protected:
-    WeatherMonitor* mMonitor {nullptr};
+    WeatherServer* mMonitor {nullptr};
     common::Repository mRepository;
+    milliseconds mTimer;
+    bool isCheck = false;
 
 private:
     WeatherDriver();

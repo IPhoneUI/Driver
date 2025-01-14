@@ -1,10 +1,13 @@
 #include "WeatherDriver.h"
 
+#define API_KEY "a2c3652a9508a002062abb68beb71f7d"
+
 namespace driver {
 
 static WeatherDriver* gInstance = nullptr;
 
 WeatherDriver::WeatherDriver()
+    : mMonitor(new WeatherServer(API_KEY))
 {
     mRepository.setName("locations");
 
@@ -24,10 +27,18 @@ WeatherDriver::~WeatherDriver()
 
 void WeatherDriver::execute(milliseconds delta)
 {
-    // static milliseconds tempDelta = 0;
-    // if (tempDelta >= 8000) {
+    if (isCheck == false) {
+        mTimer += delta;
 
-    // }
+        if (mTimer.count() > 10000) {
+            for (auto it : mMonitor->mLocations) {
+                it->fetchData(mMonitor->mKeyAPI);
+                isCheck = true;
+                mTimer = milliseconds(0);
+            }
+
+        }
+    }
 }
 
 void WeatherDriver::connectDriver()
@@ -65,8 +76,15 @@ void WeatherDriver::getWeatherFigures()
 void WeatherDriver::readData()
 {
     utils::VariantList dataList = mRepository[common::ParameterIndex::Weather_Locations];
-    for (const auto &itemObj : dataList) {
-        std::unordered_map<std::string, utils::Variant> item = itemObj;
+    for (const auto &it : dataList) {
+        LOG_INFO("THAIVD --- READ DATA");
+        std::unordered_map<std::string, utils::Variant> item = it;
+        std::string name = item["location"];
+        double lat = item["latitude"];
+        double lg = item["longitude"];
+        int _default = item["default"];
+        WeatherInfo* newItem = new WeatherInfo(name, lat, lg, static_cast<uint8_t>(_default));
+        mMonitor->addDestination(newItem);
     }
 }
 
