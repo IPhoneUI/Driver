@@ -55,7 +55,7 @@ void WeatherDriver::writeBuffer()
         item["location"] = static_cast<std::string>(info.nameLocation);
         item["latitude"] = info.latitude;
         item["longitude"] = info.longitude;
-        item["default"] = info.defaultDes;
+        item["default"] = static_cast<int>(info.defaultDes);
         utils::VariantObj obj = item;
         locations.push(obj);
     }
