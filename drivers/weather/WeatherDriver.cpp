@@ -52,10 +52,10 @@ void WeatherDriver::writeBuffer()
     for (auto it : mMonitor->mLocations) {
         std::unordered_map<std::string, utils::Variant> item;
         LocationInfo info = it->getDestination();
-        item["location"] = static_cast<std::string>(info.nameLocation);
+        item["location"] = info.nameLocation;
         item["latitude"] = info.latitude;
         item["longitude"] = info.longitude;
-        item["default"] = info.defaultDes;
+        item["default"] = static_cast<int>(info.defaultDes);
         utils::VariantObj obj = item;
         locations.push(obj);
     }
