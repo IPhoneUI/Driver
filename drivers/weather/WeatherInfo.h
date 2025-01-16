@@ -1,11 +1,10 @@
-#ifndef WEATHERSERVER_H
-#define WEATHERSERVER_H
+#ifndef WEATHERINFO_H
+#define WEATHERINFO_H
 
 #include <string>
-#include <vector>
+#include <utils/filesystem.h>
 
-namespace driver
-{
+namespace driver {
 
 struct LocationInfo {
     std::string nameLocation;
@@ -32,21 +31,6 @@ private:
     std::string mRawData;
 };
 
-class WeatherDriver;
-class WeatherServer
-{
-    friend class WeatherDriver;
-public:
-    WeatherServer(const std::string& key);
-    ~WeatherServer();
-
-    void syncData();
-    void addDestination(WeatherInfo* des);
-
-private:
-    std::string mKeyAPI;
-    std::vector<WeatherInfo*> mLocations;
-};
 }
 
-#endif //WEATHERSERVER_H
+#endif //WEATHERINFO_H

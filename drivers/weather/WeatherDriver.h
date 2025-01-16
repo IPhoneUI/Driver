@@ -4,10 +4,28 @@
 #include <string>
 #include <thread>
 #include <functional>
-#include "WeatherServer.h"
+#include <string>
+#include <vector>
+#include "WeatherInfo.h"
 #include <common/BaseDriver.h>
 
 namespace driver {
+
+class WeatherServer
+{
+    friend class WeatherDriver;
+public:
+    WeatherServer(const std::string& key);
+    ~WeatherServer();
+
+    void syncData();
+    void addDestination(WeatherInfo* des);
+
+private:
+    std::string mKeyAPI;
+    std::vector<WeatherInfo*> mLocations;
+};
+
 
 class WeatherDriver : public common::BaseDriver
 {
@@ -31,12 +49,13 @@ public:
 protected:
     WeatherServer* mMonitor {nullptr};
     common::Repository mRepository;
-    milliseconds mTimer;
+    milliseconds mSyncTimer {milliseconds(300000)};
     bool isCheck = false;
 
 private:
     WeatherDriver();
 };
+
 
 }
 

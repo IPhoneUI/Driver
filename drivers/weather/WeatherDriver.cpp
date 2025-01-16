@@ -1,10 +1,39 @@
 #include "WeatherDriver.h"
 
 #define API_KEY "a2c3652a9508a002062abb68beb71f7d"
+#define SYNC_INTERVAL 300000
 
 namespace driver {
 
 static WeatherDriver* gInstance = nullptr;
+
+
+WeatherServer::WeatherServer(const std::string &key)
+    : mKeyAPI(key)
+{
+
+}
+
+WeatherServer::~WeatherServer()
+{
+
+}
+
+void WeatherServer::syncData()
+{
+
+}
+
+void WeatherServer::addDestination(WeatherInfo *des)
+{
+    if (des == nullptr) {
+        LOG_WARN("WeatherServer - weather object is null");
+        return;
+    }
+    mLocations.push_back(des);
+}
+
+// =====================================================
 
 WeatherDriver::WeatherDriver()
     : mMonitor(new WeatherServer(API_KEY))
@@ -12,9 +41,7 @@ WeatherDriver::WeatherDriver()
     mRepository.setName("locations");
 
     mRepository.addParam("destinations", common::ParameterIndex::Weather_Locations);
-
     Connection::connect(mRepository.onRepoStateChanged, std::bind(&WeatherDriver::onRepoStateChanged, this, std::placeholders::_1));
-
     mRepository.pull();
 
     common::DriverExecution::instance().addDriver("WeatherDriver", this);
@@ -27,17 +54,12 @@ WeatherDriver::~WeatherDriver()
 
 void WeatherDriver::execute(milliseconds delta)
 {
-    if (isCheck == false) {
-        mTimer += delta;
-
-        if (mTimer.count() > 10000) {
-            for (auto it : mMonitor->mLocations) {
-                it->fetchData(mMonitor->mKeyAPI);
-                isCheck = true;
-                mTimer = milliseconds(0);
-            }
-
+    mSyncTimer += delta;
+    if (mSyncTimer.count() > SYNC_INTERVAL) {
+        for (size_t it = 0; mMonitor->mLocations.size(); ++it) {
+            mMonitor->mLocations[it]->fetchData(API_KEY);
         }
+        mSyncTimer = milliseconds(0);
     }
 }
 
