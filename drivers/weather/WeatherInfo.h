@@ -21,6 +21,9 @@ public:
     void setWeatherData(const std::string& location, const double& currentTmp, const double& maxTemp, const double& minTemp);
     void fetchData(const std::string& key);
     LocationInfo getDestination() const;
+    std::string getRawData() const {
+        return mRawData;
+    }
 
 private:
     LocationInfo mLocationInfo;

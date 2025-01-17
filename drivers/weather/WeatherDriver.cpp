@@ -7,7 +7,6 @@ namespace driver {
 
 static WeatherDriver* gInstance = nullptr;
 
-
 WeatherServer::WeatherServer(const std::string &key)
     : mKeyAPI(key)
 {
@@ -30,7 +29,26 @@ void WeatherServer::addDestination(WeatherInfo *des)
         LOG_WARN("WeatherServer - weather object is null");
         return;
     }
-    mLocations.push_back(des);
+    mLocationInfoList.emplace_back(std::make_pair(des->getDestination().nameLocation, des));
+}
+
+bool WeatherServer::parseRawData(const std::string &data)
+{
+    if (data.empty())
+        return false;
+
+    json j;
+    j = json::parse(data);
+
+    std::ofstream file("weatherdata.json", std::ios_base::out);
+
+    if (file.is_open()) {
+        LOG_WARN("WeatherServer - create file is failed");
+    }
+
+    // file << std::setw(4) << j;
+
+    return true;
 }
 
 // =====================================================
@@ -56,10 +74,17 @@ void WeatherDriver::execute(milliseconds delta)
 {
     mSyncTimer += delta;
     if (mSyncTimer.count() > SYNC_INTERVAL) {
-        for (size_t it = 0; mMonitor->mLocations.size(); ++it) {
-            mMonitor->mLocations[it]->fetchData(API_KEY);
+        std::unique_lock<std::mutex> lock(mMutex);
+        std::list<std::pair<std::string, WeatherInfo*>>::iterator it = mMonitor->mLocationInfoList.begin();
+        for(; it != mMonitor->mLocationInfoList.end(); it++) {
+            std::get<1>(*it)->fetchData(API_KEY);
         }
+        // for (std::list<std::pair<std::string, WeatherInfo*>>::iterator it = mLoca)
+        // for (size_t it = 0; it < mMonitor->mLocations.size(); ++it) {
+        //     mMonitor->mLocations[it]->fetchData(API_KEY);
+        // }
         mSyncTimer = milliseconds(0);
+        onWeatherDataChanged.emit(mMonitor->mLocationInfoList);
     }
 }
 
@@ -71,9 +96,9 @@ void WeatherDriver::connectDriver()
 void WeatherDriver::writeBuffer()
 {
     utils::VariantList locations;
-    for (auto it : mMonitor->mLocations) {
+    for (auto it : mMonitor->mLocationInfoList) {
         std::unordered_map<std::string, utils::Variant> item;
-        LocationInfo info = it->getDestination();
+        LocationInfo info = std::get<1>(it)->getDestination();
         item["location"] = info.nameLocation;
         item["latitude"] = info.latitude;
         item["longitude"] = info.longitude;

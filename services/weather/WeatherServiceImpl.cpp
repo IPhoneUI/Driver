@@ -36,7 +36,8 @@ void WeatherServiceImpl::onMsqReceived()
 
 void WeatherServiceImpl::initialize()
 {
-
+    LOG_INFO("WeatherServiceImpl initialized");
+    Connection::connect(mDriver->onWeatherDataChanged, std::bind(&WeatherServiceImpl::onWeatherDataChanged, this, std::placeholders::_1));
 }
 
 void WeatherServiceImpl::finialize()
@@ -49,6 +50,20 @@ void WeatherServiceImpl::registerClient(const std::string &clientName)
     if (mDeploy->registerClient(clientName)) {
         mDeploy->responseServiceReady(clientName);
     }
+}
+
+void WeatherServiceImpl::onWeatherDataChanged(const std::list<std::pair<std::string, driver::WeatherInfo*>> &dataList)
+{
+    LOG_INFO("WeatherServiceImpl size: %d", dataList.size());
+
+    if (dataList.empty())
+        return;
+
+    for (auto it : dataList) {
+        std::string result = std::get<1>(it)->getRawData();
+        LOG_INFO("THAIVD KKK: %s", result.c_str());
+    }
+
 }
 
 

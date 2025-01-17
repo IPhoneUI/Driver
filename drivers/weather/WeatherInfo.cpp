@@ -62,6 +62,11 @@ void WeatherInfo::fetchData(const std::string &key)
         return;
     }
 
+    // std::string result = "";
+
+    // result = "{" + '\"' + mLocationInfo.nameLocation + "\":" + response + "}";
+
+    LOG_INFO("THAIVD --- HEHE: %s", response.c_str());
     mRawData = response;
 }
 

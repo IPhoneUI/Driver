@@ -8,9 +8,16 @@
 #include <vector>
 #include "WeatherInfo.h"
 #include <common/BaseDriver.h>
+#include <list>
+#include <utility>
 
 namespace driver {
 
+enum class WeatherField {
+
+};
+
+class WeatherDriver;
 class WeatherServer
 {
     friend class WeatherDriver;
@@ -20,12 +27,12 @@ public:
 
     void syncData();
     void addDestination(WeatherInfo* des);
+    bool parseRawData(const std::string& data);
 
 private:
     std::string mKeyAPI;
-    std::vector<WeatherInfo*> mLocations;
+    std::list<std::pair<std::string, WeatherInfo*>> mLocationInfoList;
 };
-
 
 class WeatherDriver : public common::BaseDriver
 {
@@ -44,13 +51,14 @@ public:
 
     void onRepoStateChanged(common::Repository::State state);
 
-    Signal<const std::vector<driver::WeatherInfo>&> onWeatherChanged;
+    Signal<const std::list<std::pair<std::string, WeatherInfo*>>&> onWeatherDataChanged;
 
 protected:
     WeatherServer* mMonitor {nullptr};
     common::Repository mRepository;
     milliseconds mSyncTimer {milliseconds(300000)};
     bool isCheck = false;
+    std::mutex mMutex;
 
 private:
     WeatherDriver();
