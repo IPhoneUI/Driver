@@ -28,7 +28,7 @@ void WeatherServiceDeploy::responseWeatherDataChanged()
 {
     mClientManager.deploy([this](std::string mqName) {
         std::lock_guard<std::mutex> lock(mMutex);
-        mMqSender.startMsq(base::msq::Msq_SysSett_RespAirPlaneModeUpdated);
+        mMqSender.startMsq(base::msq::Msq_Weather_RespDataChanged);
         mMqSender.sendMsq(mqName);
     });
 }

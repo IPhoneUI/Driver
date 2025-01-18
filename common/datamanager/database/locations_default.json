@@ -11,6 +11,12 @@
             "latitude": 16.054407,
             "longitude": 108.202164,
             "default": 0
+        },
+        {
+            "location": "Quang Tri",
+            "latitude": 16.753870,
+            "longitude": 107.186722,
+            "default": 0
         }
     ]
 }
