@@ -27,7 +27,6 @@ public:
 
     void syncData();
     void addDestination(WeatherInfo* des);
-    bool parseRawData(const std::string& data);
 
 private:
     std::string mKeyAPI;

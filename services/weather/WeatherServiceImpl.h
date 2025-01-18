@@ -7,7 +7,7 @@
 #include <utility>
 #include <common/BaseServiceImpl.h>
 #include "WeatherServiceDeploy.h"
-#include <WeatherDriver.h>
+#include <weather/WeatherProvider.h>
 
 namespace service {
 
@@ -27,6 +27,7 @@ public:
 private:
     WeatherServiceDeploy* mDeploy {nullptr};
     driver::WeatherDriver* mDriver {nullptr};
+    base::shm::WeatherProvider* mProvider {nullptr};
 };
 
 }

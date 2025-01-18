@@ -7,6 +7,7 @@ WeatherServiceImpl::WeatherServiceImpl()
     : BaseServiceImpl(WeatherServiceDeploy::instance())
     , mDeploy(WeatherServiceDeploy::instance())
     , mDriver(driver::WeatherDriver::instance())
+    , mProvider(base::shm::WeatherProvider::instance())
 {
 
 }
@@ -56,15 +57,17 @@ void WeatherServiceImpl::onWeatherDataChanged(const std::list<std::pair<std::str
 {
     LOG_INFO("WeatherServiceImpl size: %d", dataList.size());
 
-    if (dataList.empty())
-        return;
+    std::list<std::pair<std::string, driver::WeatherInfo*>> temp = dataList;
+    std::vector<service::WeatherParameters> mList;
 
-    for (auto it : dataList) {
-        std::string result = std::get<1>(it)->getRawData();
-        LOG_INFO("THAIVD KKK: %s", result.c_str());
+    for (std::list<std::pair<std::string, driver::WeatherInfo*>>::iterator it = temp.begin(); it != temp.end(); ++it) {
+        service::WeatherParameters item = *(std::get<1>(*it));
+        mList.push_back(item);
     }
 
+    if (mProvider->setWeatherData(mList)) {
+        mDeploy->responseWeatherDataChanged();
+    }
 }
-
 
 }

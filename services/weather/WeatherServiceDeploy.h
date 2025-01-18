@@ -9,6 +9,7 @@
 #include <shared_mutex>
 #include <common/BaseDeploy.h>
 #include <weather/WeatherDef.h>
+#include <WeatherDriver.h>
 
 namespace service {
 class WeatherServiceDeploy : public common::BaseDeploy
@@ -19,8 +20,11 @@ public:
 
     void responseServiceReady(const std::string& clientName) override;
 
+    void responseWeatherDataChanged();
+
 
 private:
+    std::mutex mMutex;
     explicit WeatherServiceDeploy();
 };
 }
