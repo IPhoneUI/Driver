@@ -79,18 +79,6 @@ void SIMDriver::execute(milliseconds delta)
         mEventQueue.pop();
     }
 
-    if (mCallInfo != nullptr && (mCallInfo->status == service::CallStatus::Incoming || mCallInfo->status == service::CallStatus::Outgoing))
-    {
-        checkActiveState += delta;
-        if (checkActiveState > milliseconds(5000))
-        {
-            checkActiveState = milliseconds(0);
-            mCallInfo->status = service::CallStatus::Active;
-            mEventQueue.push(PSTNEvent::CallStatusUpdated);
-
-        }
-    }
-
     updateTimeCall(delta);
 
     if (mCallInfo != nullptr && mCallInfo->status == service::CallStatus::Idle)
@@ -112,6 +100,18 @@ void SIMDriver::execute(milliseconds delta)
         onPhoneHistoryListUpdated.emit();
         delete mCallInfo;
         mCallInfo = nullptr;
+    }
+
+    if (mCallInfo != nullptr && (mCallInfo->status == service::CallStatus::Incoming || mCallInfo->status == service::CallStatus::Outgoing))
+    {
+        checkActiveState += delta;
+        if (checkActiveState > milliseconds(10000))
+        {
+            checkActiveState = milliseconds(0);
+            mCallInfo->callType = service::PhoneCallingType::Missed;
+            mCallInfo->status = service::CallStatus::Idle;
+            mEventQueue.push(PSTNEvent::CallStatusUpdated);
+        }
     }
 }
 
@@ -165,6 +165,44 @@ void SIMDriver::writeBuffer()
 
 void SIMDriver::onSimulateReceived(const std::string& topic, const std::string& option, const std::string& content)
 {
+    if (topic == "Phone Calling")
+    {
+        if (option == "Answer Call")
+        {
+            if (mCallInfo == nullptr)
+                return;
+
+            if (mCallInfo != nullptr && (mCallInfo->status == service::CallStatus::Incoming 
+                || mCallInfo->status == service::CallStatus::Outgoing))
+            {
+                mCallInfo->status = service::CallStatus::Active;
+                mEventQueue.push(PSTNEvent::CallStatusUpdated);
+            }
+        }
+        else if (option == "Incoming Call")
+        {
+            if (mCallInfo != nullptr)
+                return;
+
+            mCallInfo = new service::CallInformation();
+            mCallInfo->status = service::CallStatus::Incoming;
+            mCallInfo->number = content;
+            mCallInfo->callType = service::PhoneCallingType::Incoming;
+
+            for (auto it = mContacts.begin(); it != mContacts.end(); ++it)
+            {
+                if (strcmp((*it).phoneNumber.c_str(), content.c_str()) == 0)
+                {
+                    mCallInfo->name = std::string((*it).formatName);
+                    mCallInfo->avatar = std::string((*it).photo);
+                    break;
+                }
+            }
+
+            mEventQueue.push(PSTNEvent::CallStatusUpdated);
+            mEventQueue.push(PSTNEvent::CallInfoUpdated);
+        }
+    }
 }
 
 void SIMDriver::onRepoStateChanged(common::Repository::State state)
