@@ -7,9 +7,10 @@
 #include <utility>
 #include <common/BaseServiceImpl.h>
 #include "WeatherServiceDeploy.h"
-#include <WeatherDriver.h>
+#include <weather/WeatherProvider.h>
 
 namespace service {
+
 class WeatherServiceImpl : public common::BaseServiceImpl
 {
 public:
@@ -21,10 +22,14 @@ public:
     void finialize() override;
     void registerClient(const std::string& clientName);
 
+    void onWeatherDataChanged(const std::list<std::pair<std::string, driver::WeatherInfo*>>& dataList);
+
 private:
     WeatherServiceDeploy* mDeploy {nullptr};
     driver::WeatherDriver* mDriver {nullptr};
+    base::shm::WeatherProvider* mProvider {nullptr};
 };
+
 }
 
 #endif //WEATHERSERVICEIMPL_H

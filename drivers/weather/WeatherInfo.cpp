@@ -1,10 +1,8 @@
-#include "WeatherServer.h"
+#include "WeatherInfo.h"
 #include <string.h>
 #include <curl/curl.h>
-#include <datamanager/Repository.h>
 
-namespace driver
-{
+namespace driver {
 
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
     size_t totalSize = size * nmemb;
@@ -14,8 +12,9 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
 
 WeatherInfo::WeatherInfo(const std::string &name, const double &lat, const double &log, const u_int8_t &des)
 {
-    mLocationInfo = { .nameLocation = name,
-                      .latitude = lat,
+    mData.identityName = name;
+    mData.locationInfo = { .nameLocation = name,
+                           .latitude = lat,
                       .longitude = log,
                       .defaultDes = des
                     };
@@ -38,7 +37,7 @@ void WeatherInfo::fetchData(const std::string &key)
         return;
     }
 
-    std::string url = "https://api.openweathermap.org/data/2.5/weather?lat=" + std::to_string(mLocationInfo.latitude) + "&lon="+ std::to_string(mLocationInfo.longitude) +"&appid=" + key + "&units=metric";
+    std::string url = "https://api.openweathermap.org/data/2.5/weather?lat=" + std::to_string(mData.locationInfo.latitude) + "&lon="+ std::to_string(mData.locationInfo.longitude) +"&appid=" + key + "&units=metric";
     std::string response;
 
     CURL* curl;
@@ -65,38 +64,24 @@ void WeatherInfo::fetchData(const std::string &key)
     }
 
     mRawData = response;
+
+    this->parseData();
 }
 
-LocationInfo WeatherInfo::getDestination() const
+service::LocationCoordinate WeatherInfo::getDestination() const
 {
-    return mLocationInfo;
+    return mData.locationInfo;
 }
 
-// ==========================================================
-
-WeatherServer::WeatherServer(const std::string &key)
-    : mKeyAPI(key)
+void WeatherInfo::parseData()
 {
+    json j;
 
+    j = json::parse(mRawData);
+
+    mData.currentTemp = j["main"]["temp"];
+    mData.maxTemp = j["main"]["temp_max"];
+    mData.minTemp = j["main"]["temp_min"];
 }
-
-WeatherServer::~WeatherServer()
-{
-
-}
-
-void WeatherServer::syncData()
-{
-
-}
-
-void WeatherServer::addDestination(WeatherInfo *des)
-{
-    if (des == nullptr) {
-        LOG_INFO("THAIVD --- Destination is null");
-    }
-    mLocations.push_back(des);
-}
-
 
 }

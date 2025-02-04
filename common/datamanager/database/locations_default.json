@@ -1,15 +1,21 @@
 {
     "destinations": [
         {
-            "location": "nghean",
+            "location": "Nghe An",
             "latitude": 19.274220,
             "longitude": 104.840622,
             "default": 1
         },
         {
-            "location": "danang",
+            "location": "Da Nang",
             "latitude": 16.054407,
             "longitude": 108.202164,
+            "default": 0
+        },
+        {
+            "location": "Quang Tri",
+            "latitude": 16.753870,
+            "longitude": 107.186722,
             "default": 0
         }
     ]
