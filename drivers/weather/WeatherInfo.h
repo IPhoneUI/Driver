@@ -20,7 +20,7 @@ public:
         return mRawData;
     }
     std::string getNameLocation() const {
-        return mData.mLocationName;
+        return mData.identityName;
     }
 
     void setWeatherData(const std::string& location, const double& currentTmp, const double& maxTemp, const double& minTemp);

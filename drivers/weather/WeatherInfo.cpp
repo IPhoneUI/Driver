@@ -12,8 +12,8 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
 
 WeatherInfo::WeatherInfo(const std::string &name, const double &lat, const double &log, const u_int8_t &des)
 {
-    mData.mLocationName = name;
-    mData.mLocationInfo = { .nameLocation = name,
+    mData.identityName = name;
+    mData.locationInfo = { .nameLocation = name,
                            .latitude = lat,
                       .longitude = log,
                       .defaultDes = des
@@ -37,7 +37,7 @@ void WeatherInfo::fetchData(const std::string &key)
         return;
     }
 
-    std::string url = "https://api.openweathermap.org/data/2.5/weather?lat=" + std::to_string(mData.mLocationInfo.latitude) + "&lon="+ std::to_string(mData.mLocationInfo.longitude) +"&appid=" + key + "&units=metric";
+    std::string url = "https://api.openweathermap.org/data/2.5/weather?lat=" + std::to_string(mData.locationInfo.latitude) + "&lon="+ std::to_string(mData.locationInfo.longitude) +"&appid=" + key + "&units=metric";
     std::string response;
 
     CURL* curl;
@@ -70,7 +70,7 @@ void WeatherInfo::fetchData(const std::string &key)
 
 service::LocationCoordinate WeatherInfo::getDestination() const
 {
-    return mData.mLocationInfo;
+    return mData.locationInfo;
 }
 
 void WeatherInfo::parseData()
@@ -79,9 +79,9 @@ void WeatherInfo::parseData()
 
     j = json::parse(mRawData);
 
-    mData.mCurrentTemp = j["main"]["temp"];
-    mData.mMaxTemp = j["main"]["temp_max"];
-    mData.mMinTemp = j["main"]["temp_min"];
+    mData.currentTemp = j["main"]["temp"];
+    mData.maxTemp = j["main"]["temp_max"];
+    mData.minTemp = j["main"]["temp_min"];
 }
 
 }
